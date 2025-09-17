@@ -29,6 +29,23 @@ body {
   text-align: center;
 }
 
+@media (min-width: 1024px) {
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #000;
+    transition: all 0.3s ease;
+  }
+
+  .site-header.shrink {
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  
+}
+
 .logo-placeholder {
   width: 150px;
   height: 50px;
@@ -127,9 +144,20 @@ nav {
 }
 
 @keyframes scroll-wheel {
-  0% { opacity: 0; top: 10px; }
-  50% { opacity: 1; top: 20px; }
-  100% { opacity: 0; top: 10px; }
+  0% {
+    opacity: 0;
+    top: 10px;
+  }
+
+  50% {
+    opacity: 1;
+    top: 20px;
+  }
+
+  100% {
+    opacity: 0;
+    top: 10px;
+  }
 }
 
 /* PROJETOS */
@@ -215,7 +243,8 @@ nav {
   margin-bottom: 60px;
 }
 
-.about-column, .contact-column {
+.about-column,
+.contact-column {
   flex: 1;
   padding: 60px;
   display: flex;
@@ -251,7 +280,8 @@ nav {
 }
 
 /* BOTÕES DE CONTATO */
-.btn-whatsapp, .btn-insta {
+.btn-whatsapp,
+.btn-insta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -275,11 +305,13 @@ nav {
   background: linear-gradient(45deg, #feda75, #d62976, #962fbf, #4f5bd5);
 }
 
-.btn-whatsapp i, .btn-insta i {
+.btn-whatsapp i,
+.btn-insta i {
   margin-right: 8px;
 }
 
-.btn-whatsapp:hover, .btn-insta:hover {
+.btn-whatsapp:hover,
+.btn-insta:hover {
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
@@ -299,13 +331,13 @@ nav {
 
 /* ----- Media query para até 580px ----- */
 @media (max-width: 580px) {
-  
-  #imagem{
-margin-left: 95px;
+
+  #imagem {
+    margin-left: 95px;
   }
 
   nav {
-    
+
     gap: 8px;
     padding-top: 40px;
     margin-left: 15px;
@@ -330,7 +362,8 @@ margin-left: 95px;
     flex-direction: column;
   }
 
-  .about-column, .contact-column {
+  .about-column,
+  .contact-column {
     padding: 30px 20px;
   }
 
