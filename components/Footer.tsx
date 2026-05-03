@@ -6,143 +6,188 @@ import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
 export default function Footer() {
   return (
     <footer className="footer">
-      <div className="container">
-        <div className="footer__inner">
-          <div className="footer__brand">
+      {/* Footer content */}
+      <div className="footer__content">
+        <div className="footer__row">
+          <div className="footer__col footer__col--brand">
             <img src="/images/logo.png" alt="TriumTech" className="footer__logo" />
             <p className="footer__tagline">
-              Criação de sites profissionais que transformam negócios.
+              Criamos experiências digitais que elevam marcas ao próximo nível.
             </p>
           </div>
 
-          <div className="footer__links">
-            <h4>Navegação</h4>
-            <Link href="/">Home</Link>
-            <Link href="/sobre">Sobre</Link>
-            <Link href="/contato">Contato</Link>
-          </div>
+          <nav className="footer__col footer__col--nav">
+            <Link href="/" className="footer__nav-link">Home</Link>
+            <Link href="/sobre" className="footer__nav-link">Sobre</Link>
+            <Link href="/contato" className="footer__nav-link">Contato</Link>
+          </nav>
 
-          <div className="footer__social">
-            <h4>Redes</h4>
-            <div className="footer__social-links">
-              <a
-                href="https://wa.me/5585981254006"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="WhatsApp"
-              >
-                <FaWhatsapp size={20} />
-              </a>
-              <a
-                href="https://www.instagram.com/triumtech_/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-              >
-                <FaInstagram size={20} />
-              </a>
-            </div>
+          <div className="footer__col footer__col--social">
+            <a
+              href="https://wa.me/5585981254006"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer__social-btn"
+              aria-label="WhatsApp"
+            >
+              <FaWhatsapp size={16} />
+            </a>
+            <a
+              href="https://www.instagram.com/triumtech_/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="footer__social-btn"
+              aria-label="Instagram"
+            >
+              <FaInstagram size={16} />
+            </a>
           </div>
         </div>
 
-        <div className="footer__bottom">
-          <p>© {new Date().getFullYear()} TriumTech. Todos os direitos reservados.</p>
+        <div className="footer__bottom-row">
+          <p className="footer__copy">
+            © {new Date().getFullYear()} TriumTech
+          </p>
         </div>
       </div>
 
       <style jsx global>{`
         .footer {
-          border-top: 1px solid var(--color-border);
-          padding: 60px 0 30px;
-          margin-top: 40px;
+          position: relative;
+          margin-top: 0;
+          overflow: hidden;
         }
 
-        .footer__inner {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1fr;
+
+
+        /* ---- Content area ---- */
+        .footer__content {
+          padding: 48px clamp(24px, 5vw, 80px) 32px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+
+        .footer__row {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
           gap: 40px;
-          margin-bottom: 40px;
+          margin-bottom: 48px;
+        }
+
+        .footer__col--brand {
+          flex: 1;
+          max-width: 320px;
         }
 
         .footer__logo {
-          height: 28px;
+          height: 26px;
           width: auto;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
+          opacity: 0.8;
         }
 
         .footer__tagline {
           color: var(--color-text-secondary);
-          font-size: 0.9rem;
-          max-width: 300px;
-        }
-
-        .footer__links h4,
-        .footer__social h4 {
-          font-family: var(--font-heading);
           font-size: 0.85rem;
-          font-weight: 600;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: var(--color-text-secondary);
-          margin-bottom: 16px;
+          line-height: 1.6;
+          opacity: 0.7;
         }
 
-        .footer__links a {
-          display: block;
-          color: var(--color-text-body);
-          font-size: 0.9rem;
-          padding: 4px 0;
-          transition: color var(--transition-fast);
-        }
-
-        .footer__links a:hover {
-          color: var(--color-primary);
-        }
-
-        .footer__social-links {
+        /* Nav links as a horizontal row */
+        .footer__col--nav {
           display: flex;
-          gap: 12px;
+          align-items: center;
+          gap: 6px;
+          padding-top: 4px;
         }
 
-        .footer__social-links a {
+        .footer__nav-link {
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: var(--color-text-secondary);
+          padding: 8px 18px;
+          border-radius: var(--radius-full);
+          border: 1px solid transparent;
+          transition: all var(--transition-base);
+          letter-spacing: 0.02em;
+        }
+
+        .footer__nav-link:hover {
+          color: var(--color-text);
+          border-color: var(--color-border);
+          background: var(--color-glass);
+        }
+
+        /* Social icons */
+        .footer__col--social {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-top: 4px;
+        }
+
+        .footer__social-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 40px;
-          height: 40px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           border: 1px solid var(--color-border);
           color: var(--color-text-secondary);
           transition: all var(--transition-base);
         }
 
-        .footer__social-links a:hover {
+        .footer__social-btn:hover {
           border-color: var(--color-primary);
           color: var(--color-primary);
+          box-shadow: 0 0 16px var(--color-primary-glow);
           transform: translateY(-2px);
         }
 
-        .footer__bottom {
-          padding-top: 24px;
+        /* ---- Bottom row ---- */
+        .footer__bottom-row {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding-top: 20px;
           border-top: 1px solid var(--color-border);
-          text-align: center;
         }
 
-        .footer__bottom p {
-          font-size: 0.8rem;
+        .footer__copy {
+          font-size: 0.72rem;
           color: var(--color-text-secondary);
+          opacity: 0.5;
+          letter-spacing: 0.04em;
         }
 
+        /* ---- Responsive ---- */
         @media (max-width: 768px) {
-          .footer__inner {
-            grid-template-columns: 1fr;
+          .footer__row {
+            flex-direction: column;
+            align-items: center;
             text-align: center;
+            gap: 28px;
           }
-          .footer__tagline {
-            margin: 0 auto;
+
+          .footer__col--brand {
+            max-width: 260px;
           }
-          .footer__social-links {
+
+          .footer__col--nav {
+            flex-wrap: wrap;
             justify-content: center;
+          }
+
+          .footer__col--social {
+            justify-content: center;
+          }
+
+          .footer__bottom-row {
+            flex-direction: column;
+            gap: 8px;
+            text-align: center;
           }
         }
       `}</style>

@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import CustomCursor from '@/components/CustomCursor';
 import SmoothScroll from '@/components/SmoothScroll';
+import BackgroundLights from '@/components/BackgroundLights';
 
 export const metadata: Metadata = {
   title: 'TriumTech — Criação de Sites Profissionais',
@@ -31,6 +32,7 @@ export default function RootLayout({
         <SmoothScroll>
           <CustomCursor />
           <div className="noise-overlay" />
+          <BackgroundLights />
           <Navbar />
           <main>{children}</main>
           <Footer />

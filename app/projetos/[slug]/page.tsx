@@ -50,45 +50,24 @@ function ShowcaseReveal({
   );
 }
 
-/* ---- Showcase Layout (unified — no more A/B/C variants) ---- */
+/* ---- Showcase Layout (Dynamic Grid) ---- */
 function ShowcaseLayout({ project }: { project: typeof projects[0] }) {
   return (
     <div className="showcase-grid">
-      {/* Row 1: Desktop full width */}
-      <ShowcaseReveal className="showcase-grid__desktop" label="Desktop" delay={0}>
-        <img
-          src={project.images.desktop[0]}
-          alt={`${project.title} — Desktop`}
-          loading="lazy"
-        />
-      </ShowcaseReveal>
-
-      {/* Row 2: Two mobile columns */}
-      <div className="showcase-grid__mobiles">
-        <ShowcaseReveal className="showcase-grid__mobile" label="Mobile" delay={0.12}>
+      {project.images.gallery.map((img, idx) => (
+        <ShowcaseReveal
+          key={idx}
+          className={`showcase-grid__item showcase-grid__item--${img.format}`}
+          label={img.format === 'desktop' ? 'Desktop' : 'Mobile'}
+          delay={idx * 0.12}
+        >
           <img
-            src={project.images.mobile[0]}
-            alt={`${project.title} — Mobile`}
+            src={img.url}
+            alt={`${project.title} — ${img.format === 'desktop' ? 'Desktop' : 'Mobile'}`}
             loading="lazy"
           />
         </ShowcaseReveal>
-        <ShowcaseReveal className="showcase-grid__mobile" label="Mobile" delay={0.24}>
-          <img
-            src={project.images.mobile[1]}
-            alt={`${project.title} — Mobile`}
-            loading="lazy"
-          />
-        </ShowcaseReveal>
-      </div>
-
-      {/* Row 3: Desktop full width */}
-      <ShowcaseReveal className="showcase-grid__desktop" label="Desktop" delay={0.1}>
-        <img
-          src={project.images.desktop[1]}
-          alt={`${project.title} — Desktop`}
-          loading="lazy"
-        />
-      </ShowcaseReveal>
+      ))}
     </div>
   );
 }
@@ -119,7 +98,7 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Link href="/projetos" className="pj-hero__back">
+            <Link href="/#projetos" className="pj-hero__back">
               <FaArrowLeft size={11} />
               Projetos
             </Link>
@@ -228,7 +207,7 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
           position: relative;
           z-index: 1;
           padding: 0 clamp(24px, 5vw, 100px);
-          max-width: 800px;
+          max-width: 1000px;
           margin: 0 auto;
           display: flex;
           flex-direction: column;
@@ -261,7 +240,7 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
           font-size: clamp(0.95rem, 1.3vw, 1.1rem);
           line-height: 1.8;
           color: var(--color-text-secondary);
-          max-width: 560px;
+          max-width: 760px;
           margin-bottom: 32px;
         }
 
@@ -310,25 +289,27 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
 
         /* ---- Showcase Grid ---- */
         .showcase-grid {
-          display: flex;
-          flex-direction: column;
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
           gap: clamp(16px, 2vw, 24px);
+          grid-auto-flow: dense;
         }
 
-        /* Mobiles row */
-        .showcase-grid__mobiles {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: clamp(16px, 2vw, 24px);
+        .showcase-grid__item--desktop {
+          grid-column: span 2;
+        }
+
+        .showcase-grid__item--mobile {
+          grid-column: span 1;
         }
 
         /* Desktop image container */
-        .showcase-grid__desktop .showcase-item__wrap {
+        .showcase-grid__item--desktop .showcase-item__wrap {
           aspect-ratio: 16 / 9;
         }
 
         /* Mobile image container — slightly shorter than true 9:16 */
-        .showcase-grid__mobile .showcase-item__wrap {
+        .showcase-grid__item--mobile .showcase-item__wrap {
           aspect-ratio: 9 / 13;
         }
 
@@ -457,7 +438,7 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
             margin-bottom: 32px;
           }
 
-          .showcase-grid__mobiles {
+          .showcase-grid {
             gap: 12px;
           }
 
