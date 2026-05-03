@@ -97,8 +97,8 @@ export default function Hero() {
         .hero {
           position: relative;
           width: 100%;
-          height: 100vh;
-          height: 100dvh;
+          min-height: 100vh;
+          min-height: 100svh;
           display: flex;
           align-items: center;
           justify-content: center;
