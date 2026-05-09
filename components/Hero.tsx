@@ -39,7 +39,6 @@ export default function Hero() {
         <div className="hero__gradient-orb hero__gradient-orb--1" />
         <div className="hero__gradient-orb hero__gradient-orb--2" />
         <div className="hero__gradient-orb hero__gradient-orb--3" />
-        <div className="hero__grid-lines" />
       </div>
 
       <motion.div
@@ -166,25 +165,6 @@ export default function Hero() {
         @keyframes float-orb-2 {
           0%, 100% { transform: translate(0, 0) scale(1); }
           50% { transform: translate(40px, -30px) scale(1.15); }
-        }
-
-        .hero__grid-lines {
-          position: absolute;
-          inset: 0;
-          background-image:
-            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-          background-size: 80px 80px;
-          background-attachment: fixed;
-          mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-          -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
-        }
-
-        @media (hover: none), (pointer: coarse), (max-width: 768px) {
-          .hero__grid-lines {
-            background-attachment: scroll;
-            background-size: 48px 48px;
-          }
         }
 
         .hero__content {

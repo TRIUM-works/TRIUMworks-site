@@ -98,7 +98,7 @@ function ProjectCard({ project }: { project: typeof projects[0] }) {
 
 export default function ProjectShowcase() {
   return (
-    <section className="projects-section grid-bg" id="projetos">
+    <section className="projects-section" id="projetos">
       <div className="projects-section__list">
         {projects.map((project) => (
           <ProjectCard key={project.slug} project={project} />

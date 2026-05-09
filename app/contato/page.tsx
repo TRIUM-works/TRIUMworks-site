@@ -6,7 +6,7 @@ import { FaWhatsapp, FaInstagram, FaArrowRight, FaMapMarkerAlt, FaClock } from '
 
 export default function ContatoPage() {
   return (
-    <div className="contato-page grid-bg">
+    <div className="contato-page">
       {/* Hero */}
       <section className="ct-hero">
         <div className="ct-hero__bg">

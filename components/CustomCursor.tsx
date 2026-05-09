@@ -52,7 +52,10 @@ export default function CustomCursor() {
         setIsHovering(false);
         return;
       }
-      if (isInteractive(target)) setIsHovering(true);
+      if (isInteractive(target)) {
+        setIsHovering(true);
+        setIsProject(true);
+      }
     };
 
     const handleMouseOut = (e: MouseEvent) => {
@@ -61,7 +64,10 @@ export default function CustomCursor() {
         setIsProject(false);
         return;
       }
-      if (isInteractive(target)) setIsHovering(false);
+      if (isInteractive(target)) {
+        setIsHovering(false);
+        setIsProject(false);
+      }
     };
 
     const handleMouseLeave = () => setIsVisible(false);

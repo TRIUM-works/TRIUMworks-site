@@ -82,16 +82,9 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
   const nextProject = currentIndex < projects.length - 1 ? projects[currentIndex + 1] : null;
 
   return (
-    <div className="projeto-page grid-bg">
+    <div className="projeto-page">
       {/* ===== Hero — Centered header ===== */}
       <section className="pj-hero">
-        <div
-          className="pj-hero__glow"
-          style={{
-            background: `radial-gradient(ellipse 50% 40% at 50% 30%, ${project.color}14 0%, transparent 70%)`,
-          }}
-        />
-
         <div className="pj-hero__content">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -195,12 +188,6 @@ export default function ProjetoPage({ params }: { params: Promise<{ slug: string
           overflow: hidden;
           padding: 80px 0 60px;
           text-align: center;
-        }
-
-        .pj-hero__glow {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
         }
 
         .pj-hero__content {
