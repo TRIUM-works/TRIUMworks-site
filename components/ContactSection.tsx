@@ -3,6 +3,8 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
+import { getWhatsAppUrl, getInstagramUrl } from '@/data/contact';
+
 
 export default function ContactSection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -23,8 +25,8 @@ export default function ContactSection() {
             <span className="gradient-text"> próximo nível?</span>
           </h2>
           <p className="cta-section__desc">
-            Entre em contato e vamos transformar sua ideia em uma
-            experiência digital incrível.
+            Entre em contato e vamos transformar sua ideia em uma experiência
+            digital incrível para sua empresa em Volta Redonda ou região.
           </p>
         </motion.div>
 
@@ -35,7 +37,7 @@ export default function ContactSection() {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <a
-            href="https://wa.me/5585981254006"
+            href={getWhatsAppUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="cta-icons__link cta-icons__link--whatsapp"
@@ -48,7 +50,7 @@ export default function ContactSection() {
           <span className="cta-icons__divider" />
 
           <a
-            href="https://www.instagram.com/triumtech_/"
+            href={getInstagramUrl()}
             target="_blank"
             rel="noopener noreferrer"
             className="cta-icons__link cta-icons__link--instagram"

@@ -2,6 +2,8 @@
 
 import Link from 'next/link';
 import { FaWhatsapp, FaInstagram } from 'react-icons/fa';
+import { getWhatsAppUrl, getInstagramUrl } from '@/data/contact';
+
 
 export default function Footer() {
   return (
@@ -12,7 +14,8 @@ export default function Footer() {
           <div className="footer__col footer__col--brand">
             <img src="/images/logo.png" alt="TriumTech" className="footer__logo" />
             <p className="footer__tagline">
-              Criamos experiências digitais que elevam marcas ao próximo nível.
+              Criação de sites em Volta Redonda, RJ. Elevamos marcas ao próximo nível
+              com experiências digitais sob medida.
             </p>
           </div>
 
@@ -24,7 +27,7 @@ export default function Footer() {
 
           <div className="footer__col footer__col--social">
             <a
-              href="https://wa.me/5585981254006"
+              href={getWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="footer__social-btn"
@@ -33,7 +36,7 @@ export default function Footer() {
               <FaWhatsapp size={16} />
             </a>
             <a
-              href="https://www.instagram.com/triumtech_/"
+              href={getInstagramUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="footer__social-btn"
@@ -46,7 +49,7 @@ export default function Footer() {
 
         <div className="footer__bottom-row">
           <p className="footer__copy">
-            © {new Date().getFullYear()} TriumTech
+            © {new Date().getFullYear()} TriumTech — Volta Redonda, RJ · Médio Paraíba
           </p>
         </div>
       </div>

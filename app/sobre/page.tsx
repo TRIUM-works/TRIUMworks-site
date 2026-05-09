@@ -10,13 +10,15 @@ const founders = [
     initial: 'G',
     name: 'Guilherme',
     role: 'Co-fundador',
-    bio: 'Cuida do design e da estratégia visual de cada projeto.',
+    bio: '',
+    image: '/images/Guilherme.jpeg', // Adicione o caminho aqui, ex: '/images/Guilherme.jpg'
   },
   {
     initial: 'L',
     name: 'Lucas',
     role: 'Co-fundador',
-    bio: 'Cuida do código e da performance que sustentam o resultado.',
+    bio: '',
+    image: '/images/Lucas.jpeg', // Adicione o caminho aqui, ex: '/images/Lucas.jpg'
   },
 ];
 
@@ -29,12 +31,12 @@ const beliefs = [
   {
     n: '02',
     title: 'Performance é parte do design.',
-    text: 'Um site bonito que demora a carregar é um site que perde cliente. Velocidade não é detalhe técnico — é experiência.',
+    text: 'Um site bonito que demora a carregar é um site que perde cliente. Velocidade não é detalhe técnico, é experiência.',
   },
   {
     n: '03',
-    title: 'A gente atende a ligação.',
-    text: 'Não somos uma agência grande, e isso é uma vantagem. Você fala direto com quem está construindo seu projeto.',
+    title: 'Próximos de você.',
+    text: 'Escolhemos crescer de forma próxima, não distante. Desenvolvemos projetos com atendimento direto, acompanhamento real e foco total no que o seu negócio precisa.',
   },
 ];
 
@@ -67,8 +69,9 @@ export default function SobrePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
           >
-            A TriumTech é um estúdio criativo focado em criar sites modernos, rápidos e
-            estratégicos. Sem burocracia, sem excesso de camadas e sem atendimento
+            A TriumTech é um estúdio criativo de Volta Redonda, RJ, focado em criar
+            sites modernos, rápidos e estratégicos para empresas de
+            todo o Brasil. Sem burocracia, sem excesso de camadas e sem atendimento
             distante.
           </motion.p>
           <motion.p
@@ -91,7 +94,11 @@ export default function SobrePage() {
             <ScrollReveal key={f.name} delay={i * 0.1} direction={i % 2 === 0 ? 'left' : 'right'}>
               <article className="sb-founder">
                 <div className="sb-founder__avatar" aria-hidden>
-                  {f.initial}
+                  {f.image ? (
+                    <img src={f.image} alt={f.name} className="sb-founder__img" />
+                  ) : (
+                    f.initial
+                  )}
                 </div>
                 <div className="sb-founder__text">
                   <h3>{f.name}</h3>
@@ -234,6 +241,12 @@ export default function SobrePage() {
           font-weight: 500;
           font-size: 1.25rem;
           letter-spacing: 0.02em;
+          overflow: hidden;
+        }
+        .sb-founder__img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
         }
         .sb-founder__text h3 {
           font-size: 1.25rem;

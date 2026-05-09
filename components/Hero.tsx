@@ -71,7 +71,7 @@ export default function Hero() {
           transition={{ delay: 0.55, duration: 0.5 }}
         >
           Sites profissionais com performance excepcional e design que conquista clientes.
-          Transformamos ideias em experiências digitais impactantes.
+          Transformamos ideias em experiências digitais para o seu negócio.
         </motion.p>
 
         <motion.div

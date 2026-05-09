@@ -7,17 +7,18 @@ import SmoothScroll from '@/components/SmoothScroll';
 import BackgroundLights from '@/components/BackgroundLights';
 
 export const metadata: Metadata = {
-  title: 'TriumTech — Criação de Sites Profissionais',
+  title: 'TriumTech — Criação de Sites em Volta Redonda, RJ',
   description:
-    'Design minimalista e performance excepcional. Criamos sites profissionais que transformam negócios e conquistam clientes.',
+    'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas do Médio Paraíba e Sul Fluminense.',
   icons: {
     icon: '/images/favicon.png',
   },
   openGraph: {
-    title: 'TriumTech — Criação de Sites Profissionais',
+    title: 'TriumTech — Criação de Sites em Volta Redonda, RJ',
     description:
-      'Design minimalista e performance excepcional. Criamos sites profissionais que transformam negócios.',
+      'Criação e desenvolvimento de sites em Volta Redonda, RJ. Sites profissionais para empresas do Médio Paraíba e de todo o Brasil.',
     type: 'website',
+    locale: 'pt_BR',
   },
 };
 

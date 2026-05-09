@@ -3,6 +3,8 @@
 import { motion } from 'framer-motion';
 import ScrollReveal from '@/components/ScrollReveal';
 import { FaWhatsapp, FaInstagram, FaArrowRight, FaMapMarkerAlt, FaClock } from 'react-icons/fa';
+import { getWhatsAppUrl, getInstagramUrl } from '@/data/contact';
+
 
 export default function ContatoPage() {
   return (
@@ -33,8 +35,9 @@ export default function ContatoPage() {
             transition={{ duration: 0.7, delay: 0.4 }}
           >
             <p>
-              Estamos prontos para transformar sua ideia em realidade.
-              Escolha o canal que preferir e vamos conversar sobre seu projeto.
+              Estamos em Volta Redonda, RJ, prontos para transformar sua ideia em
+              realidade. Escolha o canal que preferir e vamos conversar sobre seu
+              projeto.
             </p>
           </motion.div>
         </div>
@@ -47,7 +50,7 @@ export default function ContatoPage() {
             {/* WhatsApp */}
             <ScrollReveal direction="left" className="ct-card-wrapper">
               <a
-                href="https://wa.me/5585981254006"
+                href={getWhatsAppUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ct-card ct-card--whatsapp"
@@ -68,7 +71,7 @@ export default function ContatoPage() {
             {/* Instagram */}
             <ScrollReveal direction="right" delay={0.1} className="ct-card-wrapper">
               <a
-                href="https://www.instagram.com/triumtech_/"
+                href={getInstagramUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="ct-card ct-card--instagram"
@@ -106,7 +109,7 @@ export default function ContatoPage() {
                 <FaMapMarkerAlt size={18} className="ct-info__icon" />
                 <div>
                   <strong>Localização</strong>
-                  <p>Atendemos todo o Brasil remotamente</p>
+                  <p>Volta Redonda, RJ — atendemos o Médio Paraíba e todo o Brasil</p>
                 </div>
               </div>
             </div>
