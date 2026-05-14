@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.triumworks.com.br'),
   title: 'TRIUM',
   description:
-    'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas de Volta Redonda e de todo o Brasil.',
+    'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas de Volta Redonda e de todo o Brasil',
   alternates: {
     canonical: '/',
   },
