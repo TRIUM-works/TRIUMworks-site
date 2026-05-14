@@ -4,7 +4,7 @@ import ContatoContent from './ContatoContent';
 export const metadata: Metadata = {
   title: 'Contato — Fale com a TRIUM em Volta Redonda, RJ',
   description:
-    'Entre em contato com a TRIUM via WhatsApp ou Instagram. Atendimento direto com os fundadores em Volta Redonda, RJ — atendemos o Médio Paraíba e todo o Brasil.',
+    'Entre em contato com a TRIUM via WhatsApp ou Instagram. Atendimento direto com os fundadores em Volta Redonda, RJ — atendemos Volta Redonda e todo o Brasil.',
   alternates: { canonical: '/contato' },
   openGraph: {
     title: 'Contato — TRIUM, Volta Redonda, RJ',

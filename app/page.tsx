@@ -10,7 +10,7 @@ const jsonLd = {
   '@id': `${SITE_URL}/#business`,
   name: 'TRIUM',
   description:
-    'Estúdio criativo de Volta Redonda, RJ. Criação de sites profissionais, rápidos e estratégicos para empresas do Médio Paraíba e de todo o Brasil.',
+    'Estúdio criativo de Volta Redonda, RJ. Criação de sites profissionais, rápidos e estratégicos para empresas de Volta Redonda e de todo o Brasil.',
   url: SITE_URL,
   image: `${SITE_URL}/logo/logo.png`,
   logo: `${SITE_URL}/logo/logo.png`,
@@ -24,7 +24,6 @@ const jsonLd = {
   },
   areaServed: [
     { '@type': 'City', name: 'Volta Redonda' },
-    { '@type': 'AdministrativeArea', name: 'Médio Paraíba' },
     { '@type': 'Country', name: 'Brasil' },
   ],
   sameAs: ['https://www.instagram.com/triumtech_/'],

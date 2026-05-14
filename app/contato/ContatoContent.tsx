@@ -104,7 +104,7 @@ export default function ContatoContent() {
                 <FaMapMarkerAlt size={18} className="ct-info__icon" />
                 <div>
                   <strong>Localização</strong>
-                  <p>Volta Redonda, RJ — atendemos o Médio Paraíba e todo o Brasil</p>
+                  <p>Volta Redonda, RJ — atendemos Volta Redonda e todo o Brasil</p>
                 </div>
               </div>
             </div>
