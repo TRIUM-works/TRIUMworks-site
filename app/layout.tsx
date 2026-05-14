@@ -7,9 +7,13 @@ import SmoothScroll from '@/components/SmoothScroll';
 import BackgroundLights from '@/components/BackgroundLights';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.triumworks.com.br'),
   title: 'TriumTech — Criação de Sites em Volta Redonda, RJ',
   description:
     'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas do Médio Paraíba e Sul Fluminense.',
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: '/images/favicon.png',
   },
@@ -19,6 +23,8 @@ export const metadata: Metadata = {
       'Criação e desenvolvimento de sites em Volta Redonda, RJ. Sites profissionais para empresas do Médio Paraíba e de todo o Brasil.',
     type: 'website',
     locale: 'pt_BR',
+    url: 'https://www.triumworks.com.br',
+    siteName: 'TriumTech',
   },
 };
 
