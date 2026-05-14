@@ -9,11 +9,9 @@ export default function CustomCursor() {
   const [isProject, setIsProject] = useState(false);
   const [isTouchDevice, setIsTouchDevice] = useState(false);
 
-  // Less delay: higher stiffness + damping
   const cursorX = useSpring(0, { damping: 50, stiffness: 800, mass: 0.1 });
   const cursorY = useSpring(0, { damping: 50, stiffness: 800, mass: 0.1 });
 
-  // Spotlight follows with slightly more lag for organic feel
   const glowX = useSpring(0, { damping: 30, stiffness: 200, mass: 0.5 });
   const glowY = useSpring(0, { damping: 30, stiffness: 200, mass: 0.5 });
 
@@ -92,7 +90,6 @@ export default function CustomCursor() {
 
   return (
     <>
-      {/* Small dot cursor */}
       <motion.div
         className={`custom-cursor${isProject ? ' custom-cursor--project' : ''}`}
         style={{
@@ -106,7 +103,6 @@ export default function CustomCursor() {
         transition={{ scale: { duration: 0.25, ease: [0.22, 1, 0.36, 1] } }}
       />
 
-      {/* Outer ring */}
       <motion.div
         className={`custom-cursor-ring${isProject ? ' custom-cursor-ring--project' : ''}`}
         style={{
@@ -121,7 +117,6 @@ export default function CustomCursor() {
         transition={{ scale: { duration: 0.3 }, opacity: { duration: 0.2 } }}
       />
 
-      {/* Large spotlight glow — hero gets data-cursor-glow="strong" */}
       <motion.div
         className="custom-cursor-glow"
         style={{
@@ -130,65 +125,6 @@ export default function CustomCursor() {
           opacity: isVisible && !isProject ? 1 : 0,
         }}
       />
-
-      <style jsx global>{`
-        .custom-cursor {
-          position: fixed;
-          top: -5px;
-          left: -5px;
-          width: 10px;
-          height: 10px;
-          background: var(--color-primary);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: var(--z-cursor);
-          transition: background-color 0.25s ease, mix-blend-mode 0s;
-        }
-
-        /* Negative-color effect over project cards */
-        .custom-cursor--project {
-          background: #ffffff;
-          mix-blend-mode: difference;
-        }
-
-        .custom-cursor-ring {
-          position: fixed;
-          top: -18px;
-          left: -18px;
-          width: 36px;
-          height: 36px;
-          border: 1.5px solid var(--color-primary);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: var(--z-cursor);
-        }
-
-        .custom-cursor-ring--project {
-          border-color: #ffffff;
-          mix-blend-mode: difference;
-        }
-
-        .custom-cursor-glow {
-          position: fixed;
-          top: -250px;
-          left: -250px;
-          width: 500px;
-          height: 500px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(1, 205, 174, 0.07) 0%, rgba(1, 205, 174, 0.02) 40%, transparent 70%);
-          pointer-events: none;
-          z-index: 1;
-          will-change: transform;
-        }
-
-        @media (pointer: coarse), (hover: none) {
-          .custom-cursor,
-          .custom-cursor-ring,
-          .custom-cursor-glow {
-            display: none;
-          }
-        }
-      `}</style>
     </>
   );
 }

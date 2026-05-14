@@ -34,7 +34,6 @@ export default function Hero() {
 
   return (
     <section ref={ref} className="hero" id="hero">
-      {/* Animated background */}
       <div className="hero__bg">
         <div className="hero__gradient-orb hero__gradient-orb--1" />
         <div className="hero__gradient-orb hero__gradient-orb--2" />
@@ -90,7 +89,6 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll indicator */}
       <motion.div
         className="hero__scroll-indicator"
         initial={{ opacity: 0 }}
@@ -103,187 +101,6 @@ export default function Hero() {
           <div className="hero__mouse-wheel" />
         </div>
       </motion.div>
-
-      <style jsx global>{`
-        .hero {
-          position: relative;
-          width: 100%;
-          min-height: 100vh;
-          min-height: 100svh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-        }
-
-        .hero__bg {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-        }
-
-        .hero__gradient-orb {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(120px);
-          opacity: 0.5;
-        }
-
-        .hero__gradient-orb--1 {
-          width: 700px;
-          height: 700px;
-          background: radial-gradient(circle, rgba(1, 205, 174, 0.12) 0%, transparent 70%);
-          top: -250px;
-          right: -150px;
-          animation: float-orb-1 12s ease-in-out infinite;
-        }
-
-        .hero__gradient-orb--2 {
-          width: 500px;
-          height: 500px;
-          background: radial-gradient(circle, rgba(1, 205, 174, 0.06) 0%, transparent 70%);
-          bottom: -150px;
-          left: -150px;
-          animation: float-orb-2 15s ease-in-out infinite;
-        }
-
-        .hero__gradient-orb--3 {
-          width: 400px;
-          height: 400px;
-          background: radial-gradient(circle, rgba(0, 229, 195, 0.05) 0%, transparent 70%);
-          top: 40%;
-          left: 30%;
-          animation: float-orb-1 18s ease-in-out infinite reverse;
-        }
-
-        @keyframes float-orb-1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-30px, 30px) scale(1.1); }
-          66% { transform: translate(20px, -20px) scale(0.95); }
-        }
-
-        @keyframes float-orb-2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(40px, -30px) scale(1.15); }
-        }
-
-        .hero__content {
-          position: relative;
-          z-index: 2;
-          text-align: center;
-          padding: 0 40px;
-          max-width: 1100px;
-          width: 100%;
-        }
-
-        .hero__badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 20px;
-          border-radius: var(--radius-full);
-          border: 1px solid var(--color-border);
-          font-size: 0.85rem;
-          color: var(--color-text-secondary);
-          margin-bottom: 36px;
-          background: var(--color-glass);
-        }
-
-        .hero__badge-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--color-primary);
-          box-shadow: 0 0 8px var(--color-primary);
-          animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-          0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--color-primary); }
-          50% { opacity: 0.6; box-shadow: 0 0 16px var(--color-primary); }
-        }
-
-        .hero__title {
-          margin-bottom: 28px;
-          line-height: 1.05;
-          font-size: clamp(3rem, 7vw, 5.5rem);
-        }
-
-        .hero__subtitle {
-          font-size: clamp(1rem, 1.5vw, 1.25rem);
-          color: var(--color-text-secondary);
-          margin-bottom: 48px;
-          line-height: 1.7;
-          max-width: 700px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .hero__actions {
-          display: flex;
-          gap: 16px;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        /* Scroll indicator */
-        .hero__scroll-indicator {
-          position: absolute;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
-          cursor: none;
-          z-index: 2;
-        }
-
-        .hero__mouse {
-          width: 26px;
-          height: 42px;
-          border: 2px solid rgba(1, 205, 174, 0.4);
-          border-radius: 14px;
-          position: relative;
-          display: flex;
-          justify-content: center;
-        }
-
-        .hero__mouse-wheel {
-          width: 3px;
-          height: 8px;
-          background: var(--color-primary);
-          border-radius: 3px;
-          margin-top: 8px;
-          animation: scroll-wheel 2s ease-in-out infinite;
-        }
-
-        @keyframes scroll-wheel {
-          0% { opacity: 0; transform: translateY(0); }
-          30% { opacity: 1; }
-          60% { opacity: 1; }
-          100% { opacity: 0; transform: translateY(12px); }
-        }
-
-        @media (max-width: 768px) {
-          .hero__content {
-            padding: 0 20px;
-          }
-          .hero__gradient-orb {
-            filter: blur(40px);
-            animation: none;
-            opacity: 0.35;
-          }
-          .hero__gradient-orb--1 { width: 280px; height: 280px; }
-          .hero__gradient-orb--2 { width: 200px; height: 200px; }
-          .hero__gradient-orb--3 { display: none; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-          .hero__gradient-orb,
-          .hero__badge-dot,
-          .hero__mouse-wheel {
-            animation: none !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }

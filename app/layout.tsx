@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Inter, Space_Grotesk } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -6,9 +7,23 @@ import CustomCursor from '@/components/CustomCursor';
 import SmoothScroll from '@/components/SmoothScroll';
 import BackgroundLights from '@/components/BackgroundLights';
 
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.triumworks.com.br'),
-  title: 'TriumTech — Criação de Sites em Volta Redonda, RJ',
+  title: 'TRIUM — Criação de Sites em Volta Redonda, RJ',
   description:
     'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas do Médio Paraíba e Sul Fluminense.',
   alternates: {
@@ -18,13 +33,13 @@ export const metadata: Metadata = {
     icon: '/images/favicon.png',
   },
   openGraph: {
-    title: 'TriumTech — Criação de Sites em Volta Redonda, RJ',
+    title: 'TRIUM — Criação de Sites em Volta Redonda, RJ',
     description:
       'Criação e desenvolvimento de sites em Volta Redonda, RJ. Sites profissionais para empresas do Médio Paraíba e de todo o Brasil.',
     type: 'website',
     locale: 'pt_BR',
     url: 'https://www.triumworks.com.br',
-    siteName: 'TriumTech',
+    siteName: 'TRIUM',
   },
 };
 
@@ -34,7 +49,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable}`}>
       <body>
         <SmoothScroll>
           <CustomCursor />

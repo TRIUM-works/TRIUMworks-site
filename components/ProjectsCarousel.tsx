@@ -24,11 +24,9 @@ export default function ProjectsCarousel() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  // Hide footer when this page is mounted
   useEffect(() => {
     const footer = document.querySelector('footer');
     if (footer) (footer as HTMLElement).style.display = 'none';
-    // Also prevent body scroll so wheel doesn't leak
     document.body.style.overflow = 'hidden';
     return () => {
       if (footer) (footer as HTMLElement).style.display = '';
@@ -49,7 +47,6 @@ export default function ProjectsCarousel() {
   const goNext = useCallback(() => goTo(activeIndex + 1), [activeIndex, goTo]);
   const goPrev = useCallback(() => goTo(activeIndex - 1), [activeIndex, goTo]);
 
-  // Keyboard navigation
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowDown') goNext();
@@ -59,7 +56,6 @@ export default function ProjectsCarousel() {
     return () => window.removeEventListener('keydown', handler);
   }, [goNext, goPrev]);
 
-  // Scroll/wheel to navigate (throttled) — on the whole window
   useEffect(() => {
     const handler = (e: WheelEvent) => {
       e.preventDefault();
@@ -73,7 +69,6 @@ export default function ProjectsCarousel() {
     return () => window.removeEventListener('wheel', handler);
   }, [goNext, goPrev]);
 
-  // Drag end handler — one project per swipe
   const handleDragEnd = (_: unknown, info: { offset: { x: number }; velocity: { x: number } }) => {
     const threshold = 50;
     const vThreshold = 300;
@@ -86,7 +81,6 @@ export default function ProjectsCarousel() {
     }
   };
 
-  // Card positions and styles — circular (infinite) with shortest-path diff
   const getCardStyle = (index: number) => {
     const len = projects.length;
     let diff = index - activeIndex;
@@ -108,7 +102,6 @@ export default function ProjectsCarousel() {
     const side = diff > 0 ? 1 : -1;
     const absDiff = Math.abs(diff);
 
-    // Hide cards beyond 2 positions on either side
     if (absDiff > 2) {
       return {
         x: side * (isMobile ? 180 : 360),
@@ -121,7 +114,6 @@ export default function ProjectsCarousel() {
       };
     }
 
-    // Tighter visible window: 2 cards each side, fading to 0 at the edge
     const baseOffset = isMobile ? 90 : 165;
     const stepOffset = isMobile ? 55 : 110;
 
@@ -141,8 +133,6 @@ export default function ProjectsCarousel() {
 
   return (
     <section className="pc-page" ref={containerRef}>
-
-      {/* Cards Stack */}
       <motion.div
         className="pc-page__cards"
         drag="x"
@@ -200,7 +190,6 @@ export default function ProjectsCarousel() {
         })}
       </motion.div>
 
-      {/* Project info — title + buttons only */}
       <AnimatePresence mode="wait">
         <motion.div
           key={`info-${activeIndex}`}
@@ -227,7 +216,6 @@ export default function ProjectsCarousel() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Dot navigation */}
       <div className="pc-page__dots">
         {projects.map((_, i) => (
           <button
@@ -239,7 +227,6 @@ export default function ProjectsCarousel() {
         ))}
       </div>
 
-      {/* Hint text */}
       <motion.div
         className="pc-page__hint"
         initial={{ opacity: 0 }}
@@ -259,7 +246,6 @@ export default function ProjectsCarousel() {
         <span>Deslize para ver mais</span>
       </motion.div>
 
-      {/* Nav arrows (desktop) */}
       {!isMobile && (
         <>
           <button
@@ -282,307 +268,6 @@ export default function ProjectsCarousel() {
           </button>
         </>
       )}
-
-      <style jsx global>{`
-        /* ============================================
-           PROJECTS CAROUSEL PAGE
-           ============================================ */
-        .pc-page {
-          position: relative;
-          width: 100%;
-          height: 100vh;
-          height: 100svh;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          background: transparent;
-          user-select: none;
-          touch-action: pan-y;
-        }
-
-        .pc-page__glow {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          top: 0;
-          left: 0;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        /* ---- Cards container ---- */
-        .pc-page__cards {
-          position: relative;
-          width: 100%;
-          height: clamp(220px, 38vh, 380px);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 2;
-          cursor: grab;
-          touch-action: none;
-        }
-
-        .pc-page__cards:active {
-          cursor: grabbing;
-        }
-
-        /* ---- Individual card ---- */
-        .pc-card {
-          position: absolute;
-          width: clamp(180px, 28vw, 370px);
-          aspect-ratio: 4 / 5;
-          border-radius: clamp(14px, 1.8vw, 20px);
-          overflow: hidden;
-          will-change: transform, opacity;
-          pointer-events: none;
-        }
-
-        .pc-card--active {
-          pointer-events: auto;
-        }
-
-        .pc-card__img-wrap {
-          width: 100%;
-          height: 100%;
-          position: relative;
-          border-radius: inherit;
-          overflow: hidden;
-          box-shadow:
-            0 20px 50px rgba(0, 0, 0, 0.5),
-            0 0 0 1px rgba(255, 255, 255, 0.06),
-            inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-        }
-
-        .pc-card__img {
-          width: 100%;
-          height: 100%;
-          background-size: cover;
-          background-position: top center;
-          transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-
-        .pc-card--active:hover .pc-card__img {
-          transform: scale(1.05);
-        }
-
-        .pc-card__shine {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            145deg,
-            rgba(255, 255, 255, 0.08) 0%,
-            transparent 40%,
-            transparent 60%,
-            rgba(255, 255, 255, 0.02) 100%
-          );
-          pointer-events: none;
-        }
-
-        .pc-card__edge {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 3px;
-          z-index: 3;
-          opacity: 0;
-          transition: opacity 0.4s ease;
-        }
-
-        .pc-card--active .pc-card__edge {
-          opacity: 1;
-        }
-
-        /* ---- Project info ---- */
-        .pc-page__info {
-          position: relative;
-          z-index: 3;
-          text-align: center;
-          margin-top: clamp(52px, 8vh, 84px);
-          padding: 0 24px;
-        }
-
-        .pc-page__title {
-          font-family: var(--font-heading);
-          font-size: clamp(1.2rem, 2vw, 1.8rem);
-          font-weight: 600;
-          letter-spacing: -0.02em;
-          color: var(--color-text);
-          margin-bottom: 16px;
-        }
-
-        .pc-page__actions {
-          display: flex;
-          gap: 12px;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-
-        .pc-page__btn {
-          font-size: 0.85rem;
-          padding: 12px 24px;
-        }
-
-        /* ---- Dots ---- */
-        .pc-page__dots {
-          position: absolute;
-          bottom: clamp(60px, 9vh, 90px);
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 8px;
-          z-index: 5;
-        }
-
-        .pc-page__dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          border: 1.5px solid rgba(255, 255, 255, 0.2);
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          padding: 0;
-        }
-
-        .pc-page__dot--active {
-          background: var(--color-primary);
-          border-color: var(--color-primary);
-          box-shadow: 0 0 10px rgba(1, 205, 174, 0.4);
-          width: 24px;
-          border-radius: 10px;
-        }
-
-        .pc-page__dot:hover:not(.pc-page__dot--active) {
-          border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        /* ---- Hint text ---- */
-        .pc-page__hint {
-          position: absolute;
-          bottom: clamp(20px, 4vh, 40px);
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          z-index: 5;
-          color: var(--color-text-secondary);
-          font-size: 0.8rem;
-          font-family: var(--font-body);
-          letter-spacing: 0.06em;
-          opacity: 0.6;
-          white-space: nowrap;
-        }
-
-        .pc-page__hint-icon {
-          display: flex;
-          align-items: center;
-          color: var(--color-primary);
-          opacity: 0.7;
-        }
-
-        /* ---- Navigation arrows ---- */
-        .pc-page__arrow {
-          position: absolute;
-          top: 50%;
-          transform: translateY(-50%);
-          z-index: 10;
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: rgba(10, 10, 10, 0.6);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          color: var(--color-text);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .pc-page__arrow--left {
-          left: clamp(16px, 3vw, 48px);
-        }
-
-        .pc-page__arrow--right {
-          right: clamp(16px, 3vw, 48px);
-        }
-
-        .pc-page__arrow:hover {
-          border-color: var(--color-primary);
-          color: var(--color-primary);
-          box-shadow: 0 0 20px rgba(1, 205, 174, 0.15);
-          transform: translateY(-50%) scale(1.08);
-        }
-
-        /* ---- Responsive ---- */
-        @media (max-width: 768px) {
-          .pc-page__cards {
-            height: clamp(160px, 30vh, 240px);
-          }
-
-          .pc-card {
-            width: clamp(140px, 48vw, 240px);
-          }
-
-          .pc-page__info {
-            margin-top: 16px;
-          }
-
-          .pc-page__title {
-            font-size: 1.4rem;
-          }
-
-          .pc-page__actions {
-            gap: 8px;
-          }
-
-          .pc-page__btn {
-            font-size: 0.78rem;
-            padding: 10px 18px;
-          }
-
-          .pc-page__dots {
-            bottom: 50px;
-          }
-
-          .pc-page__hint {
-            bottom: 16px;
-            font-size: 0.72rem;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .pc-card {
-            width: clamp(130px, 52vw, 220px);
-          }
-        }
-
-        /* ---- Reduced motion ---- */
-        @media (prefers-reduced-motion: reduce) {
-          .pc-card,
-          .pc-page__info,
-          .pc-page__glow {
-            transition: none !important;
-          }
-        }
-
-        /* Mobile cursor fix */
-        @media (pointer: coarse), (hover: none) {
-          .pc-page__arrow,
-          .pc-page__dot,
-          .pc-page__btn,
-          .pc-page__cards {
-            cursor: auto;
-          }
-        }
-      `}</style>
     </section>
   );
 }
