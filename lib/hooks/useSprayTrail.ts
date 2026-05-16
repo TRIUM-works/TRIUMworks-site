@@ -44,8 +44,23 @@ export function useSprayTrail(
   } = options;
 
   const pointsRef = useRef<Point[]>([]);
+  // Em touch devices, o efeito não tem sentido (não há trilha de mouse) e
+  // recalcular mask-image em cada frame é caríssimo no GPU mobile.
+  const isCoarseRef = useRef(false);
 
   useEffect(() => {
+    isCoarseRef.current =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(pointer: coarse)').matches;
+  }, []);
+
+  useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(pointer: coarse)').matches
+    ) {
+      return;
+    }
     let raf = 0;
     const tick = () => {
       // envelhece e descarta
@@ -86,6 +101,7 @@ export function useSprayTrail(
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
+      if (isCoarseRef.current) return;
       const rect = targetRef.current?.getBoundingClientRect();
       if (!rect) return;
       const x = e.clientX - rect.left;

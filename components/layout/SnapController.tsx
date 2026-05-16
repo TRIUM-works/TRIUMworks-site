@@ -34,8 +34,6 @@ export function useSnap() {
 }
 
 const SCROLL_DURATION = 1.2;
-const WHEEL_THRESHOLD = 18;
-const TOUCH_THRESHOLD = 50;
 
 export function SnapController({ children }: { children: React.ReactNode }) {
   const lenis = useContext(LenisContext);
@@ -45,7 +43,6 @@ export function SnapController({ children }: { children: React.ReactNode }) {
   const [count, setCount] = useState(0);
 
   const animatingRef = useRef(false);
-  const lastDirRef = useRef(0);
   const sectionsRef = useRef<HTMLElement[]>([]);
 
   const refreshSections = useCallback(() => {
@@ -132,86 +129,6 @@ export function SnapController({ children }: { children: React.ReactNode }) {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
-
-  // Wheel-driven snap — só intercepta para sair do Hero (index 0) descendo
-  useEffect(() => {
-    if (reduced) return;
-    let wheelAccum = 0;
-    let wheelTimer: ReturnType<typeof setTimeout> | null = null;
-    const onWheel = (e: WheelEvent) => {
-      if (animatingRef.current) {
-        e.preventDefault();
-        return;
-      }
-      // Permitir scroll natural se elemento marcado com data-allow-scroll
-      const t = e.target as HTMLElement | null;
-      if (t?.closest('[data-allow-scroll]')) return;
-
-      if (current !== 0 || e.deltaY <= 0) return;
-
-      wheelAccum += e.deltaY;
-      if (wheelAccum > WHEEL_THRESHOLD) {
-        wheelAccum = 0;
-        lastDirRef.current = 1;
-        goToIndex(1);
-        e.preventDefault();
-      }
-      if (wheelTimer) clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(() => {
-        wheelAccum = 0;
-      }, 220);
-    };
-    window.addEventListener('wheel', onWheel, { passive: false });
-    return () => {
-      window.removeEventListener('wheel', onWheel);
-      if (wheelTimer) clearTimeout(wheelTimer);
-    };
-  }, [current, goToIndex, reduced]);
-
-  // Touch swipe — mesma restrição (só Hero → Projetos)
-  useEffect(() => {
-    if (reduced) return;
-    let startY = 0;
-    let active = false;
-
-    const onStart = (e: TouchEvent) => {
-      if (e.touches.length !== 1) return;
-      if (current !== 0) return;
-      const t = e.target as HTMLElement | null;
-      if (t?.closest('[data-allow-scroll]')) return;
-      active = true;
-      startY = e.touches[0].clientY;
-    };
-    const onEnd = (e: TouchEvent) => {
-      if (!active) return;
-      const endY = e.changedTouches[0].clientY;
-      const dy = startY - endY;
-      if (dy > TOUCH_THRESHOLD && !animatingRef.current && current === 0) {
-        goToIndex(1);
-      }
-      active = false;
-    };
-    window.addEventListener('touchstart', onStart, { passive: true });
-    window.addEventListener('touchend', onEnd, { passive: true });
-    return () => {
-      window.removeEventListener('touchstart', onStart);
-      window.removeEventListener('touchend', onEnd);
-    };
-  }, [current, goToIndex, reduced]);
-
-  // Keyboard — apenas Hero → Projetos via PageDown/ArrowDown intercepta;
-  // demais teclas seguem o comportamento natural do navegador/Lenis.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (animatingRef.current) return;
-      if (current === 0 && ['PageDown', 'ArrowDown'].includes(e.key)) {
-        e.preventDefault();
-        goToIndex(1);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [current, goToIndex]);
 
   return (
     <SnapContext.Provider value={{ current, count, goToIndex, goToId, next, prev }}>
