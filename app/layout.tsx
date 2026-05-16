@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Space_Grotesk } from 'next/font/google';
+import { Lora, IBM_Plex_Mono, Caesar_Dressing } from 'next/font/google';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -7,17 +7,25 @@ import CustomCursor from '@/components/CustomCursor';
 import SmoothScroll from '@/components/SmoothScroll';
 import BackgroundLights from '@/components/BackgroundLights';
 
-const inter = Inter({
+const lora = Lora({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
-  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+  style: ['normal', 'italic'],
+  variable: '--font-serif',
   display: 'swap',
 });
 
-const spaceGrotesk = Space_Grotesk({
+const ibmPlexMono = IBM_Plex_Mono({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
-  variable: '--font-space-grotesk',
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-mono',
+  display: 'swap',
+});
+
+const caesarDressing = Caesar_Dressing({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-display',
   display: 'swap',
 });
 
@@ -25,7 +33,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://www.triumworks.com.br'),
   title: 'TRIUM',
   description:
-    'Agência de criação de sites em Volta Redonda, RJ. Desenvolvemos sites profissionais, rápidos e estratégicos para empresas de Volta Redonda e de todo o Brasil',
+    'Estúdio de tecnologia e programação em Volta Redonda, RJ. Soluções digitais feitas à mão, pensadas para durar.',
   alternates: {
     canonical: '/',
   },
@@ -33,9 +41,9 @@ export const metadata: Metadata = {
     icon: '/images/favicon.png',
   },
   openGraph: {
-    title: 'TRIUM',
+    title: 'TRIUM — Estúdio de Tecnologia & Programação',
     description:
-      'Criação e desenvolvimento de sites em Volta Redonda, RJ. Sites profissionais para empresas de Volta Redonda e de todo o Brasil.',
+      'Soluções digitais feitas à mão. Pensadas para durar. Volta Redonda, RJ.',
     type: 'website',
     locale: 'pt_BR',
     url: 'https://www.triumworks.com.br',
@@ -49,12 +57,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${spaceGrotesk.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${lora.variable} ${ibmPlexMono.variable} ${caesarDressing.variable}`}
+    >
       <body>
         <SmoothScroll>
           <CustomCursor />
-          <div className="noise-overlay" />
           <BackgroundLights />
+          <div className="paper-grain" aria-hidden="true" />
           <Navbar />
           <main>{children}</main>
           <Footer />

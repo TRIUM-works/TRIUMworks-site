@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc *)",
-      "PowerShell(npx tsc --noEmit 2>&1 | Select-Object -First 80)"
+      "PowerShell(npx tsc --noEmit 2>&1 | Select-Object -First 80)",
+      "Bash(cp \"D:/Projeos_TriumTech/Portfolio/trium/logos/Untitled Project - RichText.png\" \"D:/Projeos_TriumTech/Portfolio/public/logo/trium-wordmark.png\")",
+      "Bash(cp \"D:/Projeos_TriumTech/Portfolio/trium/logos/Untitled Project - New Group.png\" \"D:/Projeos_TriumTech/Portfolio/public/logo/trium-badge-teal.png\")",
+      "Bash(cp \"D:/Projeos_TriumTech/Portfolio/trium/logos/Untitled Project - New Group \\(1\\).png\" \"D:/Projeos_TriumTech/Portfolio/public/logo/trium-badge-dark.png\")",
+      "Bash(echo \"EXIT:$?\")"
     ]
   }
 }

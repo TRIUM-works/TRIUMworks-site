@@ -95,6 +95,21 @@ function ProjectCard({ project }: { project: typeof projects[0] }) {
 export default function ProjectShowcase() {
   return (
     <section className="projects-section" id="projetos">
+      <div className="projects-section__header">
+        <div>
+          <span className="section-label" style={{ marginBottom: 18, display: 'inline-flex' }}>
+            Trabalhos <span className="section-label__num">/ 02</span>
+          </span>
+          <h2 className="projects-section__heading">
+            Projetos <em>recentes</em>
+          </h2>
+        </div>
+        <p className="projects-section__intro">
+          Cada projeto é um exercício de cuidado — tela, código e conversa
+          alinhados para construir algo que dure.
+        </p>
+      </div>
+
       <div className="projects-section__list">
         {projects.map((project) => (
           <ProjectCard key={project.slug} project={project} />

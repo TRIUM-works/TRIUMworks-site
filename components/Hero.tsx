@@ -24,7 +24,7 @@ export default function Hero() {
 
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.96]);
   const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
 
   const scrollDown = () => {
@@ -34,40 +34,45 @@ export default function Hero() {
 
   return (
     <section ref={ref} className="hero" id="hero">
-      <div className="hero__bg">
-        <div className="hero__gradient-orb hero__gradient-orb--1" />
-        <div className="hero__gradient-orb hero__gradient-orb--2" />
-        <div className="hero__gradient-orb hero__gradient-orb--3" />
-      </div>
+      <div className="hero__bg" />
+
+      <motion.img
+        src="/logo/trium-badge-teal.png"
+        alt=""
+        aria-hidden="true"
+        className="hero__badge-mark"
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 0.85, scale: 1 }}
+        transition={{ delay: 0.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
+      />
 
       <motion.div
         className="hero__content"
         style={isMobile ? undefined : { y, opacity, scale }}
       >
-        <motion.div
-          className="hero__badge"
-          initial={{ opacity: 0, y: 20 }}
+        <motion.span
+          className="section-label hero__label"
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ delay: 0.15, duration: 0.6 }}
         >
-          <span className="hero__badge-dot" />
-          Criamos experiências digitais
-        </motion.div>
+          Início <span className="section-label__num">/ 01</span>
+        </motion.span>
 
         <motion.h1
           className="hero__title"
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35, duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ delay: 0.3, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           Design que <span className="gradient-text">transforma</span> negócios
         </motion.h1>
 
         <motion.p
           className="hero__subtitle"
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55, duration: 0.5 }}
+          transition={{ delay: 0.5, duration: 0.6 }}
         >
           Sites profissionais com performance excepcional e design que conquista clientes.
           Transformamos ideias em experiências digitais para o seu negócio.
@@ -75,13 +80,17 @@ export default function Hero() {
 
         <motion.div
           className="hero__actions"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.75, duration: 0.5 }}
+          transition={{ delay: 0.7, duration: 0.5 }}
         >
-          <a href="#projetos" className="btn-primary" onClick={(e) => { e.preventDefault(); scrollDown(); }}>
+          <a
+            href="#projetos"
+            className="btn-primary"
+            onClick={(e) => { e.preventDefault(); scrollDown(); }}
+          >
             Ver projetos
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M4 6L8 10L12 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </a>
@@ -89,18 +98,21 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
-      <motion.div
+      <motion.button
+        type="button"
         className="hero__scroll-indicator"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         style={isMobile ? undefined : { opacity: scrollIndicatorOpacity }}
-        transition={{ delay: 1.2, duration: 0.6 }}
+        transition={{ delay: 1.1, duration: 0.6 }}
         onClick={scrollDown}
+        aria-label="Rolar para projetos"
       >
+        <span>Role para ver</span>
         <div className="hero__mouse">
           <div className="hero__mouse-wheel" />
         </div>
-      </motion.div>
+      </motion.button>
     </section>
   );
 }

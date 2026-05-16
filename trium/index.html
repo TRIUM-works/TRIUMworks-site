@@ -1,0 +1,1801 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>TRIUM — Tecnologia &amp; Programação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500;600&family=Caesar+Dressing&family=Bigelow+Rules&family=Smokum&display=swap" rel="stylesheet">
+<style>
+  /* Trickster — if the .woff2 is dropped into assets/fonts/, it takes over.
+     Otherwise we gracefully fall back to a hand-drawn display Google Font. */
+  @font-face {
+    font-family: 'Trickster';
+    src: url('assets/fonts/Trickster.woff2') format('woff2'),
+         url('assets/fonts/Trickster-master.woff2') format('woff2');
+    font-display: swap;
+    font-weight: 400;
+  }
+</style>
+<style>
+/* ─────────────────────────────────────────────
+   TRIUM · Design tokens
+   ───────────────────────────────────────────── */
+:root{
+  /* Paleta */
+  --bg:        #111418;
+  --bg-2:      #161a1f;     /* card surface */
+  --bg-3:      #1c2128;     /* lifted surface */
+  --teal:      #09C2A7;
+  --teal-soft: #0c8d7b;
+  --blue:      #0D3B66;
+  --paper:     #E7E2D6;
+  --paper-dim: #c7c3b9;
+  --stone:     #7A857F;
+  --hairline:  rgba(231,226,214,.10);
+  --hairline-2:rgba(231,226,214,.18);
+
+  /* Type */
+  --serif:    'Lora', Georgia, serif;
+  --mono:     'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --display:  'Trickster', 'Caesar Dressing', 'Bigelow Rules', 'Lora', Georgia, serif;
+  --hand:     'Trickster', 'Caesar Dressing', 'Smokum', cursive;
+
+  --maxw: 1280px;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--paper);}
+body{
+  font-family:var(--mono);
+  font-size:15px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* Paper-grain noise + blue chalky mist · global background layers */
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none; z-index:0;
+  background:
+    radial-gradient(900px 700px at 92% -8%, rgba(13,59,102,.92), rgba(13,59,102,.0) 55%),
+    radial-gradient(650px 500px at 86% 4%, rgba(13,59,102,.65), rgba(13,59,102,0) 60%),
+    radial-gradient(420px 320px at 96% 12%, rgba(43,90,140,.45), rgba(13,59,102,0) 70%),
+    radial-gradient(1200px 800px at 50% 110%, rgba(9,194,167,.05), transparent 60%);
+  mix-blend-mode:screen;
+}
+/* Chalk grain on the mist: a second layer with stronger noise where the blue lives */
+body::after{
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none; z-index:1;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='420' height='420'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.91  0 0 0 0 0.89  0 0 0 0 0.84  0 0 0 0.28 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='600'><filter id='c'><feTurbulence type='fractalNoise' baseFrequency='0.018' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.05  0 0 0 0 0.23  0 0 0 0 0.4  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23c)'/></svg>");
+  background-size: 320px 320px, 100% 100%;
+  background-position: 0 0, 100% -10%;
+  background-repeat: repeat, no-repeat;
+  opacity:.32;
+  mix-blend-mode:overlay;
+}
+/* Extra paint-grain ribbon along the top-right corner only — chalk-on-paper feel */
+main::before{
+  content:"";
+  position:fixed; right:-10%; top:-10%;
+  width:65vw; height:65vh; max-width:1100px;
+  pointer-events:none; z-index:2;
+  background:
+    radial-gradient(closest-side, rgba(34,84,140,.55), rgba(13,59,102,0) 70%);
+  filter: url(#chalk-grain);
+  mix-blend-mode:screen;
+  opacity:.7;
+}
+main, header, footer { position:relative; z-index:2; }
+
+/* ─────────────────────────────────────────────
+   Type system
+   ───────────────────────────────────────────── */
+.h-display{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:clamp(46px, 6.6vw, 96px);
+  line-height:1.02;
+  letter-spacing:-0.015em;
+  color:var(--paper);
+  margin:0;
+}
+.h-title{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:clamp(28px, 3.2vw, 44px);
+  line-height:1.1;
+  letter-spacing:-0.01em;
+  margin:0;
+}
+.h-card{
+  font-family:var(--serif);
+  font-weight:500;
+  font-size:28px;
+  line-height:1.15;
+  letter-spacing:-0.005em;
+  margin:0;
+}
+.lead{
+  font-family:var(--serif);
+  font-weight:400;
+  font-style:italic;
+  font-size:clamp(18px, 1.5vw, 22px);
+  line-height:1.55;
+  color:var(--paper-dim);
+  max-width:46ch;
+}
+.mono{ font-family:var(--mono); }
+.label{
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:500;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--teal);
+}
+.label--paper{ color:var(--paper); opacity:.55 }
+.muted{ color:var(--stone); }
+.italic{ font-style:italic; }
+
+/* ─────────────────────────────────────────────
+   Layout helpers
+   ───────────────────────────────────────────── */
+.wrap{ max-width:var(--maxw); margin:0 auto; padding:0 32px; }
+.hr{ height:1px; background:var(--hairline); border:0; }
+.col-2{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:64px; }
+.col-3{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; }
+
+/* Section label · two-part: dot + caps + brush mark */
+.section-label{
+  display:flex; align-items:center; gap:14px;
+  font-family:var(--mono);
+  font-size:12px; font-weight:500;
+  letter-spacing:0.24em;
+  text-transform:uppercase;
+  color:var(--teal);
+}
+.section-label::before{
+  content:""; width:6px; height:6px; background:var(--teal);
+  transform:rotate(45deg);
+  box-shadow:0 0 0 1px rgba(9,194,167,.35);
+}
+.section-label .num{
+  color:var(--stone); margin-left:6px; letter-spacing:.18em;
+}
+
+/* ─────────────────────────────────────────────
+   Hand-drawn brush primitives (feTurbulence-distorted)
+   ───────────────────────────────────────────── */
+.brush-defs{ position:absolute; width:0; height:0; overflow:hidden; }
+
+.brush-underline{
+  display:block; width:180px; height:18px;
+}
+.brush-underline path{
+  fill:none; stroke:var(--teal); stroke-width:3.2;
+  stroke-linecap:round;
+  filter:url(#brush-rough);
+}
+.brush-divider{
+  display:block; width:100%; height:14px;
+}
+.brush-divider path{
+  fill:none; stroke:var(--teal); stroke-width:1.8;
+  stroke-linecap:round; opacity:.75;
+  filter:url(#brush-rough);
+}
+
+.glyph{ display:inline-block; vertical-align:middle; }
+.glyph path, .glyph polygon{ filter:url(#brush-paint); }
+
+/* ─────────────────────────────────────────────
+   Header / Nav
+   ───────────────────────────────────────────── */
+.site-header{
+  position:sticky; top:0; z-index:50;
+  backdrop-filter: blur(10px) saturate(1.1);
+  background: linear-gradient(180deg, rgba(17,20,24,.78), rgba(17,20,24,.55));
+  border-bottom:1px solid var(--hairline);
+}
+.site-header .wrap{
+  display:flex; align-items:center; justify-content:space-between;
+  height:78px;
+}
+.brand{
+  display:flex; align-items:center; gap:14px;
+  text-decoration:none; color:var(--teal);
+}
+.brand img{
+  display:block; height:34px; width:auto;
+}
+.brand--lg img{ height:52px; }
+nav.primary{
+  display:flex; align-items:center; gap:36px;
+}
+nav.primary a{
+  font-family:var(--mono); font-size:13px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--paper); text-decoration:none;
+  opacity:.78; transition:opacity .2s, color .2s;
+  position:relative; padding:6px 2px;
+}
+nav.primary a:hover{ opacity:1; color:var(--teal); }
+nav.primary a.is-active{ color:var(--teal); opacity:1; }
+nav.primary a.is-active::after{
+  content:""; position:absolute; left:0; right:0; bottom:-2px; height:6px;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 6'><path d='M2 4 Q 14 1.4 30 3.4 T 58 3' fill='none' stroke='%2309C2A7' stroke-width='1.6' stroke-linecap='round'/></svg>") center/100% 100% no-repeat;
+}
+.nav-cta{
+  font-family:var(--mono); font-size:12px;
+  letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--bg); background:var(--teal);
+  padding:11px 18px;
+  text-decoration:none;
+  display:inline-flex; align-items:center; gap:10px;
+  border:1px solid var(--teal);
+  transition:filter .2s, transform .2s;
+}
+.nav-cta:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+
+/* ─────────────────────────────────────────────
+   Hero
+   ───────────────────────────────────────────── */
+.hero{
+  padding:96px 0 72px;
+  position:relative;
+}
+.hero .wrap{ position:relative; }
+.hero-grid{
+  display:grid;
+  grid-template-columns: 1.45fr 1fr;
+  gap:80px;
+  align-items:start;
+}
+.hero-eyebrow{
+  display:flex; align-items:center; gap:14px;
+  margin-bottom:34px;
+}
+.hero h1 .accent{
+  color:var(--teal);
+  font-style:italic;
+  position:relative;
+  white-space:nowrap;
+}
+.hero h1 .accent::after{
+  content:""; position:absolute; left:-2%; right:-2%; bottom:-6px; height:14px;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 14'><path d='M4 9 Q 60 2 150 7 T 296 6' fill='none' stroke='%2309C2A7' stroke-width='3' stroke-linecap='round'/></svg>") center/100% 100% no-repeat;
+  opacity:.85;
+}
+.hero p.lead{ margin-top:28px; }
+
+.hero-meta{
+  margin-top:42px;
+  display:flex; align-items:center; gap:26px;
+  font-family:var(--mono); font-size:12px;
+  letter-spacing:0.16em; text-transform:uppercase;
+  color:var(--stone);
+}
+.hero-meta .dot{
+  width:8px; height:8px; border-radius:50%; background:var(--teal);
+  box-shadow:0 0 0 4px rgba(9,194,167,.14);
+}
+.hero-actions{
+  margin-top:42px;
+  display:flex; gap:18px; flex-wrap:wrap;
+}
+.btn{
+  font-family:var(--mono); font-size:13px;
+  letter-spacing:0.14em; text-transform:uppercase;
+  padding:14px 22px;
+  text-decoration:none; color:var(--paper);
+  display:inline-flex; align-items:center; gap:12px;
+  border:1px solid var(--hairline-2);
+  background:transparent;
+  transition:background .2s, color .2s, border-color .2s;
+}
+.btn .arrow{ transition:transform .25s; }
+.btn:hover{ background:rgba(231,226,214,.04); border-color:var(--paper); }
+.btn:hover .arrow{ transform:translateX(4px); }
+.btn--primary{
+  background:var(--teal); color:var(--bg);
+  border-color:var(--teal);
+}
+.btn--primary:hover{ background:var(--teal); filter:brightness(1.08); border-color:var(--teal); }
+.btn--ghost{ color:var(--paper); }
+
+/* Hero side card */
+.hero-side{
+  position:relative;
+  border:1px solid var(--hairline-2);
+  background:linear-gradient(180deg, rgba(13,59,102,.18), rgba(13,59,102,.04));
+  padding:34px 32px 36px;
+}
+.hero-side .corner-star{
+  position:absolute; top:18px; right:18px;
+}
+.hero-side .title{
+  font-family:var(--mono); font-size:12px;
+  letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--teal); margin-bottom:18px;
+}
+.hero-side p{
+  font-family:var(--serif); font-weight:400;
+  font-size:17px; line-height:1.6; color:var(--paper-dim);
+  margin:0 0 18px;
+}
+.hero-side .sig{
+  margin-top:24px;
+  display:flex; align-items:center; gap:14px;
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--stone);
+}
+
+/* Hand-drawn keyboard art — hero accent */
+.hero-art{
+  position:absolute;
+  right:-40px; top:50%; transform:translateY(-50%);
+  width:380px; opacity:.25;
+  pointer-events:none;
+  display:none;
+}
+
+/* ─────────────────────────────────────────────
+   Essência strip (3 pilares)
+   ───────────────────────────────────────────── */
+.essencia{
+  border-top:1px solid var(--hairline);
+  border-bottom:1px solid var(--hairline);
+  padding:34px 0;
+}
+.essencia-grid{
+  display:grid; grid-template-columns:auto repeat(3,1fr);
+  align-items:center; gap:48px;
+}
+.essencia-label{ display:flex; align-items:center; gap:14px; }
+.pilar{
+  display:flex; align-items:center; gap:18px;
+}
+.pilar .gloss{
+  font-family:var(--serif); font-style:italic;
+  font-size:22px; color:var(--paper);
+}
+.pilar .small{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--stone); margin-top:2px; display:block;
+}
+
+/* ─────────────────────────────────────────────
+   Section heading block
+   ───────────────────────────────────────────── */
+.section{
+  padding:120px 0;
+  position:relative;
+}
+.section-head{
+  display:grid;
+  grid-template-columns: minmax(0,1fr) minmax(0,1.2fr);
+  gap:64px;
+  align-items:end;
+  margin-bottom:72px;
+}
+.section-head h2{
+  font-family:var(--serif); font-weight:500;
+  font-size:clamp(38px, 4.4vw, 58px);
+  line-height:1.05;
+  letter-spacing:-0.015em;
+  margin:18px 0 0;
+}
+.section-head .deck{
+  font-family:var(--serif); font-style:italic;
+  font-size:18px; line-height:1.55;
+  color:var(--paper-dim); max-width:42ch;
+  margin:0;
+}
+
+/* ─────────────────────────────────────────────
+   Project cards (Trabalhos em destaque)
+   ───────────────────────────────────────────── */
+.projects{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:40px 36px;
+}
+.project{
+  background:var(--bg-2);
+  border:1px solid var(--hairline);
+  padding:22px 22px 26px;
+  position:relative;
+  transition:transform .3s ease, border-color .3s ease, background .3s ease;
+}
+.project:hover{
+  transform:translateY(-4px);
+  border-color:rgba(9,194,167,.4);
+  background:#181d23;
+}
+.project .cover{
+  aspect-ratio: 16/10;
+  background:#0e1216;
+  border:1px solid var(--hairline);
+  overflow:hidden;
+  position:relative;
+}
+.project .cover svg{ display:block; width:100%; height:100%; }
+.project .cover .badge{
+  position:absolute; top:14px; left:14px;
+  font-family:var(--mono); font-size:10px;
+  letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--paper); opacity:.82;
+  background:rgba(17,20,24,.65);
+  border:1px solid var(--hairline-2);
+  padding:5px 9px;
+  backdrop-filter:blur(6px);
+}
+.project .cover .star{
+  position:absolute; top:14px; right:14px;
+  opacity:0; transform:scale(.85);
+  transition:opacity .3s, transform .3s;
+}
+.project:hover .cover .star{ opacity:.9; transform:scale(1); }
+
+.project-meta{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-top:24px; gap:18px;
+}
+.project-meta .num{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.22em; color:var(--stone);
+}
+.project-meta .year{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.22em; color:var(--stone);
+}
+.project h3{
+  font-family:var(--serif); font-weight:500;
+  font-size:32px; line-height:1.1;
+  margin:10px 0 14px;
+  letter-spacing:-0.005em;
+}
+.project h3 .it{ font-style:italic; color:var(--teal); }
+.project .desc{
+  font-family:var(--serif); font-size:16px; line-height:1.55;
+  color:var(--paper-dim);
+  margin:0 0 22px;
+  max-width:54ch;
+}
+.tags{
+  display:flex; flex-wrap:wrap; gap:8px;
+  margin-bottom:22px;
+}
+.tag{
+  font-family:var(--mono); font-size:10.5px;
+  letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--paper-dim);
+  padding:6px 10px;
+  border:1px solid var(--hairline-2);
+  background:rgba(231,226,214,.02);
+}
+.project-actions{
+  display:flex; gap:10px; align-items:center;
+  padding-top:18px;
+  border-top:1px solid var(--hairline);
+}
+.btn-sm{
+  font-family:var(--mono); font-size:11.5px;
+  letter-spacing:0.16em; text-transform:uppercase;
+  padding:10px 16px;
+  display:inline-flex; align-items:center; gap:9px;
+  text-decoration:none;
+  border:1px solid var(--hairline-2);
+  color:var(--paper);
+  transition:all .2s;
+}
+.btn-sm:hover{ border-color:var(--teal); color:var(--teal); }
+.btn-sm--teal{ background:var(--teal); color:var(--bg); border-color:var(--teal); }
+.btn-sm--teal:hover{ background:var(--teal); color:var(--bg); filter:brightness(1.08); }
+
+/* Featured variant removed — all project cards equal weight */
+
+/* Projects footer · view all */
+.projects-foot{
+  margin-top:56px;
+  display:flex; justify-content:space-between; align-items:center;
+  border-top:1px solid var(--hairline);
+  padding-top:30px;
+}
+.projects-foot .count{
+  font-family:var(--mono); font-size:12px;
+  letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--stone);
+}
+
+/* ─────────────────────────────────────────────
+   Serviços
+   ───────────────────────────────────────────── */
+.services{
+  display:grid; grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:0;
+  border-top:1px solid var(--hairline);
+}
+.service{
+  padding:42px 36px 46px;
+  border-right:1px solid var(--hairline);
+  border-bottom:1px solid var(--hairline);
+  position:relative;
+  background:rgba(231,226,214,.012);
+  transition:background .3s;
+}
+.service:nth-child(3n){ border-right:0; }
+.service:hover{ background:rgba(9,194,167,.04); }
+.service .ix{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.24em; color:var(--stone);
+}
+.service h4{
+  font-family:var(--serif); font-weight:500;
+  font-size:26px; line-height:1.15;
+  margin:18px 0 14px;
+}
+.service p{
+  font-family:var(--serif); font-size:15.5px; line-height:1.55;
+  color:var(--paper-dim); margin:0 0 22px; max-width:34ch;
+}
+.service .stack{
+  display:flex; flex-wrap:wrap; gap:7px;
+}
+.service .stack span{
+  font-family:var(--mono); font-size:10px;
+  letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--stone);
+  padding:4px 8px; border:1px solid var(--hairline);
+}
+.service .glyph{
+  position:absolute; top:36px; right:36px; opacity:.85;
+}
+
+/* ─────────────────────────────────────────────
+   Processo (numbered steps)
+   ───────────────────────────────────────────── */
+.processo{
+  display:grid; grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:0; border-top:1px solid var(--hairline);
+}
+.step{
+  padding:36px 28px 40px;
+  border-right:1px solid var(--hairline);
+  position:relative;
+}
+.step:last-child{ border-right:0; }
+.step .num{
+  font-family:var(--serif); font-style:italic; font-weight:500;
+  font-size:48px; color:var(--teal); line-height:1;
+  filter:url(#brush-paint);
+  display:inline-block;
+}
+.step .name{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--paper); margin-top:18px; display:block;
+}
+.step p{
+  font-family:var(--serif); font-size:15px; line-height:1.55;
+  color:var(--paper-dim); margin:10px 0 0; max-width:30ch;
+}
+.step::after{
+  content:"";
+  position:absolute; left:50%; bottom:-7px;
+  width:14px; height:14px;
+  background:var(--bg);
+  border:1px solid var(--hairline);
+  transform:translateX(-50%) rotate(45deg);
+}
+
+/* ─────────────────────────────────────────────
+   Manifesto · torn paper block
+   ───────────────────────────────────────────── */
+.manifesto-wrap{ position:relative; padding:120px 0; }
+.manifesto{
+  position:relative;
+  background:
+    radial-gradient(60% 80% at 80% 0%, rgba(13,59,102,.35), transparent 60%),
+    linear-gradient(180deg, #14181d, #0f1216);
+  padding:78px 72px 84px;
+  border:1px solid var(--hairline);
+  /* torn-paper edge */
+  clip-path: polygon(
+    0% 2.2%,  2% 0%, 6% 1.6%, 12% 0.4%, 18% 1.8%, 26% 0.6%, 34% 1.4%,
+    42% 0.2%, 50% 1.6%, 58% 0.4%, 66% 1.8%, 74% 0.6%, 82% 1.4%,
+    90% 0.2%, 96% 1.8%, 100% 0.6%,
+    100% 97.6%, 96% 99.2%, 90% 98.0%, 82% 99.4%, 74% 98.2%, 66% 99.6%,
+    58% 98.4%, 50% 99.6%, 42% 98.2%, 34% 99.6%, 26% 98.4%, 18% 99.4%,
+    12% 98.2%, 6% 99.6%, 2% 98.4%, 0% 97.2%
+  );
+}
+.manifesto::before, .manifesto::after{
+  /* Fiber edges */
+  content:""; position:absolute; left:0; right:0; height:14px;
+  background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='14'><filter id='f'><feTurbulence baseFrequency='1.4' numOctaves='2'/><feColorMatrix values='0 0 0 0 0.91  0 0 0 0 0.89  0 0 0 0 0.84  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  opacity:.25; pointer-events:none;
+}
+.manifesto::before{ top:0; }
+.manifesto::after{ bottom:0; transform:scaleY(-1); }
+
+.manifesto .grid{
+  display:grid; grid-template-columns: auto 1fr; gap:80px;
+  align-items:start;
+}
+.manifesto .col-l{
+  display:flex; flex-direction:column; gap:22px;
+  min-width:220px;
+}
+.manifesto h2{
+  font-family:var(--serif); font-weight:500;
+  font-size:clamp(40px, 4.6vw, 64px);
+  letter-spacing:-0.015em;
+  margin:0; line-height:1.02;
+}
+.manifesto h2 em{
+  color:var(--teal); font-style:italic;
+}
+.manifesto .copy{
+  font-family:var(--serif); font-size:19px; line-height:1.65;
+  color:var(--paper-dim);
+  max-width:58ch;
+}
+.manifesto .copy p{ margin:0 0 18px; }
+.manifesto .copy p strong{
+  color:var(--paper); font-weight:500;
+}
+.manifesto .sig{
+  margin-top:32px; padding-top:24px;
+  border-top:1px dashed var(--hairline-2);
+  display:flex; align-items:center; gap:18px;
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.22em; text-transform:uppercase;
+  color:var(--stone);
+}
+.manifesto .sig em{
+  font-family:var(--serif); font-style:italic;
+  font-size:16px; text-transform:none; letter-spacing:0;
+  color:var(--paper);
+}
+
+/* ─────────────────────────────────────────────
+   Contato block
+   ───────────────────────────────────────────── */
+.contato{
+  padding:140px 0 120px;
+  position:relative;
+}
+.contato-grid{
+  display:grid; grid-template-columns: 1.4fr 1fr; gap:80px;
+  align-items:start;
+}
+.contato h2{
+  font-family:var(--serif); font-weight:500;
+  font-size:clamp(56px, 7vw, 110px);
+  line-height:0.95; letter-spacing:-0.02em;
+  margin:24px 0 32px;
+}
+.contato h2 .it{ font-style:italic; color:var(--teal); }
+.contato .lead{ max-width:48ch; }
+.contato .email{
+  display:inline-flex; align-items:center; gap:14px;
+  margin-top:36px;
+  font-family:var(--serif); font-style:italic; font-weight:400;
+  font-size:30px; color:var(--paper); text-decoration:none;
+  border-bottom:1px solid var(--hairline-2);
+  padding-bottom:6px;
+  transition:color .2s, border-color .2s;
+}
+.contato .email:hover{ color:var(--teal); border-color:var(--teal); }
+
+.contato-aside{
+  border:1px solid var(--hairline);
+  padding:28px 30px 30px;
+  background:rgba(231,226,214,.012);
+}
+.contato-aside h4{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.24em; text-transform:uppercase;
+  color:var(--teal); margin:0 0 22px;
+}
+.contato-aside .row{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:14px 0;
+  border-bottom:1px solid var(--hairline);
+  font-family:var(--mono); font-size:13px; color:var(--paper);
+}
+.contato-aside .row:last-child{ border-bottom:0; }
+.contato-aside .row .k{
+  font-size:10.5px; letter-spacing:0.2em; text-transform:uppercase;
+  color:var(--stone);
+}
+.contato-aside .row .v{ text-align:right; }
+.contato-aside .row .v em{
+  font-family:var(--serif); font-style:italic;
+  font-size:15px; color:var(--paper);
+}
+
+/* ─────────────────────────────────────────────
+   Footer
+   ───────────────────────────────────────────── */
+footer.site-foot{
+  border-top:1px solid var(--hairline);
+  padding:56px 0 40px;
+  position:relative;
+}
+footer.site-foot .wrap{
+  display:grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap:48px;
+  align-items:start;
+}
+footer.site-foot .col h5{
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.24em; text-transform:uppercase;
+  color:var(--teal); margin:0 0 18px;
+}
+footer.site-foot a{
+  display:block;
+  font-family:var(--mono); font-size:13px;
+  letter-spacing:0.06em;
+  color:var(--paper); text-decoration:none;
+  padding:6px 0; opacity:.78;
+  transition:color .2s, opacity .2s;
+}
+footer.site-foot a:hover{ color:var(--teal); opacity:1; }
+footer.site-foot .col p{
+  font-family:var(--serif); font-size:15px; line-height:1.55;
+  color:var(--paper-dim); margin:0 0 18px; max-width:38ch;
+}
+.foot-bottom{
+  border-top:1px solid var(--hairline);
+  margin-top:48px; padding-top:24px;
+  display:flex; align-items:center; justify-content:space-between;
+  font-family:var(--mono); font-size:11px;
+  letter-spacing:0.18em; text-transform:uppercase;
+  color:var(--stone);
+}
+
+/* ─────────────────────────────────────────────
+   Handmade urban accents · added
+   ───────────────────────────────────────────── */
+
+/* Display font ‑ Trickster (Caesar Dressing fallback) for accent words */
+.display{
+  font-family:var(--display);
+  font-weight:400;
+}
+
+/* Stamp · circular badge logo, rotated slightly, with grain */
+.stamp{
+  display:inline-block;
+  width:96px; height:96px;
+  position:relative;
+  transform:rotate(-7deg);
+  filter:contrast(1.05) drop-shadow(0 0 30px rgba(9,194,167,.10));
+}
+.stamp img{
+  width:100%; height:100%; display:block;
+  mix-blend-mode:screen;
+  opacity:.88;
+}
+.stamp::after{
+  /* grain over stamp */
+  content:""; position:absolute; inset:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .9 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  mix-blend-mode:multiply; opacity:.35;
+  border-radius:50%;
+}
+.stamp--lg{ width:140px; height:140px; }
+.stamp--xl{ width:200px; height:200px; }
+.stamp--float{
+  position:absolute; pointer-events:none; z-index:3;
+}
+
+/* Tape · masking-tape piece */
+.tape{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:10.5px; letter-spacing:0.22em; text-transform:uppercase;
+  color:#1a1a1a;
+  background:linear-gradient(180deg, rgba(231,226,214,.92), rgba(231,226,214,.78));
+  padding:6px 16px;
+  position:relative;
+  transform:rotate(-2deg);
+  box-shadow:0 8px 24px rgba(0,0,0,.25);
+}
+.tape::before, .tape::after{
+  content:""; position:absolute; top:0; bottom:0; width:8px;
+  background-image:linear-gradient(90deg, rgba(0,0,0,.06), transparent);
+}
+.tape::before{ left:0; }
+.tape::after{ right:0; background-image:linear-gradient(270deg, rgba(0,0,0,.06), transparent); }
+.tape--teal{ background:linear-gradient(180deg, #09C2A7, #07a892); color:#0a1816; }
+
+/* Scribble · hand-written annotation */
+.scribble{
+  font-family:var(--display);
+  font-size:24px;
+  line-height:1;
+  color:var(--teal);
+  font-style:italic;
+  display:inline-block;
+  filter:url(#brush-paint);
+}
+.scribble--paper{ color:var(--paper); }
+.scribble--lg{ font-size:38px; }
+
+/* Margin numeral · large faded numbers in empty space */
+.margin-num{
+  position:absolute;
+  font-family:var(--display);
+  font-size:clamp(120px, 14vw, 200px);
+  line-height:1;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(231,226,214,.06);
+  pointer-events:none;
+  z-index:0;
+  user-select:none;
+}
+
+/* Chalk-paint horizontal mark */
+.chalk-bar{
+  display:block;
+  width:120px; height:8px;
+  background:var(--teal);
+  filter:url(#chalk-grain);
+  opacity:.85;
+}
+
+/* Spray dot speckle */
+.spray-dots{
+  position:absolute; pointer-events:none;
+  filter:url(#spray);
+  color:var(--teal);
+}
+
+/* Granular surface lift for cards */
+.project, .service, .contato-aside, .manifesto, .hero-side{
+  position:relative;
+}
+.project::before, .service::before, .contato-aside::before, .hero-side::before{
+  content:""; position:absolute; inset:0;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.91  0 0 0 0 0.89  0 0 0 0 0.84  0 0 0 .15 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size:240px 240px;
+  pointer-events:none;
+  mix-blend-mode:overlay;
+  opacity:.55;
+  z-index:0;
+}
+.project > *, .service > *, .contato-aside > *, .hero-side > *{ position:relative; z-index:1; }
+
+/* Section corner mark · small ornament */
+.corner-mark{
+  position:absolute; opacity:.5;
+  pointer-events:none;
+}
+
+/* Process step · larger numbers + connector tweaks */
+.step .num{ font-family:var(--display); }
+
+/* AXIS-like card hover · chalky teal halo */
+.project:hover{ box-shadow:0 0 0 1px rgba(9,194,167,.18), 0 16px 60px -30px rgba(9,194,167,.25); }
+
+/* ───────────────────────────────────────────── */
+
+/* ─────────────────────────────────────────────
+   Responsive
+   ───────────────────────────────────────────── */
+@media (max-width: 1100px){
+  .hero-grid, .col-2, .section-head, .manifesto .grid, .contato-grid{
+    grid-template-columns:1fr; gap:36px;
+  }
+  .projects{ grid-template-columns:1fr; }
+  .services{ grid-template-columns:1fr; }
+  .service{ border-right:0; }
+  .processo{ grid-template-columns:repeat(2,1fr); }
+  .step:nth-child(2){ border-right:0; }
+  .essencia-grid{ grid-template-columns:1fr; gap:18px; }
+  footer.site-foot .wrap{ grid-template-columns:repeat(2,1fr); }
+}
+@media (max-width:640px){
+  nav.primary{ display:none; }
+  .wrap{ padding:0 20px; }
+  .section{ padding:84px 0; }
+  .manifesto{ padding:54px 28px 60px; }
+  .processo{ grid-template-columns:1fr; }
+  .step{ border-right:0; border-bottom:1px solid var(--hairline); }
+  .stamp--xl, .stamp--lg.stamp--float{ display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ─────────────────────────────────────────────
+     Brush / filter defs (referenced everywhere)
+     ───────────────────────────────────────────── -->
+<svg class="brush-defs" aria-hidden="true">
+  <defs>
+    <!-- Rough stroke for divider/underline lines -->
+    <filter id="brush-rough" x="-5%" y="-50%" width="110%" height="200%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="4" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="2.2"/>
+    </filter>
+    <!-- Painted/edge displacement for solid shapes & glyphs -->
+    <filter id="brush-paint" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.55" numOctaves="2" seed="6" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="1.8"/>
+    </filter>
+    <!-- Heavier paint for cover art and big graphics -->
+    <filter id="brush-heavy" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.35" numOctaves="2" seed="3" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="3.2"/>
+    </filter>
+    <!-- Chalk-on-blue: granular alpha-cut for the misty corner -->
+    <filter id="chalk-grain" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="9" result="noise"/>
+      <feColorMatrix in="noise" type="matrix"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.1" result="alphaNoise"/>
+      <feComposite in="SourceGraphic" in2="alphaNoise" operator="in"/>
+    </filter>
+    <!-- Spray / dust speckle -->
+    <filter id="spray" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix"
+        values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.3" result="m"/>
+      <feComposite in="SourceGraphic" in2="m" operator="in"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ─────────────────────────────────────────────
+     Header
+     ───────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="TRIUM — Home">
+      <img src="assets/trium-wordmark.png" alt="TRIUM" />
+    </a>
+    <nav class="primary" aria-label="Principal">
+      <a href="#" class="is-active">Home</a>
+      <a href="#trabalhos">Projetos</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#contato">Contato</a>
+    </nav>
+    <a href="#contato" class="nav-cta">
+      Iniciar projeto
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </a>
+  </div>
+</header>
+
+<main>
+
+<!-- ─────────────────────────────────────────────
+     HERO
+     ───────────────────────────────────────────── -->
+<section class="hero">
+  <div class="wrap">
+    <!-- Floating badge stamp · top-right of hero -->
+    <span class="stamp stamp--xl stamp--float" style="top:-30px; right:-30px; transform:rotate(8deg)">
+      <img src="assets/trium-badge-dark.png" alt="" />
+    </span>
+
+    <div class="hero-grid">
+      <div>
+        <div class="hero-eyebrow">
+          <span class="section-label">Início <span class="num">/ 01</span></span>
+          <svg class="glyph" width="22" height="22" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+        </div>
+
+        <h1 class="h-display">
+          Soluções digitais<br/>
+          feitas <span class="accent display">à mão.</span><br/>
+          Pensadas&nbsp;para durar.
+        </h1>
+
+        <p class="lead">
+          Na TRIUM, código é matéria. Desenvolvemos sob medida — com atenção
+          obsessiva ao detalhe, respeito ao essencial e excelência artesanal
+          aplicada ao digital.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#trabalhos" class="btn btn--primary">
+            Ver trabalhos
+            <svg class="arrow" width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#processo" class="btn btn--ghost">
+            Conheça nosso processo
+          </a>
+          <span class="scribble" style="transform:rotate(-6deg);align-self:center;margin-left:6px">— vem ver</span>
+        </div>
+
+        <div class="hero-meta">
+          <span class="dot" aria-hidden="true"></span>
+          <span>Disponível p/ novos projetos · Q3·2026</span>
+        </div>
+      </div>
+
+      <aside class="hero-side">
+        <span class="corner-star" style="transform:rotate(-12deg)">
+          <img src="assets/trium-badge-teal.png" alt="" style="width:64px;height:64px;display:block;opacity:.92;mix-blend-mode:screen"/>
+        </span>
+        <div class="title">Manifesto</div>
+        <p>
+          <em class="display" style="font-style:normal;font-size:22px;color:var(--paper);line-height:1.2;display:inline-block;margin-bottom:4px">Tecnologia feita à mão,<br/>com propósito.</em><br/>
+          Acreditamos no gesto deliberado, no traço imperfeito,
+          na construção paciente de algo único.
+        </p>
+        <p>
+          Não fabricamos sites. Construímos peças — código limpo, design
+          funcional, intenção em cada linha.
+        </p>
+
+        <svg class="brush-divider" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M2 7 Q 80 1 160 8 T 298 6" />
+        </svg>
+
+        <div class="sig">
+          <svg class="glyph" width="20" height="20" viewBox="0 0 30 30">
+            <path d="M3 20 Q 10 12, 15 18 T 27 14" fill="none" stroke="#09C2A7" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3 24 Q 11 18, 15 22 T 27 19" fill="none" stroke="#09C2A7" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <span>do latim · <em>triunfo</em></span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     ESSÊNCIA
+     ───────────────────────────────────────────── -->
+<section class="essencia">
+  <div class="wrap">
+    <div class="essencia-grid">
+      <div class="essencia-label">
+        <span class="section-label">Essência <span class="num">/ 02</span></span>
+      </div>
+
+      <div class="pilar">
+        <svg class="glyph" width="30" height="30" viewBox="0 0 30 30">
+          <!-- mão -->
+          <path d="M10 26 L10 14 Q 10 12 12 12 Q 14 12 14 14 L14 8 Q 14 6 16 6 Q 18 6 18 8 L18 12 Q 18 10 20 10 Q 22 10 22 12 L22 14 Q 22 12 24 12 Q 26 12 26 14 L26 20 Q 26 26 20 26 Z"
+                fill="none" stroke="#09C2A7" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <span class="gloss">Autoral</span>
+          <span class="small">Voz própria</span>
+        </div>
+      </div>
+
+      <div class="pilar">
+        <svg class="glyph" width="34" height="30" viewBox="0 0 34 30">
+          <path d="M10 8 L3 15 L10 22 M24 8 L31 15 L24 22 M19 5 L15 25"
+                fill="none" stroke="#09C2A7" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <span class="gloss">Artesanal</span>
+          <span class="small">Feito à mão</span>
+        </div>
+      </div>
+
+      <div class="pilar">
+        <svg class="glyph" width="28" height="28" viewBox="0 0 28 28">
+          <path d="M14 1 L16.5 11.5 L27 14 L16.5 16.5 L14 27 L11.5 16.5 L1 14 L11.5 11.5 Z" fill="#09C2A7"/>
+        </svg>
+        <div>
+          <span class="gloss">Significativo</span>
+          <span class="small">Com propósito</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     TRABALHOS
+     ───────────────────────────────────────────── -->
+<section class="section" id="trabalhos">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-label">Trabalhos <span class="num">/ 03</span></span>
+        <h2>Projetos em<br/><em class="display" style="color:var(--teal);font-style:normal">destaque.</em></h2>
+        <svg class="brush-underline" viewBox="0 0 300 18" preserveAspectRatio="none" aria-hidden="true" style="margin-top:14px;width:240px">
+          <path d="M2 10 Q 70 2 150 11 T 298 8" />
+        </svg>
+      </div>
+      <p class="deck">
+        Uma seleção curada de produtos digitais que construímos nos últimos meses —
+        cada um pensado como peça única, sob medida para quem o usa.
+      </p>
+    </div>
+
+    <div class="projects">
+
+      <!-- ── Project · AXIS ── -->
+      <article class="project">
+        <div class="cover">
+          <span class="badge">Plataforma</span>
+          <span class="star">
+            <svg class="glyph" width="22" height="22" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+          </span>
+          <!-- Mock screenshot · AXIS music platform -->
+          <svg viewBox="0 0 800 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="axisBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#1a1820"/>
+                <stop offset="100%" stop-color="#0c0a10"/>
+              </linearGradient>
+              <radialGradient id="axisGlow" cx="0.7" cy="0.4" r="0.6">
+                <stop offset="0%" stop-color="#2a4d6e" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#0c0a10" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <rect width="800" height="500" fill="url(#axisBg)"/>
+            <rect width="800" height="500" fill="url(#axisGlow)"/>
+            <!-- Top nav row -->
+            <text x="36" y="48" fill="#E7E2D6" font-family="IBM Plex Mono" font-size="13" font-weight="600">AXIS</text>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#7A857F" letter-spacing="2">
+              <text x="430" y="48">HOME</text>
+              <text x="490" y="48">PRÉ-VENDAS</text>
+              <text x="580" y="48">EVENTOS</text>
+              <text x="650" y="48">ARTISTAS</text>
+              <text x="720" y="48">SOBRE</text>
+            </g>
+            <line x1="430" y1="56" x2="468" y2="56" stroke="#c62b3f" stroke-width="2"/>
+            <!-- Hero image card -->
+            <rect x="120" y="100" width="560" height="290" fill="#15131a" stroke="#231f2a"/>
+            <!-- Faded huge text behind -->
+            <text x="160" y="220" fill="#1f1d28" font-family="Lora" font-size="48" font-weight="700" font-style="italic">WHINDERSSON</text>
+            <text x="220" y="270" fill="#1f1d28" font-family="Lora" font-size="48" font-weight="700" font-style="italic">NUNES</text>
+            <!-- Foreground figure silhouette -->
+            <g transform="translate(430,140)">
+              <ellipse cx="80" cy="240" rx="120" ry="20" fill="#0a0810" opacity="0.6"/>
+              <!-- subject -->
+              <path d="M60 60 Q 50 30 80 25 Q 110 25 105 60 L 100 90 L 130 130 L 145 220 L 110 235 L 100 175 L 90 235 L 50 230 L 40 160 L 55 110 Z"
+                    fill="#3a1d1f" stroke="#5a2a2e" stroke-width="1"/>
+              <circle cx="82" cy="50" r="18" fill="#4a2526"/>
+              <!-- jacket highlight -->
+              <path d="M55 110 L 90 100 L 100 175 L 55 165 Z" fill="#5a2326" opacity="0.7"/>
+            </g>
+            <!-- Title overlay -->
+            <text x="160" y="290" fill="#fff" font-family="Lora" font-size="26" font-weight="700" font-style="italic">Whindersson</text>
+            <text x="160" y="316" fill="#fff" font-family="Lora" font-size="26" font-weight="700" font-style="italic">Nunes</text>
+            <rect x="160" y="335" width="76" height="22" rx="11" fill="#fff"/>
+            <text x="172" y="350" fill="#111" font-family="IBM Plex Mono" font-size="9" font-weight="600">SAIBA MAIS</text>
+            <!-- pagination dots -->
+            <g fill="#fff" opacity="0.6">
+              <circle cx="540" cy="372" r="2"/>
+              <circle cx="552" cy="372" r="2"/>
+              <circle cx="564" cy="372" r="2" opacity="1"/>
+              <circle cx="576" cy="372" r="2"/>
+              <circle cx="588" cy="372" r="2"/>
+              <circle cx="600" cy="372" r="2"/>
+            </g>
+            <!-- Próximos eventos label -->
+            <text x="200" y="430" fill="#fff" font-family="Lora" font-size="14" font-weight="700" font-style="italic">Próximos </text>
+            <text x="266" y="430" fill="#c62b3f" font-family="Lora" font-size="14" font-weight="700" font-style="italic">Eventos</text>
+            <!-- event cards -->
+            <g>
+              <rect x="200" y="442" width="92" height="44" fill="#1a1820" stroke="#231f2a"/>
+              <rect x="300" y="442" width="92" height="44" fill="#1a1820" stroke="#231f2a"/>
+              <rect x="400" y="442" width="92" height="44" fill="#1a1820" stroke="#231f2a"/>
+              <rect x="500" y="442" width="92" height="44" fill="#1a1820" stroke="#231f2a"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta">
+            <span class="num">No <em style="font-family:var(--serif);font-style:italic;color:var(--paper)">001</em> · Plataforma</span>
+            <span class="year">2026</span>
+          </div>
+          <h3>AXIS <span class="it">— eventos &amp; pré-vendas.</span></h3>
+          <p class="desc">
+            Plataforma de eventos e venda de ingressos sob medida.
+            Catálogo de artistas, pré-vendas, integração de pagamentos e painel
+            administrativo construídos do zero para um agente cultural carioca.
+          </p>
+          <div class="tags">
+            <span class="tag">Next.js</span>
+            <span class="tag">React</span>
+            <span class="tag">Supabase</span>
+            <span class="tag">Stripe</span>
+            <span class="tag">Premium</span>
+          </div>
+          <div class="project-actions">
+            <a href="#" class="btn-sm btn-sm--teal">
+              Explorar
+              <svg width="13" height="9" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </a>
+            <a href="#" class="btn-sm">
+              Visitar site
+              <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 3h6v6M3 9l6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </a>
+          </div>
+      </article>
+
+      <!-- ── Project · MONTE ── -->
+      <article class="project">
+        <div class="cover">
+          <span class="badge">Branding · Site</span>
+          <span class="star">
+            <svg class="glyph" width="20" height="20" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+          </span>
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="monteBg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a2218"/>
+                <stop offset="100%" stop-color="#0d130c"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#monteBg)"/>
+            <!-- Mountain shapes -->
+            <polygon points="0,290 120,150 220,240 320,90 420,200 520,140 600,210 600,380 0,380" fill="#2a3528" opacity="0.6"/>
+            <polygon points="0,330 90,220 200,280 310,180 410,260 510,200 600,250 600,380 0,380" fill="#1e261c"/>
+            <!-- Title -->
+            <text x="40" y="100" fill="#E7E2D6" font-family="Lora" font-size="42" font-weight="700">monte.</text>
+            <text x="40" y="128" fill="#7A857F" font-family="IBM Plex Mono" font-size="10" letter-spacing="2">CAFÉ DE ALTITUDE · ECOMMERCE</text>
+            <!-- Product cards -->
+            <g>
+              <rect x="40" y="240" width="120" height="100" fill="#15180f" stroke="#2a3528"/>
+              <rect x="170" y="240" width="120" height="100" fill="#15180f" stroke="#2a3528"/>
+              <rect x="300" y="240" width="120" height="100" fill="#15180f" stroke="#2a3528"/>
+              <rect x="430" y="240" width="120" height="100" fill="#15180f" stroke="#2a3528"/>
+              <circle cx="100" cy="278" r="20" fill="#5a4029"/>
+              <circle cx="230" cy="278" r="20" fill="#3a2a1d"/>
+              <circle cx="360" cy="278" r="20" fill="#6a4a30"/>
+              <circle cx="490" cy="278" r="20" fill="#4a3725"/>
+              <rect x="56" y="312" width="50" height="4" fill="#7A857F"/>
+              <rect x="186" y="312" width="50" height="4" fill="#7A857F"/>
+              <rect x="316" y="312" width="50" height="4" fill="#7A857F"/>
+              <rect x="446" y="312" width="50" height="4" fill="#7A857F"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta">
+          <span class="num">No <em style="font-family:var(--serif);font-style:italic;color:var(--paper)">002</em> · E-commerce</span>
+          <span class="year">2026</span>
+        </div>
+        <h3>monte. <span class="it">— café.</span></h3>
+        <p class="desc">
+          E-commerce com curadoria editorial para uma torrefação de café especial.
+          Assinatura, perfil de torra e checkout sem fricção.
+        </p>
+        <div class="tags">
+          <span class="tag">Next.js</span>
+          <span class="tag">Shopify Hydrogen</span>
+          <span class="tag">Sanity</span>
+        </div>
+        <div class="project-actions">
+          <a href="#" class="btn-sm btn-sm--teal">Explorar
+            <svg width="13" height="9" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#" class="btn-sm">Visitar site
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 3h6v6M3 9l6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- ── Project · ATELIÊ NORTE ── -->
+      <article class="project">
+        <div class="cover">
+          <span class="badge">Portfolio · CMS</span>
+          <span class="star">
+            <svg class="glyph" width="20" height="20" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+          </span>
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="atelieBg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#1a1a1f"/>
+                <stop offset="100%" stop-color="#0e0e12"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#atelieBg)"/>
+            <text x="40" y="62" fill="#E7E2D6" font-family="Lora" font-size="14" font-style="italic">atelier norte —</text>
+            <text x="40" y="200" fill="#E7E2D6" font-family="Lora" font-size="64" font-weight="500" font-style="italic">Obra,</text>
+            <text x="40" y="270" fill="#7A857F" font-family="Lora" font-size="64" font-weight="500" font-style="italic">não objeto.</text>
+            <!-- Right column image grid -->
+            <g>
+              <rect x="330" y="60" width="110" height="140" fill="#2a2a30"/>
+              <rect x="450" y="60" width="110" height="80" fill="#3a2a25"/>
+              <rect x="450" y="150" width="110" height="100" fill="#1f2a30"/>
+              <rect x="330" y="210" width="230" height="120" fill="#252028"/>
+              <!-- abstract painted strokes inside thumbs -->
+              <path d="M340 100 Q 380 80 430 130" stroke="#7A857F" stroke-width="2" fill="none" opacity="0.6"/>
+              <circle cx="505" cy="100" r="24" fill="#5a4030" opacity="0.7"/>
+              <path d="M460 200 L 540 230" stroke="#3a4f5e" stroke-width="3" opacity="0.7"/>
+            </g>
+            <line x1="40" y1="320" x2="290" y2="320" stroke="#09C2A7" stroke-width="1.5"/>
+            <text x="40" y="345" fill="#7A857F" font-family="IBM Plex Mono" font-size="9" letter-spacing="2">SÉRIE · 2025—2026</text>
+          </svg>
+        </div>
+        <div class="project-meta">
+          <span class="num">No <em style="font-family:var(--serif);font-style:italic;color:var(--paper)">003</em> · Portfolio</span>
+          <span class="year">2026</span>
+        </div>
+        <h3>Ateliê Norte <span class="it">— obras.</span></h3>
+        <p class="desc">
+          Portfolio editorial para um ateliê de pintura contemporânea —
+          catálogo de obras, séries e exposições com CMS leve.
+        </p>
+        <div class="tags">
+          <span class="tag">Astro</span>
+          <span class="tag">TypeScript</span>
+          <span class="tag">Sanity</span>
+        </div>
+        <div class="project-actions">
+          <a href="#" class="btn-sm btn-sm--teal">Explorar
+            <svg width="13" height="9" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#" class="btn-sm">Visitar site
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 3h6v6M3 9l6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- ── Project · OFICINA TIPO ── -->
+      <article class="project">
+        <div class="cover">
+          <span class="badge">App · iOS</span>
+          <span class="star">
+            <svg class="glyph" width="20" height="20" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+          </span>
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="tipoBg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#10322a"/>
+                <stop offset="100%" stop-color="#0a1815"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#tipoBg)"/>
+            <!-- Big specimen letter -->
+            <text x="180" y="290" fill="#09C2A7" font-family="Lora" font-size="320" font-weight="700" font-style="italic" opacity="0.9">a</text>
+            <!-- iPhone mockup -->
+            <g transform="translate(380,40)">
+              <rect x="0" y="0" width="160" height="300" rx="24" fill="#0a1815" stroke="#1c3a32" stroke-width="2"/>
+              <rect x="10" y="14" width="140" height="272" rx="14" fill="#0e2823"/>
+              <text x="20" y="60" fill="#E7E2D6" font-family="Lora" font-size="32" font-weight="600">Aa</text>
+              <text x="20" y="86" fill="#7A857F" font-family="IBM Plex Mono" font-size="7" letter-spacing="1.5">CUSTOM TYPE</text>
+              <rect x="20" y="100" width="120" height="2" fill="#09C2A7"/>
+              <text x="20" y="130" fill="#E7E2D6" font-family="Lora" font-size="11" font-style="italic">Catalog</text>
+              <rect x="20" y="150" width="120" height="40" fill="#0a1815"/>
+              <text x="28" y="176" fill="#09C2A7" font-family="Lora" font-size="22" font-style="italic">Norte</text>
+              <rect x="20" y="200" width="120" height="40" fill="#0a1815"/>
+              <text x="28" y="226" fill="#09C2A7" font-family="Lora" font-size="22" font-style="italic">Litoral</text>
+              <rect x="20" y="250" width="120" height="20" fill="#09C2A7"/>
+              <text x="48" y="264" fill="#0a1815" font-family="IBM Plex Mono" font-size="8" font-weight="600" letter-spacing="2">DOWNLOAD</text>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta">
+          <span class="num">No <em style="font-family:var(--serif);font-style:italic;color:var(--paper)">004</em> · Type app</span>
+          <span class="year">2025</span>
+        </div>
+        <h3>Oficina Tipo <span class="it">— specimens.</span></h3>
+        <p class="desc">
+          App iOS para catálogo e licenciamento de fontes autorais — leitor de
+          specimens com previews ao vivo e provas tipográficas.
+        </p>
+        <div class="tags">
+          <span class="tag">Swift</span>
+          <span class="tag">SwiftUI</span>
+          <span class="tag">Core Text</span>
+        </div>
+        <div class="project-actions">
+          <a href="#" class="btn-sm btn-sm--teal">Explorar
+            <svg width="13" height="9" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#" class="btn-sm">Visitar site
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 3h6v6M3 9l6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <!-- ── Project · TERREIRO ── -->
+      <article class="project">
+        <div class="cover">
+          <span class="badge">SaaS · Dashboard</span>
+          <span class="star">
+            <svg class="glyph" width="20" height="20" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+          </span>
+          <svg viewBox="0 0 600 380" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <linearGradient id="terrBg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#0f1620"/>
+                <stop offset="100%" stop-color="#0a0f17"/>
+              </linearGradient>
+            </defs>
+            <rect width="600" height="380" fill="url(#terrBg)"/>
+            <!-- Sidebar -->
+            <rect x="0" y="0" width="120" height="380" fill="#0c1219"/>
+            <text x="16" y="32" fill="#09C2A7" font-family="Lora" font-size="14" font-weight="600" font-style="italic">terreiro</text>
+            <g font-family="IBM Plex Mono" font-size="9" fill="#7A857F">
+              <rect x="14" y="56" width="92" height="20" fill="#09C2A7" opacity="0.12"/>
+              <text x="20" y="70" fill="#09C2A7">DASHBOARD</text>
+              <text x="20" y="98">PLANTIO</text>
+              <text x="20" y="120">SAFRAS</text>
+              <text x="20" y="142">CLIMA</text>
+              <text x="20" y="164">EQUIPES</text>
+              <text x="20" y="186">RELATÓRIOS</text>
+            </g>
+            <!-- Main panel -->
+            <text x="140" y="48" fill="#E7E2D6" font-family="Lora" font-size="20" font-style="italic">Boa tarde, Joana.</text>
+            <text x="140" y="68" fill="#7A857F" font-family="IBM Plex Mono" font-size="9" letter-spacing="2">VISÃO GERAL · MAIO 2026</text>
+            <!-- Stat cards -->
+            <g>
+              <rect x="140" y="90" width="130" height="80" fill="#10171f" stroke="#1a2230"/>
+              <text x="152" y="110" fill="#7A857F" font-family="IBM Plex Mono" font-size="8" letter-spacing="1.5">HECTARES</text>
+              <text x="152" y="146" fill="#E7E2D6" font-family="Lora" font-size="28" font-weight="600">412.6</text>
+              <rect x="280" y="90" width="130" height="80" fill="#10171f" stroke="#1a2230"/>
+              <text x="292" y="110" fill="#7A857F" font-family="IBM Plex Mono" font-size="8" letter-spacing="1.5">PRODUTIVIDADE</text>
+              <text x="292" y="146" fill="#09C2A7" font-family="Lora" font-size="28" font-weight="600">+12%</text>
+              <rect x="420" y="90" width="160" height="80" fill="#10171f" stroke="#1a2230"/>
+              <text x="432" y="110" fill="#7A857F" font-family="IBM Plex Mono" font-size="8" letter-spacing="1.5">RECEITA · ANO</text>
+              <text x="432" y="146" fill="#E7E2D6" font-family="Lora" font-size="22" font-weight="600">R$ 2.34M</text>
+            </g>
+            <!-- Chart -->
+            <rect x="140" y="184" width="440" height="170" fill="#10171f" stroke="#1a2230"/>
+            <polyline points="160,320 200,300 240,310 280,280 320,290 360,250 400,240 440,260 480,220 520,210 560,230"
+              fill="none" stroke="#09C2A7" stroke-width="2"/>
+            <polyline points="160,320 200,300 240,310 280,280 320,290 360,250 400,240 440,260 480,220 520,210 560,230 560,340 160,340"
+              fill="#09C2A7" opacity="0.08"/>
+            <g stroke="#1a2230" stroke-width="1">
+              <line x1="160" y1="280" x2="560" y2="280"/>
+              <line x1="160" y1="320" x2="560" y2="320"/>
+            </g>
+          </svg>
+        </div>
+        <div class="project-meta">
+          <span class="num">No <em style="font-family:var(--serif);font-style:italic;color:var(--paper)">005</em> · SaaS</span>
+          <span class="year">2025</span>
+        </div>
+        <h3>Terreiro <span class="it">— gestão agrícola.</span></h3>
+        <p class="desc">
+          Plataforma de gestão para pequenas cooperativas rurais. Dashboard de
+          plantio, monitoramento de safras e relatórios para produtores.
+        </p>
+        <div class="tags">
+          <span class="tag">Next.js</span>
+          <span class="tag">tRPC</span>
+          <span class="tag">PostgreSQL</span>
+          <span class="tag">Mapbox</span>
+        </div>
+        <div class="project-actions">
+          <a href="#" class="btn-sm btn-sm--teal">Explorar
+            <svg width="13" height="9" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </a>
+          <a href="#" class="btn-sm">Estudo de caso
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 3h6v6M3 9l6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </a>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="projects-foot">
+      <span class="count">Mostrando 5 · de 24 trabalhos no acervo</span>
+      <a href="#" class="btn">
+        Ver todos os projetos
+        <svg class="arrow" width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12M9 1l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     SERVIÇOS
+     ───────────────────────────────────────────── -->
+<section class="section" id="servicos" style="padding-top:40px">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-label">Serviços <span class="num">/ 04</span></span>
+        <h2>O que construímos<br/><em class="display" style="color:var(--teal);font-style:normal">sob medida.</em></h2>
+      </div>
+      <p class="deck">
+        Trabalhamos em ciclos curtos e enxutos — geralmente 6 a 12 semanas — com
+        contratos diretos e propriedade total do código que entregamos.
+      </p>
+    </div>
+
+    <div class="services">
+      <div class="service">
+        <span class="ix">/ 01</span>
+        <svg class="glyph" width="22" height="22" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+        <h4>Sites &amp; portfolios sob medida</h4>
+        <p>Site institucional, portfolio, landing. Tudo escrito do zero, sem temas prontos — feito para durar e para refletir a voz da marca.</p>
+        <div class="stack">
+          <span>Next.js</span><span>Astro</span><span>Sanity</span><span>Vercel</span>
+        </div>
+      </div>
+
+      <div class="service">
+        <span class="ix">/ 02</span>
+        <svg class="glyph" width="34" height="20" viewBox="0 0 34 20">
+          <path d="M3 6 Q 9 1 15 6 T 27 6 M3 14 Q 9 9 15 14 T 27 14"
+            fill="none" stroke="#09C2A7" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <h4>Produtos digitais &amp; SaaS</h4>
+        <p>Construção e evolução de produtos digitais com foco em design de interação, performance e clareza de propósito.</p>
+        <div class="stack">
+          <span>React</span><span>tRPC</span><span>Supabase</span><span>Postgres</span>
+        </div>
+      </div>
+
+      <div class="service">
+        <span class="ix">/ 03</span>
+        <svg class="glyph" width="22" height="26" viewBox="0 0 22 26">
+          <path d="M11 1 Q 13 8 18 12 Q 13 16 11 25 Q 9 16 4 12 Q 9 8 11 1 Z" fill="#09C2A7"/>
+        </svg>
+        <h4>E-commerce artesanal</h4>
+        <p>Lojas pensadas como vitrines editoriais — catálogo, assinatura, checkout sem fricção e tudo o que está em volta.</p>
+        <div class="stack">
+          <span>Hydrogen</span><span>Stripe</span><span>Shopify</span>
+        </div>
+      </div>
+
+      <div class="service">
+        <span class="ix">/ 04</span>
+        <svg class="glyph" width="22" height="22" viewBox="0 0 22 22">
+          <circle cx="11" cy="11" r="9" fill="none" stroke="#09C2A7" stroke-width="2"/>
+          <circle cx="11" cy="11" r="3" fill="#09C2A7"/>
+        </svg>
+        <h4>Sistemas de design</h4>
+        <p>Tokens, componentes e bibliotecas para times de produto que precisam de coerência e velocidade — feitos para serem mantidos.</p>
+        <div class="stack">
+          <span>Figma</span><span>Tokens Studio</span><span>Storybook</span>
+        </div>
+      </div>
+
+      <div class="service">
+        <span class="ix">/ 05</span>
+        <svg class="glyph" width="22" height="22" viewBox="0 0 22 22">
+          <path d="M3 11 L11 3 L19 11 L11 19 Z" fill="none" stroke="#09C2A7" stroke-width="2"/>
+        </svg>
+        <h4>Apps móveis</h4>
+        <p>Aplicativos iOS e Android nativos ou multiplataforma para experiências que pedem proximidade.</p>
+        <div class="stack">
+          <span>Swift</span><span>Kotlin</span><span>React Native</span>
+        </div>
+      </div>
+
+      <div class="service">
+        <span class="ix">/ 06</span>
+        <svg class="glyph" width="22" height="22" viewBox="0 0 22 22">
+          <path d="M3 19 L 11 4 L 19 19 Z M 11 12 L 11 16" fill="none" stroke="#09C2A7" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        </svg>
+        <h4>Consultoria técnica</h4>
+        <p>Diagnóstico, arquitetura e parecer técnico para times que precisam de outro par de olhos antes de uma decisão importante.</p>
+        <div class="stack">
+          <span>Auditoria</span><span>Arquitetura</span><span>Performance</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     PROCESSO
+     ───────────────────────────────────────────── -->
+<section class="section" id="processo" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-label">Processo <span class="num">/ 05</span></span>
+        <h2>Como trabalhamos —<br/><em class="display" style="color:var(--teal);font-style:normal">do esboço à entrega.</em></h2>
+      </div>
+      <p class="deck">
+        Cada projeto é único, mas todos passam por quatro estações.
+        Sem ágil dogmático, sem pacote pré-pronto — só atenção e ritmo.
+      </p>
+    </div>
+
+    <div class="processo">
+      <div class="step">
+        <span class="num">i.</span>
+        <span class="name">Escuta</span>
+        <p>Conversas longas. Entender o que você faz, para quem e por quê. Aqui só fazemos perguntas.</p>
+      </div>
+      <div class="step">
+        <span class="num">ii.</span>
+        <span class="name">Esboço</span>
+        <p>Arquitetura de informação, fluxos e primeiras peças de design em alta-fidelidade. Iteramos no papel.</p>
+      </div>
+      <div class="step">
+        <span class="num">iii.</span>
+        <span class="name">Construção</span>
+        <p>Código escrito à mão, em ciclos curtos com entregas semanais. Sem caixa-preta, sem surpresas.</p>
+      </div>
+      <div class="step">
+        <span class="num">iv.</span>
+        <span class="name">Cuidado</span>
+        <p>Lançamento, manutenção e evolução — a peça acompanha o projeto enquanto fizer sentido.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     MANIFESTO
+     ───────────────────────────────────────────── -->
+<section class="manifesto-wrap" id="sobre">
+  <div class="wrap" style="position:relative">
+    <!-- Floating stamp · manifesto block, bottom-right -->
+    <span class="stamp stamp--lg stamp--float" style="bottom:60px; right:-20px; transform:rotate(14deg); z-index:4">
+      <img src="assets/trium-badge-teal.png" alt="" />
+    </span>
+
+    <div class="manifesto">
+      <div class="grid">
+        <div class="col-l">
+          <span class="section-label">Manifesto <span class="num">/ 06</span></span>
+          <span class="stamp stamp--lg" style="transform:rotate(-8deg);margin:6px 0 6px -6px">
+            <img src="assets/trium-badge-teal.png" alt="" />
+          </span>
+          <span class="label label--paper">TRIUM &mdash; do latim, <em class="italic" style="font-family:var(--serif);text-transform:none;letter-spacing:0">triunfo</em></span>
+          <span class="tape tape--teal" style="margin-top:14px;align-self:flex-start">Feito à mão</span>
+        </div>
+        <div class="copy">
+          <h2>Acreditamos que a tecnologia<br/>só faz sentido quando <em class="display" style="font-style:normal">melhora<br/>a vida das pessoas.</em></h2>
+          <svg class="brush-divider" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true" style="width:200px;margin:32px 0 28px">
+            <path d="M2 7 Q 80 1 160 8 T 298 6" />
+          </svg>
+          <p>
+            Por isso criamos com intenção, construímos com cuidado e entregamos
+            com orgulho. Cada projeto é tratado como peça única — código limpo,
+            design funcional, atenção obsessiva ao detalhe.
+          </p>
+          <p>
+            <strong>Não fazemos volume.</strong> Trabalhamos com poucos
+            parceiros por ano para garantir profundidade. Acreditamos no
+            artesanato digital — no gesto deliberado, no traço imperfeito,
+            na construção paciente de algo que vai durar.
+          </p>
+          <p style="margin-bottom:0">
+            TRIUM — do latim, <em>triunfo</em>. O resultado de fazer bem feito.
+          </p>
+
+          <div class="sig">
+            <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+            <span>Assinado</span>
+            <em>— TRIUM, 2026</em>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────────────────────────────────────
+     CONTATO
+     ───────────────────────────────────────────── -->
+<section class="contato" id="contato">
+  <div class="wrap" style="position:relative">
+    <span class="stamp stamp--xl stamp--float" style="top:40px; right:-20px; transform:rotate(-12deg); z-index:1; opacity:.9">
+      <img src="assets/trium-badge-dark.png" alt="" />
+    </span>
+    <div class="contato-grid">
+      <div>
+        <span class="section-label">Contato <span class="num">/ 07</span></span>
+        <h2>Vamos construir<br/>algo <span class="it display" style="font-style:normal">à mão.</span></h2>
+        <p class="lead">
+          Aceitamos um número limitado de novos projetos por trimestre.
+          Conte o que tem em mente — respondemos em até dois dias úteis,
+          com escuta e sem pressa de vender.
+        </p>
+        <a href="mailto:ola@trium.studio" class="email">
+          <svg width="22" height="22" viewBox="0 0 22 22"><path d="M11 1 L13 9 L21 11 L13 13 L11 21 L9 13 L1 11 L9 9 Z" fill="#09C2A7"/></svg>
+          ola@trium.studio
+        </a>
+      </div>
+
+      <aside class="contato-aside">
+        <h4>Informações úteis</h4>
+        <div class="row">
+          <span class="k">Tempo de resposta</span>
+          <span class="v"><em>até 48h</em></span>
+        </div>
+        <div class="row">
+          <span class="k">Orçamento mínimo</span>
+          <span class="v"><em>a partir de R$ 18k</em></span>
+        </div>
+        <div class="row">
+          <span class="k">Duração média</span>
+          <span class="v"><em>6 a 12 semanas</em></span>
+        </div>
+        <div class="row">
+          <span class="k">Localização</span>
+          <span class="v"><em>Rio de Janeiro · remoto</em></span>
+        </div>
+        <div class="row">
+          <span class="k">Próx. abertura</span>
+          <span class="v"><em>agosto · 2026</em></span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ─────────────────────────────────────────────
+     FOOTER
+     ───────────────────────────────────────────── -->
+<footer class="site-foot">
+  <div class="wrap">
+    <div class="col">
+      <a href="#" class="brand brand--lg" style="margin-bottom:18px;display:inline-flex">
+        <img src="assets/trium-wordmark.png" alt="TRIUM" />
+      </a>
+      <p>Tecnologia feita à mão, com propósito. Para marcas que valorizam a peça única e o gesto deliberado.</p>
+      <svg class="brush-divider" viewBox="0 0 300 14" preserveAspectRatio="none" aria-hidden="true" style="width:160px;margin-top:6px">
+        <path d="M2 7 Q 80 1 160 8 T 298 6" />
+      </svg>
+    </div>
+    <div class="col">
+      <h5>Navegar</h5>
+      <a href="#">Home</a>
+      <a href="#trabalhos">Projetos</a>
+      <a href="#sobre">Sobre</a>
+      <a href="#contato">Contato</a>
+    </div>
+    <div class="col">
+      <h5>Serviços</h5>
+      <a href="#servicos">Sites &amp; portfolios</a>
+      <a href="#servicos">Produtos &amp; SaaS</a>
+      <a href="#servicos">E-commerce</a>
+      <a href="#servicos">Sistemas de design</a>
+    </div>
+    <div class="col">
+      <h5>Contato</h5>
+      <a href="mailto:ola@trium.studio">ola@trium.studio</a>
+      <a href="#">Instagram</a>
+      <a href="#">Behance</a>
+      <a href="#">GitHub</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="foot-bottom">
+      <span>© 2026 TRIUM — Tecnologia &amp; programação feita à mão</span>
+      <span>Feito à mão · Rio de Janeiro</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Smooth scroll for in-page anchors
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      const id = a.getAttribute('href');
+      if(id.length>1){
+        const el = document.querySelector(id);
+        if(el){
+          e.preventDefault();
+          const top = el.getBoundingClientRect().top + window.pageYOffset - 60;
+          window.scrollTo({top, behavior:'smooth'});
+        }
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
