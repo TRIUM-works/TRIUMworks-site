@@ -8,11 +8,11 @@ export const fundadores: Fundador[] = [
   {
     nome: 'Guilherme',
     cargo: 'Co-fundador',
-    foto: '/images/fundadores/Guilherme.jpeg',
+    foto: '/images/fundadores/Guilherme.webp',
   },
   {
     nome: 'Lucas',
     cargo: 'Co-fundador',
-    foto: '/images/fundadores/Lucas.jpeg',
+    foto: '/images/fundadores/Lucas.webp',
   },
 ];

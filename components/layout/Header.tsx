@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { useSnap } from '@/components/layout/SnapController';
@@ -18,8 +18,8 @@ export function Header() {
   const snap = useSnap();
   const [active, setActive] = useState('inicio');
   const [open, setOpen] = useState(false);
-  const [clickCount, setClickCount] = useState(0);
-  const [easterEgg, setEasterEgg] = useState(false);
+  const [burstKey, setBurstKey] = useState(0);
+  const burstTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Progresso de saída do Hero (0 = título ainda visível, 1 = título já saiu)
   const [heroExit, setHeroExit] = useState(0);
   // Largura da scrollbar — usada para alinhar o badge fixo ao mesmo eixo
@@ -83,16 +83,9 @@ export function Header() {
   };
 
   const handleLogo = () => {
-    setClickCount((c) => {
-      const next = c + 1;
-      if (next >= 3) {
-        setEasterEgg(true);
-        setTimeout(() => setEasterEgg(false), 3500);
-        return 0;
-      }
-      return next;
-    });
-    setTimeout(() => setClickCount(0), 2000);
+    setBurstKey((k) => k + 1);
+    if (burstTimerRef.current) clearTimeout(burstTimerRef.current);
+    burstTimerRef.current = setTimeout(() => setBurstKey(0), 3500);
   };
 
   return (
@@ -118,7 +111,7 @@ export function Header() {
         TRIUM
       </motion.button>
 
-      {easterEgg && <EasterEggBurst />}
+      {burstKey > 0 && <EasterEggBurst key={burstKey} />}
 
       {!isMobile ? (
         <DesktopMenu active={active} onNavigate={goTo} />

@@ -1,14 +1,8 @@
 'use client';
 
-import { createContext, useEffect, useRef, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import Lenis from '@studio-freight/lenis';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 export const LenisContext = createContext<Lenis | null>(null);
 
@@ -19,10 +13,16 @@ export function SmoothScrollProvider({
 }) {
   const [lenis, setLenis] = useState<Lenis | null>(null);
   const reduced = useReducedMotion();
-  const rafCb = useRef<((time: number) => void) | null>(null);
 
   useEffect(() => {
     if (reduced) return;
+
+    // Skip Lenis on touch devices — native inertial scroll is smoother
+    // and much cheaper on mobile GPUs.
+    const isCoarse =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(pointer: coarse)').matches;
+    if (isCoarse) return;
 
     const instance = new Lenis({
       duration: 1.4,
@@ -34,20 +34,15 @@ export function SmoothScrollProvider({
 
     setLenis(instance);
 
-    const onScroll = () => ScrollTrigger.update();
-    instance.on('scroll', onScroll);
-
+    let rafId = 0;
     const tick = (time: number) => {
-      instance.raf(time * 1000);
+      instance.raf(time);
+      rafId = requestAnimationFrame(tick);
     };
-    rafCb.current = tick;
-
-    gsap.ticker.add(tick);
-    gsap.ticker.lagSmoothing(0);
+    rafId = requestAnimationFrame(tick);
 
     return () => {
-      instance.off('scroll', onScroll);
-      if (rafCb.current) gsap.ticker.remove(rafCb.current);
+      cancelAnimationFrame(rafId);
       instance.destroy();
       setLenis(null);
     };

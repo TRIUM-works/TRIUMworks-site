@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { projetos, type Projeto } from '@/lib/data/projetos';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { useSnap } from '@/components/layout/SnapController';
 import { TreatedImage } from '@/components/ui/TreatedImage';
 import { Tag } from '@/components/ui/Tag';
 import { Button } from '@/components/ui/Button';
-import { GrainOverlay, grainSvg } from '@/components/ui/GrainOverlay';
-import { useSprayTrail } from '@/lib/hooks/useSprayTrail';
+import { GrainOverlay } from '@/components/ui/GrainOverlay';
 import { cn } from '@/lib/utils';
 
 export function ProjetosIndividuais() {
@@ -116,7 +115,6 @@ function ProjetoInline({
             className="absolute inset-0 h-full w-full object-cover"
           />
           <GrainOverlay intensity={0.08} />
-          <PreviewSpray />
         </div>
 
         {/* Barra discreta — sobrepõe levemente a borda inferior do preview,
@@ -166,41 +164,3 @@ function ProjetoInline({
   );
 }
 
-/**
- * Overlay de spray sobre o preview do projeto.
- * Aplica apenas textura granulada (sem cor própria forte) na trilha do mouse,
- * via mix-blend-overlay para se integrar à imagem original.
- */
-function PreviewSpray() {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const paintRef = useRef<HTMLDivElement>(null);
-  const { onPointerMove } = useSprayTrail(wrapperRef, paintRef, {
-    baseRadius: 80,
-    maxAge: 90,
-    growth: 0.4,
-  });
-
-  return (
-    <div
-      ref={wrapperRef}
-      onPointerMove={onPointerMove}
-      aria-hidden="true"
-      // pointer-events-auto só pra capturar o mousemove; o filho com paint
-      // tem pointer-events-none, então não atrapalha nada (a área do preview
-      // não tem links/cliques próprios).
-      className="absolute inset-0 z-[5]"
-    >
-      <div
-        ref={paintRef}
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage: `url("${grainSvg}")`,
-          backgroundSize: '140px 140px',
-          mixBlendMode: 'overlay',
-          opacity: 0,
-          transition: 'opacity 220ms ease-out',
-        }}
-      />
-    </div>
-  );
-}

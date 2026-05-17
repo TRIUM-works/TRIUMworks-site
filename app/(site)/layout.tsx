@@ -131,10 +131,12 @@ export default function SiteLayout({
             <RouteTransition>{children}</RouteTransition>
             <BackToTop />
             <AmbientAudio />
-            {/* Grain global — camada fixa por cima de tudo (exceto cursor) */}
+            {/* Grain global — camada fixa por cima de tudo (exceto cursor).
+                Escondida em telas pequenas porque mix-blend-overlay em
+                fullscreen mata a performance GPU no celular. */}
             <GrainOverlay
               intensity={0.06}
-              className="fixed z-[100]"
+              className="hidden md:block fixed z-[100]"
             />
           </SnapController>
         </SmoothScrollProvider>
