@@ -43,6 +43,14 @@ html.snap-active body {
   .snap-section {
     min-height: 100dvh;
   }
+  /* h-screen do Tailwind usa 100vh — em monitores onde o chrome do browser
+     consome bastante altura (ex: HP 1080p com tabs+url+bookmarks visíveis)
+     isso fazia o conteúdo overflowar ou colidir. dvh sempre reflete a área
+     real visível, garantindo que flex layouts internos distribuam o espaço
+     correto e nada se sobreponha. */
+  .h-screen {
+    height: 100dvh;
+  }
 }
 
 body {

@@ -23,11 +23,38 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: Params): Metadata {
   const p = getProjetoBySlug(params.slug);
   if (!p) return { title: 'Projeto não encontrado' };
+  const title = `${p.titulo} — ${p.categoria} feito pela TRIUM em Volta Redonda`;
+  const description = `${p.descricaoCurta} Projeto desenvolvido pela TRIUM, estúdio de criação de sites em Volta Redonda, RJ.`;
   return {
-    title: p.titulo,
-    description: p.descricaoCurta,
+    title,
+    description,
+    alternates: { canonical: `/projetos/${p.slug}` },
+    keywords: [
+      p.titulo,
+      p.cliente,
+      p.categoria,
+      ...p.tecnologias,
+      'TRIUM',
+      'criação de sites Volta Redonda',
+      'portfólio TRIUM',
+    ],
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      url: `/projetos/${p.slug}`,
+      images: [{ url: p.imagemPrincipal, alt: p.titulo }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [p.imagemPrincipal],
+    },
   };
 }
+
+const SITE_URL = 'https://www.triumworks.com.br';
 
 export default function ProjetoPage({ params }: Params) {
   const projeto = getProjetoBySlug(params.slug);
@@ -35,8 +62,29 @@ export default function ProjetoPage({ params }: Params) {
 
   const { anterior, proximo } = getProjetoAdjacentes(projeto.slug);
 
+  const projectJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    '@id': `${SITE_URL}/projetos/${projeto.slug}#project`,
+    name: projeto.titulo,
+    headline: `${projeto.titulo} — ${projeto.categoria}`,
+    description: projeto.descricaoCompleta,
+    inLanguage: 'pt-BR',
+    url: `${SITE_URL}/projetos/${projeto.slug}`,
+    image: `${SITE_URL}${projeto.imagemPrincipal}`,
+    dateCreated: String(projeto.ano),
+    creator: { '@id': `${SITE_URL}/#business` },
+    author: { '@id': `${SITE_URL}/#business` },
+    keywords: [projeto.categoria, ...projeto.tecnologias].join(', '),
+    about: projeto.cliente,
+  };
+
   return (
     <article className="relative min-h-screen bg-carbon pb-md pt-32">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd) }}
+      />
       <div className="mx-auto max-w-5xl px-6">
         <nav
           aria-label="Caminho"
@@ -61,7 +109,7 @@ export default function ProjetoPage({ params }: Params) {
           <div className="font-mono text-tiny uppercase tracking-[0.3em] text-stone">
             {projeto.categoria} · {projeto.ano}
           </div>
-          <h1 className="mt-4 font-trickster text-display text-cream">
+          <h1 data-cursor="hover" className="mt-4 font-trickster text-display text-cream">
             {projeto.titulo}
           </h1>
           <p className="mt-4 font-lora italic text-body-lg text-stone max-w-xl">

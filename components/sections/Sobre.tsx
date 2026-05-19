@@ -18,7 +18,9 @@ export function Sobre() {
             <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
               朩 Quem somos
             </div>
-            <h2 className="font-trickster text-h1 text-teal">Sobre nós</h2>
+            <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">
+              Sobre nós
+            </h2>
             <p className="mt-6 max-w-2xl font-lora text-body-lg text-cream">
               A TRIUM é um estúdio criativo de Volta Redonda, RJ, focado em
               criar sites modernos, rápidos e estratégicos para empresas de
@@ -64,8 +66,15 @@ export function Sobre() {
               className="flex items-center gap-5"
             >
               <div
+                data-cursor="hover"
                 className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-blue-deep"
                 style={{
+                  // position/size inline — evita que a Image fill desça pro
+                  // body inteiro no primeiro paint do dev server, antes do
+                  // Tailwind aplicar h-20 w-20 relative.
+                  position: 'relative',
+                  width: 80,
+                  height: 80,
                   background:
                     'radial-gradient(circle at 30% 30%, #0D3B66 0%, #111418 70%)',
                 }}

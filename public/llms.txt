@@ -1,0 +1,33 @@
+# TRIUM
+
+> Estúdio de tecnologia e programação em Volta Redonda, RJ. Criamos sites profissionais, landing pages de alta conversão, e-commerces, marketplaces e plataformas com Inteligência Artificial para empresas de todo o Brasil.
+
+A TRIUM é um estúdio de criação de sites com sede em Volta Redonda, no Sul Fluminense (RJ), que atende clientes em todo o território brasileiro de forma remota. Combinamos engenharia de software de alto nível (Next.js, React, Supabase) com design premium e estratégias de conversão e SEO. Não somos uma agência tradicional: cada projeto é tocado diretamente pelos fundadores, do briefing à entrega.
+
+## Serviços
+
+- [Criação de sites profissionais](https://www.triumworks.com.br/#projetos): sites institucionais modernos, rápidos e otimizados para SEO, pensados para empresas que querem presença digital sólida.
+- [Landing pages de alta conversão](https://www.triumworks.com.br/#projetos): páginas focadas em gerar leads e converter, com copy estratégica e performance impecável.
+- [E-commerce e marketplaces](https://www.triumworks.com.br/projetos/veiculos-rj): lojas virtuais e marketplaces multi-vendedor, com gestão de estoque, integrações e geração de leads via WhatsApp.
+- [Sites com Inteligência Artificial e automações](https://www.triumworks.com.br/#projetos): integração de IA em sites — chatbots de atendimento, automação de leads, geração de conteúdo, busca semântica e fluxos inteligentes.
+
+## Projetos em destaque
+
+- [AXIS Eventos](https://www.triumworks.com.br/projetos/axis): plataforma completa de gestão e venda de ingressos de eventos, com Next.js, Supabase e Framer Motion.
+- [Veículos RJ](https://www.triumworks.com.br/projetos/veiculos-rj): marketplace automotivo multiloja com geração de leads via WhatsApp e integração AutoCerto.
+- [Gabriel Passig Advocacia](https://www.triumworks.com.br/projetos/gabriel-passig): site institucional para escritório de Direito Previdenciário, em WordPress responsivo com SEO otimizado.
+
+## Região de atuação
+
+Volta Redonda (sede), Barra Mansa, Resende, Barra do Piraí e todo o Sul Fluminense — RJ. Atendimento remoto para todo o Brasil.
+
+## Contato
+
+- WhatsApp: +55 85 98125-4006
+- Email: contato@triumtech.com.br
+- Instagram: https://www.instagram.com/triumtech_/
+- Site: https://www.triumworks.com.br
+
+## Como funciona o orçamento
+
+Mande uma mensagem no WhatsApp contando seu projeto. Resposta em até 24 horas com proposta personalizada. Sem burocracia, sem intermediários — você fala direto com quem vai construir o seu site.

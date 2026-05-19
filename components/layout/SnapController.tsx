@@ -55,9 +55,17 @@ export function SnapController({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refreshSections();
-    const obs = new MutationObserver(refreshSections);
-    obs.observe(document.body, { childList: true, subtree: true });
-    return () => obs.disconnect();
+    // Re-medir apenas quando o layout muda (resize) e em casos pontuais
+    // disparados via evento custom. Observar todo o body com subtree:true
+    // fazia o handler rodar centenas de vezes durante as animações iniciais
+    // do Framer Motion, travando o carregamento por vários segundos.
+    const onLayout = () => refreshSections();
+    window.addEventListener('resize', onLayout);
+    window.addEventListener('trium:snap-refresh', onLayout);
+    return () => {
+      window.removeEventListener('resize', onLayout);
+      window.removeEventListener('trium:snap-refresh', onLayout);
+    };
   }, [refreshSections]);
 
   const goToIndex = useCallback(

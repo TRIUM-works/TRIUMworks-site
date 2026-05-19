@@ -27,7 +27,7 @@ export const projetos: Projeto[] = [
     ano: 2025,
     categoria: 'App',
     cliente: 'AXIS Eventos',
-    tecnologias: ['Next.js', 'React', 'Supabase', 'Framer Motion'],
+    tecnologias: ['Next.js', 'React', 'Supabase'],
     imagemPrincipal: '/images/projetos/axis/banner1.webp',
     galeria: [
       '/images/projetos/axis/banner1.webp',
@@ -45,7 +45,7 @@ export const projetos: Projeto[] = [
     desafios:
       'Criar uma plataforma que conciliasse gestão complexa (pré-vendas, lotes, artistas) com uma interface premium e animações imersivas sem sacrificar performance.',
     solucao:
-      'Arquitetura com Next.js e Supabase para backend em tempo real, Framer Motion para animações refinadas, dashboard intuitivo para produtores e fluxo de compra otimizado para conversão.',
+      'Arquitetura com Next.js e Supabase para backend em tempo real, animações refinadas, dashboard intuitivo para produtores e fluxo de compra otimizado para conversão.',
     resultados:
       'Plataforma lançada com interface premium, gestão completa de eventos e experiência de usuário que elevou o padrão do mercado regional de entretenimento.',
     urlExterna: 'https://axis-eventos.vercel.app/',

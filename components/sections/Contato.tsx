@@ -67,7 +67,7 @@ function ContactButton({
       rel="noopener noreferrer"
       aria-label={aria}
       data-cursor="hover"
-      className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-teal px-8 py-5 font-mono uppercase tracking-[0.18em] text-small text-cream transition-colors duration-[600ms] ease-artisan hover:text-carbon"
+      className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-teal px-8 py-5 font-mono uppercase tracking-[0.18em] text-small text-cream transition-[transform,letter-spacing,box-shadow,border-color] duration-[600ms] ease-artisan hover:scale-[1.03] hover:tracking-[0.2em] hover:border-teal-light hover:shadow-[0_10px_36px_-8px_rgba(9,194,167,0.45)]"
     >
       <span
         aria-hidden="true"
@@ -85,8 +85,17 @@ function ContactButton({
             'url("data:image/svg+xml;utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'240\' height=\'240\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
         }}
       />
-      {icon}
-      <span>{label}</span>
+      {/* Ícone com motion levemente diferente do texto — escala um pouco mais
+          forte que o botão e desloca, criando movimento em camadas no hover. */}
+      <span
+        aria-hidden="true"
+        className="inline-flex transition-transform duration-[600ms] ease-artisan group-hover:scale-110 group-hover:-translate-x-0.5"
+      >
+        {icon}
+      </span>
+      <span className="transition-transform duration-[600ms] ease-artisan group-hover:translate-x-0.5">
+        {label}
+      </span>
     </a>
   );
 }
@@ -104,7 +113,9 @@ export function Contato() {
             <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
               ✦ Conversemos
             </div>
-            <h2 className="font-trickster text-h1 text-teal">Contato</h2>
+            <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">
+              Contato
+            </h2>
             <p className="mx-auto mt-6 max-w-xl font-lora text-body-lg text-cream">
               Conta o que você quer construir. Respondemos em até 24 horas.
             </p>

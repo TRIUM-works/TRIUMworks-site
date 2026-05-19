@@ -30,10 +30,15 @@ export function TreatedImage({
 
   return (
     <div
+      data-cursor="hover"
       className={cn('relative overflow-hidden', className)}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
       style={{
+        // position: relative inline garante que o <Image fill /> sempre tenha
+        // um ancestral posicionado, MESMO antes do Tailwind carregar em dev
+        // (evita a imagem "vazar" pro body inteiro no primeiro paint).
+        position: 'relative',
         boxShadow: 'inset 0 0 80px rgba(17,20,24,0.6)',
       }}
     >
@@ -49,6 +54,12 @@ export function TreatedImage({
           treated && !hovered && 'grayscale-[0.5]'
         )}
         style={{
+          // maxWidth/height inline impede que imagens com width=2000
+          // (HTML attribute do next/image) rendam no tamanho intrínseco
+          // antes do CSS aplicar `h-full w-full`. Inline ganha de qualquer
+          // stylesheet, então funciona no primeiro paint do dev server.
+          maxWidth: '100%',
+          height: fill ? undefined : 'auto',
           filter: treated && !hovered ? 'grayscale(0.5) hue-rotate(140deg)' : 'none',
         }}
       />

@@ -19,6 +19,7 @@ interface CardProps {
   offset: number;
   isActive: boolean;
   spacing: number;
+  isMobile: boolean;
   onClick: () => void;
 }
 
@@ -28,6 +29,7 @@ function Card({
   offset,
   isActive,
   spacing,
+  isMobile,
   onClick,
 }: CardProps) {
   const absOffset = Math.abs(offset);
@@ -37,6 +39,29 @@ function Card({
   const z = 50 - absOffset;
   const rot = isActive ? 0 : offset > 0 ? -1 : 1;
 
+  // No mobile: sem blur (filter animado é o que mais trava troca de card),
+  // rotação 0 (rotação + spring + scale juntos causam jank em GPUs mobile)
+  // e tween curto no lugar de spring para uma troca direta.
+  const animate = isMobile
+    ? {
+        x: `calc(${x}px - 50%)`,
+        y: '-50%',
+        scale,
+        opacity,
+      }
+    : {
+        x: `calc(${x}px - 50%)`,
+        y: '-50%',
+        scale,
+        opacity,
+        rotate: rot,
+        filter: isActive ? 'blur(0px)' : `blur(${Math.min(absOffset * 0.6, 2)}px)`,
+      };
+
+  const transition = isMobile
+    ? { type: 'tween' as const, duration: 0.28, ease: [0.4, 0, 0.2, 1] as const }
+    : { type: 'spring' as const, stiffness: 120, damping: 22, mass: 0.8 };
+
   return (
     <motion.button
       type="button"
@@ -44,27 +69,17 @@ function Card({
       data-cursor="hover"
       aria-label={`${projeto.titulo} — projeto ${String(index + 1).padStart(2, '0')}`}
       className="absolute left-1/2 top-1/2 origin-center"
-      style={{ zIndex: z }}
-      animate={{
-        x: `calc(${x}px - 50%)`,
-        y: '-50%',
-        scale,
-        opacity,
-        rotate: rot,
-        filter: isActive ? 'blur(0px)' : `blur(${Math.min(absOffset * 0.6, 2)}px)`,
-      }}
-      transition={{
-        type: 'spring',
-        stiffness: 120,
-        damping: 22,
-        mass: 0.8,
-      }}
+      style={{ zIndex: z, willChange: 'transform, opacity' }}
+      animate={animate}
+      transition={transition}
     >
       <div
         className={cn(
-          'relative flex h-[300px] w-[180px] flex-col items-center justify-between overflow-hidden border bg-blue-deep p-4 transition-shadow duration-500 md:h-[420px] md:w-[260px] md:p-6',
+          'relative flex h-[280px] w-[170px] flex-col items-center justify-between overflow-hidden border bg-blue-deep p-4 transition-shadow duration-500 md:h-[380px] md:w-[240px] md:p-6',
           isActive
-            ? 'border-teal shadow-[0_0_60px_rgba(13,59,102,0.6)]'
+            ? isMobile
+              ? 'border-teal shadow-[0_0_24px_rgba(13,59,102,0.45)]'
+              : 'border-teal shadow-[0_0_60px_rgba(13,59,102,0.6)]'
             : 'border-blue-deep'
         )}
       >
@@ -233,78 +248,85 @@ export function Projetos() {
     <section
       id="projetos"
       data-snap-section="projetos"
-      className="snap-section relative flex h-screen w-full flex-col items-center justify-center overflow-hidden bg-carbon"
+      className="snap-section relative flex h-screen w-full flex-col items-center overflow-hidden bg-carbon"
+      style={{ height: '100dvh' }}
     >
       <GrainOverlay intensity={0.08} />
 
-      {/* Cabeçalho absoluto — fora do flex pra não empurrar o carrossel.
-          top-20 mantém distância confortável do badge TRIUM no topo.
-          z-20 garante que fica acima dos cards. */}
-      <div className="absolute left-1/2 top-20 z-20 -translate-x-1/2 text-center md:top-24">
+      {/* Cabeçalho — em flow no topo, com espaço próprio. Antes era absolute
+          top-20, o que fazia o título flutuar e colidir com o card em alturas
+          curtas. */}
+      <div className="z-20 shrink-0 pt-20 text-center md:pt-24">
         <div className="mb-2 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
           ✦ Portfolio
         </div>
-        <h2 className="font-trickster text-h2 text-teal">Projetos</h2>
+        <h2 data-cursor="hover" className="font-trickster text-h2 text-teal">
+          Projetos
+        </h2>
       </div>
 
-      {/* Carrossel */}
+      {/* Carrossel — flex-1, ocupa o espaço entre cabeçalho e controles */}
       <motion.div
-        drag={isMobile ? 'x' : 'x'}
+        drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
-        className="relative h-[360px] w-full cursor-grab active:cursor-grabbing md:h-[500px]"
+        style={{ touchAction: 'pan-y' }}
+        className="relative flex w-full flex-1 cursor-grab items-center justify-center active:cursor-grabbing"
       >
-        {projetos.map((p, i) => {
-          const offset = i - current;
-          if (Math.abs(offset) > visibleCount + 1) return null;
-          return (
-            <Card
-              key={p.slug}
-              projeto={p}
-              index={i}
-              offset={offset}
-              spacing={spacing}
-              isActive={i === current}
-              onClick={() => {
-                if (i === current) openProjeto(p.slug);
-                else goTo(i);
-              }}
-            />
-          );
-        })}
+        <div className="relative h-[340px] w-full md:h-[460px]">
+          {projetos.map((p, i) => {
+            const offset = i - current;
+            if (Math.abs(offset) > visibleCount + 1) return null;
+            return (
+              <Card
+                key={p.slug}
+                projeto={p}
+                index={i}
+                offset={offset}
+                spacing={spacing}
+                isMobile={isMobile}
+                isActive={i === current}
+                onClick={() => {
+                  if (i === current) openProjeto(p.slug);
+                  else goTo(i);
+                }}
+              />
+            );
+          })}
+        </div>
       </motion.div>
 
-      {/* Setas: acima, mantendo a mesma distância que tinham com os dots no meio */}
-      {!isMobile && (
-        <div className="absolute bottom-36 left-1/2 z-10 flex -translate-x-1/2 items-center gap-44">
-          <CarouselArrow
-            dir="left"
-            disabled={current === 0}
-            onClick={() => goTo(current - 1)}
-          />
-          <CarouselArrow
-            dir="right"
-            disabled={current === total - 1}
-            onClick={() => goTo(current + 1)}
-          />
+      {/* Controles — em flow no rodapé, garantindo espaço sob o card */}
+      <div className="z-10 flex shrink-0 flex-col items-center gap-5 pb-12 md:gap-6 md:pb-16">
+        {!isMobile && (
+          <div className="flex items-center gap-44">
+            <CarouselArrow
+              dir="left"
+              disabled={current === 0}
+              onClick={() => goTo(current - 1)}
+            />
+            <CarouselArrow
+              dir="right"
+              disabled={current === total - 1}
+              onClick={() => goTo(current + 1)}
+            />
+          </div>
+        )}
+        <div className="flex gap-2">
+          {projetos.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              data-cursor="hover"
+              aria-label={`Ir para projeto ${i + 1}`}
+              className={cn(
+                'h-px transition-all duration-500',
+                i === current ? 'w-8 bg-teal' : 'w-4 bg-stone hover:bg-cream'
+              )}
+            />
+          ))}
         </div>
-      )}
-
-      {/* Dots indicador — embaixo */}
-      <div className="absolute bottom-20 left-1/2 z-10 flex -translate-x-1/2 gap-2 md:bottom-24">
-        {projetos.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i)}
-            data-cursor="hover"
-            aria-label={`Ir para projeto ${i + 1}`}
-            className={cn(
-              'h-px transition-all duration-500',
-              i === current ? 'w-8 bg-teal' : 'w-4 bg-stone hover:bg-cream'
-            )}
-          />
-        ))}
       </div>
     </section>
   );

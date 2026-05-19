@@ -26,28 +26,52 @@ export function Header() {
   // visual dos elementos absolute dentro de containers w-full (que ficam
   // dentro da área do body, sem a scrollbar).
   const [scrollbarW, setScrollbarW] = useState(0);
+  // useMobile retorna false no SSR e pode virar true no client. Sem este
+  // gate, o servidor renderiza DesktopMenu e o client tenta hidratar
+  // MobileMenu → hydration mismatch → árvore inteira pode ser descartada,
+  // que combinado com fast-refresh stale produz o erro ao recarregar.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    let raf = 0;
+    let lastT = -1;
     const compute = () => {
       const vh = window.innerHeight;
       const start = vh * 0.55;
       const end = vh * 0.9;
-      const t = (window.scrollY - start) / (end - start);
-      setHeroExit(Math.max(0, Math.min(1, t)));
+      const t = Math.max(0, Math.min(1, (window.scrollY - start) / (end - start)));
+      // Evita setState desnecessário (a cada scroll, mesmo sem mudança real
+      // de progresso, dispararia re-render do Header inteiro).
+      if (Math.abs(t - lastT) > 0.005) {
+        lastT = t;
+        setHeroExit(t);
+      }
+    };
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        compute();
+      });
     };
     const measureScrollbar = () => {
       setScrollbarW(window.innerWidth - document.documentElement.clientWidth);
     };
-    compute();
-    measureScrollbar();
-    window.addEventListener('scroll', compute, { passive: true });
-    window.addEventListener('resize', () => {
+    const onResize = () => {
       compute();
       measureScrollbar();
-    });
+    };
+    compute();
+    measureScrollbar();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
     return () => {
-      window.removeEventListener('scroll', compute);
-      window.removeEventListener('resize', compute);
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
     };
   }, []);
 
@@ -113,16 +137,21 @@ export function Header() {
 
       {burstKey > 0 && <EasterEggBurst key={burstKey} />}
 
-      {!isMobile ? (
-        <DesktopMenu active={active} onNavigate={goTo} />
-      ) : (
-        <MobileMenu
-          open={open}
-          setOpen={setOpen}
-          active={active}
-          onNavigate={goTo}
-        />
-      )}
+      {/* Só decide desktop vs mobile depois de mountar no client. No SSR
+          ambos não renderizam (nada de mismatch); na hidratação React faz
+          uma única passada server-vs-client compatível, depois o efeito
+          dispara e a UI correta aparece. */}
+      {mounted &&
+        (!isMobile ? (
+          <DesktopMenu active={active} onNavigate={goTo} />
+        ) : (
+          <MobileMenu
+            open={open}
+            setOpen={setOpen}
+            active={active}
+            onNavigate={goTo}
+          />
+        ))}
     </>
   );
 }
@@ -142,10 +171,13 @@ function DesktopMenu({
   return (
     <aside
       aria-label="Navegação principal"
-      className="fixed right-0 top-0 z-40 flex h-screen w-20 flex-col items-center justify-center"
+      className="fixed right-0 top-0 z-40 flex h-screen w-20 flex-col items-center"
+      style={{ height: '100dvh' }}
     >
-      {/* Indicador disponibilidade */}
-      <div className="absolute top-8 flex flex-col items-center gap-2">
+      {/* Indicador disponibilidade — limitado em altura para não invadir o
+          centro do menu em viewports curtos. Em telas baixas (<800px efetivos)
+          a label de texto some, sobra só o dot pulsante. */}
+      <div className="flex shrink-0 flex-col items-center gap-2 pt-8">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal opacity-75" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-teal" />
@@ -155,34 +187,16 @@ function DesktopMenu({
           style={{
             fontSize: '9px',
             writingMode: 'vertical-rl',
-            transform: 'rotate(180deg)',
+            maxHeight: 'calc(50dvh - 220px)',
+            overflow: 'hidden',
           }}
         >
           Aceitando novos projetos
         </span>
       </div>
 
-      {/* Barra de progresso — segue a seção ativa, em passos */}
-      <svg
-        aria-hidden="true"
-        className="absolute right-14 h-[40vh] w-[1px]"
-        viewBox="0 0 1 100"
-        preserveAspectRatio="none"
-      >
-        <line x1="0.5" y1="0" x2="0.5" y2="100" stroke="#0D3B66" strokeWidth="1" />
-        <motion.line
-          x1="0.5"
-          y1="0"
-          x2="0.5"
-          stroke="#09C2A7"
-          strokeWidth="1"
-          initial={false}
-          animate={{ y2: sectionProgress * 100 }}
-          transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
-        />
-      </svg>
-
-      <ul className="flex flex-col items-center gap-6">
+      {/* Menu — agora ocupando o centro vertical do aside */}
+      <ul className="flex flex-1 flex-col items-center justify-center gap-6">
         {SECTIONS.map((s) => {
           const isActive = active === s.id;
           return (
@@ -206,7 +220,6 @@ function DesktopMenu({
                 style={{
                   fontSize: '11px',
                   writingMode: 'vertical-rl',
-                  transform: 'rotate(180deg)',
                 }}
               >
                 {s.label}
@@ -216,6 +229,28 @@ function DesktopMenu({
           );
         })}
       </ul>
+
+      {/* Barra de progresso — agora no rodapé do aside */}
+      <div className="flex shrink-0 items-center justify-center pb-8">
+        <svg
+          aria-hidden="true"
+          className="h-[22vh] max-h-[180px] w-[1px]"
+          viewBox="0 0 1 100"
+          preserveAspectRatio="none"
+        >
+          <line x1="0.5" y1="0" x2="0.5" y2="100" stroke="#0D3B66" strokeWidth="1" />
+          <motion.line
+            x1="0.5"
+            y1="0"
+            x2="0.5"
+            stroke="#09C2A7"
+            strokeWidth="1"
+            initial={false}
+            animate={{ y2: sectionProgress * 100 }}
+            transition={{ duration: 0.6, ease: [0.65, 0, 0.35, 1] }}
+          />
+        </svg>
+      </div>
     </aside>
   );
 }

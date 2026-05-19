@@ -1,13 +1,10 @@
 'use client';
 
-import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useSnap } from '@/components/layout/SnapController';
 import { CSSFallbackBackground } from '@/components/shader/CSSFallbackBackground';
 import { StrokeText } from '@/components/animations/StrokeText';
 import { Button } from '@/components/ui/Button';
-import { grainSvg } from '@/components/ui/GrainOverlay';
-import { useSprayTrail } from '@/lib/hooks/useSprayTrail';
 
 export function Hero() {
   const snap = useSnap();
@@ -89,51 +86,13 @@ export function Hero() {
 }
 
 function TriumSpotlightTitle() {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const paintRef = useRef<HTMLSpanElement>(null);
-  const { onPointerMove } = useSprayTrail(wrapperRef, paintRef, {
-    baseRadius: 70,
-    maxAge: 100,
-    growth: 0.3,
-  });
-
   return (
-    <div
-      ref={wrapperRef}
-      onPointerMove={onPointerMove}
-      className="relative inline-block"
+    <h1
+      data-cursor="hover"
+      className="font-trickster text-cream leading-[0.92]"
+      style={{ fontSize: 'clamp(96px, 18vw, 240px)' }}
     >
-      {/* Camada base: TRIUM cream com a animação de entrada */}
-      <h1
-        className="font-trickster text-cream leading-[0.92]"
-        style={{ fontSize: 'clamp(96px, 18vw, 240px)' }}
-      >
-        <StrokeText text="TRIUM" delay={0.2} letterStagger={0.12} />
-      </h1>
-
-      {/* Camada de cima: TRIUM teal granulado.
-          A mask é gerenciada pelo useSprayTrail, revelando apenas a trilha
-          recente do cursor com fade orgânico. */}
-      <span
-        ref={paintRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 font-trickster leading-[0.92]"
-        style={{
-          fontSize: 'clamp(96px, 18vw, 240px)',
-          color: '#09C2A7',
-          backgroundImage: `url("${grainSvg}"), linear-gradient(180deg, #0EE0BF 0%, #09C2A7 50%, #067A6B 100%)`,
-          backgroundBlendMode: 'overlay, normal',
-          backgroundSize: '160px 160px, cover',
-          WebkitBackgroundClip: 'text',
-          backgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          filter: 'drop-shadow(0 0 8px rgba(9, 194, 167, 0.35))',
-          opacity: 0,
-          transition: 'opacity 200ms ease-out',
-        }}
-      >
-        TRIUM
-      </span>
-    </div>
+      <StrokeText text="TRIUM" delay={0.2} letterStagger={0.12} />
+    </h1>
   );
 }

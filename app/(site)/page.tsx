@@ -2,6 +2,7 @@ import { Hero } from '@/components/sections/Hero';
 import { Projetos } from '@/components/sections/Projetos';
 import { ProjetosIndividuais } from '@/components/sections/ProjetosIndividuais';
 import { Sobre } from '@/components/sections/Sobre';
+import { FAQ } from '@/components/sections/FAQ';
 import { Contato } from '@/components/sections/Contato';
 import { Footer } from '@/components/layout/Footer';
 
@@ -12,6 +13,7 @@ export default function HomePage() {
       <Projetos />
       <ProjetosIndividuais />
       <Sobre />
+      <FAQ />
       <Contato />
       <Footer />
     </>
