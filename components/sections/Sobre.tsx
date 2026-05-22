@@ -15,7 +15,7 @@ export function Sobre() {
       <div className="mx-auto max-w-3xl px-6">
         <DrawGraphic>
           <div className="mb-md">
-            <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
+            <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
               朩 Quem somos
             </div>
             <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">

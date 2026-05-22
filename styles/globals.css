@@ -118,6 +118,28 @@ svg {
   font-family: 'Trickster', serif;
 }
 
+/* ── Scrollbar customizada (29) ─────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--carbon); }
+::-webkit-scrollbar-thumb {
+  background: var(--blue-deep);
+  border-radius: 3px;
+  transition: background 0.3s;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--teal); }
+
+/* ── Cursor piscante terminal (20) ──────────────────────────── */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+.terminal-cursor::after {
+  content: '_';
+  color: var(--teal);
+  animation: blink 1.1s step-end infinite;
+  margin-left: 1px;
+}
+
 /* Lenis */
 html.lenis,
 html.lenis body {

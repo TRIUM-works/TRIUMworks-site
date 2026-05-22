@@ -18,6 +18,7 @@ export interface Projeto {
   grafismo: '✦' | '〜' | '朩';
   logoLetra: string;          // letra/símbolo placeholder no card lateral
   corCapa: string;            // gradiente CSS para fallback da capa
+  imagemCard?: string;        // imagem exibida no carrossel da home
 }
 
 export const projetos: Projeto[] = [
@@ -37,22 +38,23 @@ export const projetos: Projeto[] = [
       '/images/projetos/axis/banner2.webp',
     ],
     descricaoCurta:
-      'Plataforma de alta performance para gestão e venda de ingressos de eventos, com foco em experiência do usuário e design imersivo.',
+      'Plataforma para divulgação de eventos, pré-vendas e artistas agenciados pela AXIS — construída com design imersivo e tecnologia de alta performance para conectar público e produtores em uma experiência única.',
     descricaoCompleta:
-      'A AXIS é uma plataforma completa para o ecossistema de eventos, unindo tecnologia de ponta e design premium. Desenvolvida com Next.js e Supabase, oferece uma interface fluida com animações imersivas, gestão de pré-vendas, integração com artistas e um dashboard intuitivo para produtores, elevando o padrão das experiências de entretenimento.',
+      'A AXIS é uma plataforma completa para o ecossistema de eventos da agência, unindo tecnologia de ponta e design premium. Desenvolvida com Next.js e Supabase, centraliza a divulgação de eventos, o gerenciamento de pré-vendas por lotes e o portfólio de artistas agenciados. Oferece uma interface fluida com animações imersivas e um dashboard intuitivo para produtores, elevando o padrão das experiências de entretenimento regional.',
     contexto:
-      'O mercado de eventos na região precisava de uma solução digital que fosse além da simples venda de ingressos — que oferecesse uma experiência completa tanto para produtores quanto para o público.',
+      'A AXIS Eventos precisava de uma presença digital à altura do seu posicionamento no mercado — uma plataforma que centralizasse a divulgação dos eventos, apresentasse o cast de artistas agenciados e gerenciasse pré-vendas com clareza e impacto visual, sem depender de soluções genéricas que não refletissem a identidade da marca.',
     desafios:
-      'Criar uma plataforma que conciliasse gestão complexa (pré-vendas, lotes, artistas) com uma interface premium e animações imersivas sem sacrificar performance.',
+      'Criar uma plataforma que conciliasse múltiplas responsabilidades — divulgação de eventos, gestão de lotes de pré-venda e vitrine de artistas — com uma interface premium, animações imersivas e performance sólida, entregando uma experiência fluida tanto no mobile quanto no desktop.',
     solucao:
-      'Arquitetura com Next.js e Supabase para backend em tempo real, animações refinadas, dashboard intuitivo para produtores e fluxo de compra otimizado para conversão.',
+      'Arquitetura com Next.js e Supabase para dados em tempo real, design system próprio com animações refinadas, seções dedicadas a cada artista agenciado e um painel de gerenciamento de eventos e lotes para a equipe da AXIS — tudo dentro de uma identidade visual coesa e de alto impacto.',
     resultados:
-      'Plataforma lançada com interface premium, gestão completa de eventos e experiência de usuário que elevou o padrão do mercado regional de entretenimento.',
+      'Plataforma lançada com interface premium que unificou a comunicação da agência, aumentou o engajamento com os eventos divulgados e posicionou a AXIS como referência em experiência digital no mercado de entretenimento regional.',
     urlExterna: 'https://axis-eventos.vercel.app/',
     destaque: true,
     grafismo: '✦',
     logoLetra: 'A',
     corCapa: 'linear-gradient(135deg, #EF4444 0%, #991B1B 50%, #1a0505 100%)',
+    imagemCard: '/images/cards/axis.webp',
   },
 
   {
@@ -90,6 +92,7 @@ export const projetos: Projeto[] = [
     grafismo: '〜',
     logoLetra: 'V',
     corCapa: 'linear-gradient(135deg, #0d3b66 0%, #1a4a85 50%, #f3f3f3 100%)',
+    imagemCard: '/images/cards/veiculos.png',
   },
 
   {
@@ -127,6 +130,7 @@ export const projetos: Projeto[] = [
     grafismo: '朩',
     logoLetra: 'G',
     corCapa: 'linear-gradient(135deg, #1a2980 0%, #3B82F6 50%, #93c5fd 100%)',
+    imagemCard: '/images/cards/passig.webp',
   },
 ];
 

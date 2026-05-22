@@ -111,7 +111,7 @@ function ProjetoInline({
           href={`/projetos/${projeto.slug}`}
           data-cursor="hover"
           aria-label={`Abrir página do projeto ${projeto.titulo}`}
-          className="group relative w-full min-h-0 max-w-[1320px] flex-1 overflow-hidden rounded-lg border border-blue-deep/50 shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-[border-color,transform,box-shadow] duration-[500ms] ease-artisan hover:border-teal/70 hover:shadow-[0_28px_80px_rgba(9,194,167,0.18)]"
+          className="group relative w-full min-h-0 max-w-[1320px] xl:max-w-[1040px] 2xl:max-w-[1320px] flex-1 overflow-hidden rounded-lg border border-blue-deep/50 shadow-[0_20px_60px_rgba(0,0,0,0.5)] transition-[border-color,transform,box-shadow] duration-[500ms] ease-artisan hover:border-teal/70 hover:shadow-[0_28px_80px_rgba(9,194,167,0.18)]"
           style={{
             // position: relative inline + display block — ancorar a imagem
             // fill descendente, mesmo se as classes Tailwind ainda não
@@ -121,12 +121,18 @@ function ProjetoInline({
             background: projeto.corCapa,
           }}
         >
+          {/* pointer-events-none: o <img> do Next é arrastável por padrão e
+              qualquer micromovimento entre mousedown e mouseup vira um drag
+              nativo da imagem — o navegador então cancela o click e o Link
+              não navega. Desativar pointer-events em tudo dentro do Link
+              garante que o clique sempre alcance o <a>. */}
           <TreatedImage
             src={projeto.imagemPrincipal}
             alt={projeto.titulo}
             fill
             treated={false}
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-[700ms] ease-artisan group-hover:scale-[1.02]"
+            sizes="(min-width: 1536px) 1320px, (min-width: 1280px) 1040px, 100vw"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover transition-transform duration-[700ms] ease-artisan group-hover:scale-[1.02]"
           />
           <GrainOverlay intensity={0.08} />
         </Link>

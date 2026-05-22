@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { DrawGraphic } from '@/components/animations/DrawGraphic';
 
@@ -110,7 +111,7 @@ export function Contato() {
       <div className="mx-auto max-w-3xl px-6 text-center">
         <DrawGraphic>
           <div className="mb-md">
-            <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
+            <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
               ✦ Conversemos
             </div>
             <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">
@@ -138,12 +139,14 @@ export function Contato() {
             label="WhatsApp"
             aria="Falar via WhatsApp (abre em nova aba)"
           />
-          <span
+          <motion.span
             aria-hidden="true"
-            className="font-trickster text-3xl text-teal/60"
+            className="font-trickster text-3xl text-teal/60 inline-block"
+            whileHover={{ rotate: 180 }}
+            transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
           >
             ✦
-          </span>
+          </motion.span>
           <ContactButton
             href={INSTAGRAM_URL}
             icon={<InstagramIcon />}
@@ -151,6 +154,16 @@ export function Contato() {
             aria="Ver Instagram (abre em nova aba)"
           />
         </motion.div>
+      </div>
+
+      {/* Badge decorativo centralizado abaixo do conteúdo */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 pointer-events-none select-none">
+        <img
+          src="/trium-badge-teal.png"
+          alt=""
+          aria-hidden="true"
+          className="w-64 md:w-80 opacity-[0.07]"
+        />
       </div>
     </section>
   );

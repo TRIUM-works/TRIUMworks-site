@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/Button';
 
 export function Hero() {
   const snap = useSnap();
-
   const scrollToProjetos = () => snap.goToId('projetos');
 
   return (
@@ -58,7 +57,6 @@ export function Hero() {
         </motion.div>
       </div>
 
-      {/* Scroll indicator — clicável: vai para Projetos */}
       <motion.button
         type="button"
         onClick={scrollToProjetos}
