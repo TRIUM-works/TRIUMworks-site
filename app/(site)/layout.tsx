@@ -298,7 +298,7 @@ export default function SiteLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:bg-carbon focus:text-teal focus:p-3 focus:font-mono"
         >
-          Pular para o conteúd
+          Pular para o conteúdo
         </a>
         <SmoothScrollProvider>
           <SnapController>
