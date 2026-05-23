@@ -20,7 +20,7 @@ export function Footer() {
           </a>
         </span>
         <span className="hidden italic md:inline font-lora normal-case tracking-normal text-stone/50">
-          feito à mão em Volta Redonda, RJ
+          desenvolvido em Volta Redonda, RJ
         </span>
         <span>© {new Date().getFullYear()} TRIUM</span>
       </div>

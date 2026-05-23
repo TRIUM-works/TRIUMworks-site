@@ -27,7 +27,7 @@ export function Hero() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, delay: 1.0, ease: [0.65, 0, 0.35, 1] }}
         >
-          Soluções digitais feitas à mão. Pensadas para durar.
+          Soluções digitais feitas sob medida. Pensadas para durar.
           Direto de Volta Redonda, RJ, para o Brasil.
         </motion.p>
 
