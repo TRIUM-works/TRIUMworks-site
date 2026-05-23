@@ -21,10 +21,6 @@ const FAQS: QA[] = [
     a: 'Sites institucionais, landing pages de alta conversão, e-commerces, marketplaces multi-vendedor e plataformas web sob medida. Tudo feito com tecnologias modernas (Next.js, React, Supabase) e foco em performance, SEO e design premium.',
   },
   {
-    q: 'Vocês integram Inteligência Artificial nos sites?',
-    a: 'Sim. Integramos IA de várias formas: chatbots de atendimento 24/7, automação de captura e qualificação de leads, geração de conteúdo, busca semântica em catálogos e fluxos inteligentes de pré-vendas. A IA entra sempre conectada ao objetivo do seu negócio — nunca como enfeite.',
-  },
-  {
     q: 'Quanto tempo demora para entregar um site?',
     a: 'Depende do escopo. Landing pages costumam ficar prontas em 2 a 3 semanas. Sites institucionais completos levam de 3 a 6 semanas. E-commerces e plataformas com IA têm cronograma definido junto com você após o briefing.',
   },
