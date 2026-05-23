@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { useSnap } from '@/components/layout/SnapController';
@@ -16,6 +17,8 @@ const SECTIONS = [
 export function Header() {
   const isMobile = useMobile();
   const snap = useSnap();
+  const router = useRouter();
+  const pathname = usePathname();
   const [active, setActive] = useState('inicio');
   const [open, setOpen] = useState(false);
   const [burstKey, setBurstKey] = useState(0);
@@ -119,16 +122,20 @@ export function Header() {
       <motion.button
         onClick={() => {
           handleLogo();
-          snap.goToId('inicio');
+          if (pathname === '/') {
+            snap.goToId('inicio');
+          } else {
+            router.push('/');
+          }
         }}
         data-cursor="hover"
         aria-label="TRIUM — Voltar ao início"
         style={{
-          opacity: heroExit,
-          pointerEvents: heroExit > 0.5 ? 'auto' : 'none',
+          opacity: pathname !== '/' ? 1 : heroExit,
+          pointerEvents: pathname !== '/' || heroExit > 0.5 ? 'auto' : 'none',
           marginLeft: `${-scrollbarW / 2 + 8}px`,
         }}
-        animate={{ x: '-50%', y: heroExit > 0 ? 0 : -8 }}
+        animate={{ x: '-50%', y: pathname !== '/' || heroExit > 0 ? 0 : -8 }}
         transition={{ duration: 0.4, ease: [0.65, 0, 0.35, 1] }}
         className="fixed left-1/2 top-4 z-50 rounded-full border border-blue-deep/60 bg-carbon/75 px-5 py-1.5 font-trickster text-[22px] leading-none text-cream shadow-[0_4px_30px_rgba(0,0,0,0.45)] backdrop-blur-md"
       >

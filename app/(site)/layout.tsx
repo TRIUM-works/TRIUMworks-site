@@ -80,7 +80,8 @@ export const metadata: Metadata = {
     images: ['/og-image.jpg'],
   },
   icons: {
-    icon: '/favicon.svg',
+    icon: '/trium-badge-dark.png',
+    apple: '/trium-badge-dark.png',
   },
   robots: {
     index: true,

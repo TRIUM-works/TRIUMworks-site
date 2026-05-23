@@ -14,6 +14,7 @@ interface Props {
   priority?: boolean;
   fill?: boolean;
   treated?: boolean;
+  sizes?: string;
 }
 
 export function TreatedImage({
@@ -25,6 +26,7 @@ export function TreatedImage({
   priority,
   fill,
   treated = true,
+  sizes,
 }: Props) {
   const [hovered, setHovered] = useState(false);
 
@@ -49,6 +51,7 @@ export function TreatedImage({
         height={fill ? undefined : height}
         fill={fill}
         priority={priority}
+        sizes={sizes ?? (fill ? '100vw' : undefined)}
         className={cn(
           'h-full w-full object-cover transition-all duration-[600ms] ease-artisan',
           treated && !hovered && 'grayscale-[0.5]'

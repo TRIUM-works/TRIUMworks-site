@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion, PanInfo } from 'framer-motion';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion, PanInfo, useMotionValue, useTransform, animate } from 'framer-motion';
 import { projetos, type Projeto } from '@/lib/data/projetos';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { useSnap } from '@/components/layout/SnapController';
@@ -20,7 +21,9 @@ interface CardProps {
   isActive: boolean;
   spacing: number;
   isMobile: boolean;
+  parallaxX: ReturnType<typeof useMotionValue<number>>;
   onClick: () => void;
+  onHover: () => void;
 }
 
 function Card({
@@ -30,8 +33,11 @@ function Card({
   isActive,
   spacing,
   isMobile,
+  parallaxX,
   onClick,
+  onHover,
 }: CardProps) {
+  const imgParallax = useTransform(parallaxX, [-400, 0, 400], [20, 0, -20]);
   const absOffset = Math.abs(offset);
   const x = offset * spacing;
   const scale = isActive ? 1.15 : Math.max(0.55, 0.85 - absOffset * 0.05);
@@ -66,6 +72,7 @@ function Card({
     <motion.button
       type="button"
       onClick={onClick}
+      onPointerEnter={onHover}
       data-cursor="hover"
       aria-label={`${projeto.titulo} — projeto ${String(index + 1).padStart(2, '0')}`}
       className="absolute left-1/2 top-1/2 origin-center"
@@ -97,28 +104,53 @@ function Card({
           <div
             className="relative flex flex-1 items-center justify-center overflow-hidden"
             style={{
-              background: isActive
-                ? projeto.corCapa
-                : 'radial-gradient(circle at 50% 50%, #1a4a85 0%, #0d3b66 100%)',
+              background: projeto.imagemCard
+                ? undefined
+                : isActive
+                  ? projeto.corCapa
+                  : 'radial-gradient(circle at 50% 50%, #1a4a85 0%, #0d3b66 100%)',
             }}
           >
-            {!isActive && (
-              <span
-                className="select-none font-trickster text-7xl text-cream/80"
-                aria-hidden="true"
-              >
-                {projeto.logoLetra}
-              </span>
-            )}
-            {isActive && (
-              <div
-                aria-hidden="true"
-                className="absolute inset-0 opacity-60"
-                style={{
-                  background:
-                    'radial-gradient(ellipse at center, transparent 30%, rgba(13,59,102,0.6) 100%)',
-                }}
-              />
+            {projeto.imagemCard ? (
+              <>
+                <motion.img
+                  src={projeto.imagemCard}
+                  alt={projeto.titulo}
+                  className="pointer-events-none absolute inset-0 h-full w-full object-cover"
+                  draggable={false}
+                  style={{ x: imgParallax, scale: 1.08 }}
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0"
+                  style={{
+                    background: isActive
+                      ? 'radial-gradient(ellipse at center, transparent 20%, rgba(13,59,102,0.45) 100%)'
+                      : 'rgba(13,20,35,0.45)',
+                  }}
+                />
+              </>
+            ) : (
+              <>
+                {!isActive && (
+                  <span
+                    className="select-none font-trickster text-7xl text-cream/80"
+                    aria-hidden="true"
+                  >
+                    {projeto.logoLetra}
+                  </span>
+                )}
+                {isActive && (
+                  <div
+                    aria-hidden="true"
+                    className="absolute inset-0 opacity-60"
+                    style={{
+                      background:
+                        'radial-gradient(ellipse at center, transparent 30%, rgba(13,59,102,0.6) 100%)',
+                    }}
+                  />
+                )}
+              </>
             )}
             <GrainOverlay intensity={0.12} />
           </div>
@@ -197,6 +229,8 @@ export function Projetos() {
   const [current, setCurrent] = useState(0);
   const isMobile = useMobile();
   const snap = useSnap();
+  const router = useRouter();
+  const parallaxX = useMotionValue(0);
 
   const spacing = isMobile ? SPACING_MOBILE : SPACING_DESKTOP;
   const visibleCount = isMobile ? VISIBLE_MOBILE : VISIBLE_DESKTOP;
@@ -214,6 +248,7 @@ export function Projetos() {
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     if (info.offset.x > 70) goTo(current - 1);
     else if (info.offset.x < -70) goTo(current + 1);
+    animate(parallaxX, 0, { type: 'spring', stiffness: 200, damping: 30 });
   };
 
   const openProjeto = (slug: string) => {
@@ -257,7 +292,7 @@ export function Projetos() {
           top-20, o que fazia o título flutuar e colidir com o card em alturas
           curtas. */}
       <div className="z-20 shrink-0 pt-20 text-center md:pt-24">
-        <div className="mb-2 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
+        <div className="mb-2 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
           ✦ Portfolio
         </div>
         <h2 data-cursor="hover" className="font-trickster text-h2 text-teal">
@@ -270,6 +305,7 @@ export function Projetos() {
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         dragElastic={0.2}
+        onDrag={(_, info) => parallaxX.set(info.offset.x)}
         onDragEnd={handleDragEnd}
         style={{ touchAction: 'pan-y' }}
         className="relative flex w-full flex-1 cursor-grab items-center justify-center active:cursor-grabbing"
@@ -287,10 +323,12 @@ export function Projetos() {
                 spacing={spacing}
                 isMobile={isMobile}
                 isActive={i === current}
+                parallaxX={parallaxX}
                 onClick={() => {
                   if (i === current) openProjeto(p.slug);
                   else goTo(i);
                 }}
+                onHover={() => router.prefetch(`/projetos/${p.slug}`)}
               />
             );
           })}
@@ -313,19 +351,26 @@ export function Projetos() {
             />
           </div>
         )}
-        <div className="flex gap-2">
-          {projetos.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => goTo(i)}
-              data-cursor="hover"
-              aria-label={`Ir para projeto ${i + 1}`}
-              className={cn(
-                'h-px transition-all duration-500',
-                i === current ? 'w-8 bg-teal' : 'w-4 bg-stone hover:bg-cream'
-              )}
-            />
-          ))}
+        <div className="flex items-center gap-2">
+          {projetos.map((_, i) => {
+            const dist = Math.abs(i - current);
+            return (
+              <motion.button
+                key={i}
+                onClick={() => goTo(i)}
+                data-cursor="hover"
+                aria-label={`Ir para projeto ${i + 1}`}
+                className="h-px origin-center"
+                animate={{
+                  width: dist === 0 ? 32 : dist === 1 ? 14 : 8,
+                  backgroundColor: dist === 0 ? '#09C2A7' : dist === 1 ? '#4B5563' : '#374151',
+                  opacity: dist === 0 ? 1 : dist === 1 ? 0.6 : 0.35,
+                  scaleY: dist === 0 ? 2 : 1,
+                }}
+                transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
+              />
+            );
+          })}
         </div>
       </div>
     </section>
