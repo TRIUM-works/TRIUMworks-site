@@ -1,6 +1,5 @@
 import { Hero } from '@/components/sections/Hero';
-import { Projetos } from '@/components/sections/Projetos';
-import { ProjetosIndividuais } from '@/components/sections/ProjetosIndividuais';
+import { Portfolio } from '@/components/sections/Portfolio';
 import { Sobre } from '@/components/sections/Sobre';
 import { FAQ } from '@/components/sections/FAQ';
 import { Contato } from '@/components/sections/Contato';
@@ -10,8 +9,7 @@ export default function HomePage() {
   return (
     <>
       <Hero />
-      <Projetos />
-      <ProjetosIndividuais />
+      <Portfolio />
       <Sobre />
       <FAQ />
       <Contato />

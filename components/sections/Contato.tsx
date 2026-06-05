@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { DrawGraphic } from '@/components/animations/DrawGraphic';
+import { GrainOverlay } from '@/components/ui/GrainOverlay';
 
 const WHATSAPP_URL =
   'https://wa.me/5585981254006?text=' +
@@ -74,20 +73,9 @@ function ContactButton({
         aria-hidden="true"
         className="absolute inset-0 -z-10 origin-left scale-x-0 transition-transform duration-[600ms] ease-artisan group-hover:scale-x-100"
         style={{
-          background:
-            'linear-gradient(135deg, #09C2A7 0%, #067A6B 100%)',
+          background: 'linear-gradient(135deg, #09C2A7 0%, #067A6B 100%)',
         }}
       />
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 opacity-0 mix-blend-overlay group-hover:opacity-30"
-        style={{
-          backgroundImage:
-            'url("data:image/svg+xml;utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'240\' height=\'240\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'2\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
-        }}
-      />
-      {/* Ícone com motion levemente diferente do texto — escala um pouco mais
-          forte que o botão e desloca, criando movimento em camadas no hover. */}
       <span
         aria-hidden="true"
         className="inline-flex transition-transform duration-[600ms] ease-artisan group-hover:scale-110 group-hover:-translate-x-0.5"
@@ -106,32 +94,54 @@ export function Contato() {
     <section
       id="contato"
       data-snap-section="contato"
-      className="snap-section relative flex w-full items-start overflow-hidden bg-carbon pt-12 pb-0 md:pt-16 md:pb-0"
+      className="snap-section relative flex w-full flex-col justify-center overflow-hidden bg-carbon pt-24 pb-16"
+      style={{ minHeight: '100dvh' }}
     >
-      <div className="mx-auto max-w-3xl px-6 text-center">
-        <DrawGraphic>
-          <div className="mb-md">
-            <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
-              ✦ Conversemos
-            </div>
-            <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">
-              Contato
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl font-lora text-body-lg text-cream">
-              Conta o que você quer construir. Respondemos em até 24 horas.
-            </p>
-          </div>
-        </DrawGraphic>
+      <GrainOverlay intensity={0.08} />
 
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
+      {/* Badge decorativo */}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none">
+        <img
+          src="/trium-badge-teal.png"
+          alt=""
+          aria-hidden="true"
+          className="w-72 opacity-[0.06] md:w-[28rem]"
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto mt-16 flex w-full max-w-3xl flex-col items-center px-6 text-center md:px-12">
+        <div className="mb-3 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
+          ✦ Conversemos
+        </div>
+
+        <motion.h2
+          data-cursor="hover"
+          initial={{ y: 28, opacity: 0 }}
           whileInView={{ y: 0, opacity: 1 }}
           viewport={{ once: true, margin: '-10% 0px' }}
-          transition={{
-            duration: 0.8,
-            ease: [0.65, 0, 0.35, 1],
-          }}
-          className="flex flex-col items-center justify-center gap-6 md:flex-row md:gap-md"
+          transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
+          className="font-trickster text-display leading-[0.92] text-cream"
+        >
+          vamos <span className="text-teal">conversar</span>
+        </motion.h2>
+
+        <motion.p
+          initial={{ y: 20, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: '-10% 0px' }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.65, 0, 0.35, 1] }}
+          className="mt-6 max-w-xl font-lora text-body-lg text-stone"
+        >
+          Conta o que você quer construir. Respondemos em até 24 horas — direto
+          com quem projeta e desenvolve.
+        </motion.p>
+
+        <motion.div
+          initial={{ y: 24, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: '-10% 0px' }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.65, 0, 0.35, 1] }}
+          className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:gap-8"
         >
           <ContactButton
             href={WHATSAPP_URL}
@@ -139,14 +149,6 @@ export function Contato() {
             label="WhatsApp"
             aria="Falar via WhatsApp (abre em nova aba)"
           />
-          <motion.span
-            aria-hidden="true"
-            className="font-trickster text-3xl text-teal/60 inline-block"
-            whileHover={{ rotate: 180 }}
-            transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
-          >
-            ✦
-          </motion.span>
           <ContactButton
             href={INSTAGRAM_URL}
             icon={<InstagramIcon />}
@@ -154,16 +156,6 @@ export function Contato() {
             aria="Ver Instagram (abre em nova aba)"
           />
         </motion.div>
-      </div>
-
-      {/* Badge decorativo centralizado abaixo do conteúdo */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 pointer-events-none select-none">
-        <img
-          src="/trium-badge-teal.png"
-          alt=""
-          aria-hidden="true"
-          className="w-64 md:w-80 opacity-[0.07]"
-        />
       </div>
     </section>
   );

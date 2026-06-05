@@ -3,108 +3,148 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { fundadores } from '@/lib/data/fundadores';
-import { DrawGraphic } from '@/components/animations/DrawGraphic';
+import { GrainOverlay } from '@/components/ui/GrainOverlay';
 
 export function Sobre() {
   return (
     <section
       id="sobre"
       data-snap-section="sobre"
-      className="snap-section relative flex h-screen w-full items-center overflow-hidden bg-carbon"
+      className="snap-section relative flex w-full flex-col justify-center overflow-hidden bg-carbon pt-24 pb-12 md:pt-24"
+      style={{ minHeight: '100dvh' }}
     >
-      <div className="mx-auto max-w-3xl px-6">
-        <DrawGraphic>
-          <div className="mb-md">
-            <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
-              朩 Quem somos
-            </div>
-            <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">
-              Sobre nós
-            </h2>
-            <p className="mt-6 max-w-2xl font-lora text-body-lg text-cream">
-              A TRIUM é um estúdio criativo de Volta Redonda, RJ, focado em
-              criar sites modernos, rápidos e estratégicos para empresas de
-              todo o Brasil. Aqui, você fala diretamente com quem pensa,
-              projeta e desenvolve o seu site — sem burocracia, sem
-              distância.
-            </p>
-          </div>
-        </DrawGraphic>
+      <GrainOverlay intensity={0.06} />
 
-        <div aria-hidden="true" className="my-md flex justify-center">
-          <svg
-            width="120"
-            height="24"
-            viewBox="0 0 120 24"
-            fill="none"
-            stroke="#09C2A7"
-            strokeWidth="1"
-            strokeLinecap="round"
+      {/* Título grande à esquerda */}
+      <div className="relative z-10 mb-8 px-6 md:mb-12 md:px-12">
+        <div className="mb-3 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
+          朩 Quem somos
+        </div>
+        <h2
+          data-cursor="hover"
+          className="font-trickster text-display leading-[0.9] text-teal"
+        >
+          sobre
+        </h2>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-10 px-6 md:grid-cols-[1.2fr_1fr] md:gap-16 md:px-12">
+        {/* Texto + fundadores */}
+        <div>
+          <motion.p
+            initial={{ y: 24, opacity: 0 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, margin: '-10% 0px' }}
+            transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
+            className="max-w-xl font-lora text-body-lg text-cream"
           >
-            <motion.path
-              d="M5 12 Q 22 2, 35 12 T 65 12 T 95 12 T 118 12"
-              initial={{ pathLength: 0 }}
-              whileInView={{ pathLength: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2, ease: [0.85, 0, 0.15, 1] }}
-            />
-          </svg>
+            A TRIUM é um estúdio criativo de Volta Redonda, RJ, focado em criar
+            sites modernos, rápidos e estratégicos para empresas de todo o
+            Brasil. Aqui, você fala diretamente com quem pensa, projeta e
+            desenvolve o seu site — sem burocracia, sem distância.
+          </motion.p>
+
+          <div className="mt-10 flex flex-wrap items-center gap-8">
+            {fundadores.map((f, i) => (
+              <motion.div
+                key={f.nome}
+                initial={{ y: 24, opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true, margin: '-10% 0px' }}
+                transition={{
+                  duration: 0.7,
+                  delay: 0.15 + i * 0.15,
+                  ease: [0.65, 0, 0.35, 1],
+                }}
+                className="flex items-center gap-4"
+              >
+                <div
+                  data-cursor="hover"
+                  className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border border-blue-deep"
+                  style={{
+                    position: 'relative',
+                    width: 64,
+                    height: 64,
+                    background:
+                      'radial-gradient(circle at 30% 30%, #0D3B66 0%, #111418 70%)',
+                  }}
+                >
+                  <Image
+                    src={f.foto}
+                    alt={f.nome}
+                    fill
+                    sizes="64px"
+                    className="object-cover grayscale-[0.3]"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-lora text-h3 text-cream">{f.nome}</h3>
+                  <div className="mt-0.5 font-mono text-tiny uppercase tracking-[0.2em] text-stone">
+                    {f.cargo}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid gap-md md:grid-cols-2 md:gap-12">
-          {fundadores.map((f, i) => (
-            <motion.div
-              key={f.nome}
-              initial={{ y: 30, opacity: 0 }}
-              whileInView={{ y: 0, opacity: 1 }}
-              viewport={{ once: true, margin: '-10% 0px' }}
-              transition={{
-                duration: 0.8,
-                delay: i * 0.2,
-                ease: [0.65, 0, 0.35, 1],
-              }}
-              className="flex items-center gap-5"
-            >
-              <div
-                data-cursor="hover"
-                className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border border-blue-deep"
-                style={{
-                  // position/size inline — evita que a Image fill desça pro
-                  // body inteiro no primeiro paint do dev server, antes do
-                  // Tailwind aplicar h-20 w-20 relative.
-                  position: 'relative',
-                  width: 80,
-                  height: 80,
-                  background:
-                    'radial-gradient(circle at 30% 30%, #0D3B66 0%, #111418 70%)',
-                }}
-              >
-                <Image
-                  src={f.foto}
-                  alt={f.nome}
-                  fill
-                  sizes="80px"
-                  className="object-cover"
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 opacity-[0.10] mix-blend-overlay"
-                  style={{
-                    backgroundImage:
-                      'url("data:image/svg+xml;utf8,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'120\' height=\'120\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\'/%3E%3CfeColorMatrix type=\'saturate\' values=\'0\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
-                  }}
-                />
-              </div>
-              <div>
-                <h3 className="font-lora text-h3 text-cream">{f.nome}</h3>
-                <div className="mt-1 font-mono uppercase tracking-[0.2em] text-tiny text-stone">
-                  {f.cargo}
-                </div>
-              </div>
-            </motion.div>
-          ))}
+        {/* Selo giratório */}
+        <div className="flex justify-center md:justify-end">
+          <RotatingBadge />
         </div>
       </div>
     </section>
+  );
+}
+
+function RotatingBadge() {
+  const ring = 'TRIUM ✦ ESTÚDIO DIGITAL ✦ VOLTA REDONDA, RJ ✦ ';
+
+  return (
+    <motion.div
+      initial={{ scale: 0.8, opacity: 0 }}
+      whileInView={{ scale: 1, opacity: 1 }}
+      viewport={{ once: true, margin: '-10% 0px' }}
+      transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
+      className="relative h-56 w-56 md:h-72 md:w-72"
+    >
+      {/* Anel de texto girando */}
+      <motion.svg
+        viewBox="0 0 200 200"
+        className="absolute inset-0 h-full w-full"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 26, ease: 'linear', repeat: Infinity }}
+      >
+        <defs>
+          <path
+            id="badge-circle"
+            d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0"
+          />
+        </defs>
+        <text className="font-mono uppercase" fontSize="11" letterSpacing="3" fill="#7A857F">
+          <textPath href="#badge-circle" startOffset="0">
+            {ring}
+          </textPath>
+        </text>
+      </motion.svg>
+
+      {/* Anéis decorativos */}
+      <div className="absolute inset-6 rounded-full border border-blue-deep/50" />
+      <div className="absolute inset-10 rounded-full border border-blue-deep/30" />
+
+      {/* Selo central */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative flex h-28 w-28 items-center justify-center rounded-full border border-teal/40 bg-blue-deep/20 backdrop-blur-sm md:h-36 md:w-36">
+          <GrainOverlay intensity={0.1} className="rounded-full" />
+          <img
+            src="/trium-badge-teal.png"
+            alt=""
+            aria-hidden="true"
+            className="w-16 opacity-90 md:w-20"
+          />
+        </div>
+      </div>
+    </motion.div>
   );
 }

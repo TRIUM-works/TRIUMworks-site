@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { GrainOverlay } from '@/components/ui/GrainOverlay';
 import { cn } from '@/lib/utils';
 
 interface QA {
@@ -41,37 +42,56 @@ export function FAQ() {
     <section
       id="faq"
       data-snap-section="faq"
-      className="snap-section relative flex w-full items-center overflow-hidden bg-carbon py-md"
+      className="snap-section relative flex w-full flex-col justify-center overflow-hidden bg-carbon py-24"
+      style={{ minHeight: '100dvh' }}
     >
-      <div className="mx-auto w-full max-w-3xl px-6">
-        <div className="mb-md text-center">
-          <div className="mb-4 font-mono text-tiny uppercase tracking-[0.3em] text-stone">
-            ✦ Perguntas frequentes
+      <GrainOverlay intensity={0.06} />
+
+      <div className="relative z-10 mx-auto w-full max-w-5xl px-6 md:px-12">
+        {/* Cabeçalho */}
+        <div className="mb-10 flex items-end justify-between gap-6 md:mb-14">
+          <div>
+            <div className="mb-2 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
+              ✦ Perguntas frequentes
+            </div>
+            <h2
+              data-cursor="hover"
+              className="font-trickster text-h1 leading-none text-teal"
+            >
+              FAQ
+            </h2>
           </div>
-          <h2 data-cursor="hover" className="font-trickster text-h1 text-teal">
-            FAQ
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl font-lora text-body-lg text-cream">
-            As perguntas que mais ouvimos de quem quer começar um projeto com a gente.
+          <p className="hidden max-w-xs text-right font-lora text-body text-stone md:block">
+            As perguntas que mais ouvimos de quem quer começar um projeto com a
+            gente.
           </p>
         </div>
 
-        <ul className="divide-y divide-blue-deep/40 border-t border-b border-blue-deep/40">
+        {/* Lista numerada */}
+        <ul className="border-t border-blue-deep/40">
           {FAQS.map((item, i) => {
             const isOpen = open === i;
             return (
-              <li key={item.q}>
+              <li key={item.q} className="border-b border-blue-deep/40">
                 <button
                   onClick={() => setOpen(isOpen ? null : i)}
                   data-cursor="hover"
                   aria-expanded={isOpen}
                   aria-controls={`faq-panel-${i}`}
-                  className="flex w-full items-center justify-between gap-4 py-5 text-left transition-colors hover:text-teal"
+                  className="group flex w-full items-center gap-4 py-5 text-left md:gap-8 md:py-7"
                 >
                   <span
                     className={cn(
-                      'font-lora text-body-lg',
-                      isOpen ? 'text-teal' : 'text-cream'
+                      'shrink-0 font-mono text-tiny tracking-[0.2em] transition-colors',
+                      isOpen ? 'text-teal' : 'text-stone group-hover:text-cream'
+                    )}
+                  >
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span
+                    className={cn(
+                      'flex-1 font-trickster text-xl leading-tight transition-colors md:text-3xl',
+                      isOpen ? 'text-teal' : 'text-cream group-hover:text-teal'
                     )}
                   >
                     {item.q}
@@ -80,7 +100,7 @@ export function FAQ() {
                     aria-hidden="true"
                     animate={{ rotate: isOpen ? 45 : 0 }}
                     transition={{ duration: 0.3, ease: [0.65, 0, 0.35, 1] }}
-                    className="shrink-0 font-trickster text-2xl text-teal"
+                    className="shrink-0 font-trickster text-2xl text-teal md:text-3xl"
                   >
                     +
                   </motion.span>
@@ -95,7 +115,7 @@ export function FAQ() {
                       transition={{ duration: 0.35, ease: [0.65, 0, 0.35, 1] }}
                       className="overflow-hidden"
                     >
-                      <p className="pb-5 pr-10 font-lora text-body-md text-stone">
+                      <p className="max-w-2xl pb-7 pl-10 pr-10 font-lora text-body-md text-stone md:pl-16">
                         {item.a}
                       </p>
                     </motion.div>
