@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Lora, IBM_Plex_Mono } from 'next/font/google';
+import { Lora, IBM_Plex_Mono, Inter } from 'next/font/google';
 import '@/styles/globals.css';
 import { SmoothScrollProvider } from '@/components/layout/SmoothScrollProvider';
 import { SnapController } from '@/components/layout/SnapController';
@@ -8,6 +8,8 @@ import { Header } from '@/components/layout/Header';
 import { CustomCursor } from '@/components/layout/CustomCursor';
 import { BackToTop } from '@/components/ui/BackToTop';
 import { GrainOverlay } from '@/components/ui/GrainOverlay';
+import { AtmosphereProvider } from '@/components/layout/Atmosphere';
+import { BackgroundFX } from '@/components/layout/BackgroundFX';
 
 const lora = Lora({
   subsets: ['latin'],
@@ -20,6 +22,12 @@ const plexMono = IBM_Plex_Mono({
   weight: ['400', '500'],
   display: 'swap',
   variable: '--font-plex-mono',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
 });
 
 const SITE_URL = 'https://www.triumworks.com.br';
@@ -102,7 +110,10 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${lora.variable} ${plexMono.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${inter.variable} ${lora.variable} ${plexMono.variable}`}
+    >
       <head>
         <link
           rel="preload"
@@ -158,7 +169,7 @@ export default function SiteLayout({
                     'Design UI/UX',
                   ],
                   sameAs: [
-                    'https://www.instagram.com/triumtech_/',
+                    'https://www.instagram.com/triumworks/',
                   ],
                   openingHoursSpecification: [
                     {
@@ -301,21 +312,26 @@ export default function SiteLayout({
         >
           Pular para o conteúdo
         </a>
-        <SmoothScrollProvider>
-          <SnapController>
-            <CustomCursor />
-            <Header />
-            <RouteTransition>{children}</RouteTransition>
-            <BackToTop />
-            {/* Grain global — camada fixa por cima de tudo (exceto cursor).
-                Escondida em telas pequenas porque mix-blend-overlay em
-                fullscreen mata a performance GPU no celular. */}
-            <GrainOverlay
-              intensity={0.06}
-              className="hidden md:block fixed z-[100]"
-            />
-          </SnapController>
-        </SmoothScrollProvider>
+        <AtmosphereProvider>
+          {/* Fundo dinâmico global — gradiente animado que troca de
+              atmosfera conforme a seção/projeto ativo. */}
+          <BackgroundFX />
+          <SmoothScrollProvider>
+            <SnapController>
+              <CustomCursor />
+              <Header />
+              <RouteTransition>{children}</RouteTransition>
+              <BackToTop />
+              {/* Grain global — camada fixa por cima de tudo (exceto cursor).
+                  Escondida em telas pequenas porque mix-blend-overlay em
+                  fullscreen mata a performance GPU no celular. */}
+              <GrainOverlay
+                intensity={0.06}
+                className="hidden md:block fixed z-[100]"
+              />
+            </SnapController>
+          </SmoothScrollProvider>
+        </AtmosphereProvider>
       </body>
     </html>
   );

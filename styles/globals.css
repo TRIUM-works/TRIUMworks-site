@@ -55,6 +55,9 @@ html.snap-active body {
 
 body {
   overflow-x: hidden;
+  /* Transparente para o BackgroundFX (fixed, -z-10) aparecer. O html
+     mantém o carbon como fallback. */
+  background-color: transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {

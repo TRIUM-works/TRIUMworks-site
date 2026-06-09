@@ -15,6 +15,8 @@ module.exports = {
         carbon: '#111418',
       },
       fontFamily: {
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         trickster: ['Trickster', 'serif'],
         lora: ['var(--font-lora)', 'serif'],
         mono: ['var(--font-plex-mono)', 'monospace'],

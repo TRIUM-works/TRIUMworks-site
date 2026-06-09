@@ -10,13 +10,13 @@ export function Footer() {
         <span className="flex items-center gap-2">
           <span className="text-teal/70">✦</span>
           <a
-            href="https://www.instagram.com/triumtech_/"
+            href="https://www.instagram.com/triumworks/"
             target="_blank"
             rel="noopener noreferrer"
             data-cursor="hover"
             className="transition-colors hover:text-teal"
           >
-            @triumtech_
+            @triumworks
           </a>
         </span>
         <span className="hidden italic md:inline font-lora normal-case tracking-normal text-stone/50">

@@ -54,7 +54,7 @@ export const projetos: Projeto[] = [
     grafismo: '✦',
     logoLetra: 'A',
     corCapa: 'linear-gradient(135deg, #EF4444 0%, #991B1B 50%, #1a0505 100%)',
-    imagemCard: '/images/cards/axis.webp',
+    imagemCard: '/images/bunners/axis.png',
   },
 
   {
@@ -92,7 +92,7 @@ export const projetos: Projeto[] = [
     grafismo: '〜',
     logoLetra: 'V',
     corCapa: 'linear-gradient(135deg, #0d3b66 0%, #1a4a85 50%, #f3f3f3 100%)',
-    imagemCard: '/images/cards/veiculos.png',
+    imagemCard: '/images/bunners/veiculos.png',
   },
 
   {
@@ -130,7 +130,7 @@ export const projetos: Projeto[] = [
     grafismo: '朩',
     logoLetra: 'G',
     corCapa: 'linear-gradient(135deg, #1a2980 0%, #3B82F6 50%, #93c5fd 100%)',
-    imagemCard: '/images/cards/passig.webp',
+    imagemCard: '/images/bunners/gabriel.png',
   },
 ];
 

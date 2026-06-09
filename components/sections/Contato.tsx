@@ -1,14 +1,18 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { GrainOverlay } from '@/components/ui/GrainOverlay';
+import { useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
+import {
+  useAtmosphere,
+  ATMOSPHERES,
+} from '@/components/layout/Atmosphere';
 
 const WHATSAPP_URL =
   'https://wa.me/5585981254006?text=' +
   encodeURIComponent(
     'Olá! Vi seu portfólio e gostaria de conversar sobre a criação de um site para o meu negócio.'
   );
-const INSTAGRAM_URL = 'https://www.instagram.com/triumtech_/';
+const INSTAGRAM_URL = 'https://www.instagram.com/triumworks/';
 
 function WhatsAppIcon() {
   return (
@@ -67,22 +71,16 @@ function ContactButton({
       rel="noopener noreferrer"
       aria-label={aria}
       data-cursor="hover"
-      className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-teal px-8 py-5 font-mono uppercase tracking-[0.18em] text-small text-cream transition-[transform,letter-spacing,box-shadow,border-color] duration-[600ms] ease-artisan hover:scale-[1.03] hover:tracking-[0.2em] hover:border-teal-light hover:shadow-[0_10px_36px_-8px_rgba(9,194,167,0.45)]"
+      className="group relative inline-flex items-center justify-center gap-3 overflow-hidden border border-white/30 px-8 py-5 font-mono uppercase tracking-[0.18em] text-small text-white transition-[transform,border-color,box-shadow] duration-[600ms] ease-artisan hover:scale-[1.03] hover:border-teal hover:shadow-[0_10px_36px_-8px_rgba(9,194,167,0.45)]"
     >
       <span
         aria-hidden="true"
-        className="absolute inset-0 -z-10 origin-left scale-x-0 transition-transform duration-[600ms] ease-artisan group-hover:scale-x-100"
-        style={{
-          background: 'linear-gradient(135deg, #09C2A7 0%, #067A6B 100%)',
-        }}
+        className="absolute inset-0 -z-10 origin-left scale-x-0 bg-teal transition-transform duration-[600ms] ease-artisan group-hover:scale-x-100"
       />
-      <span
-        aria-hidden="true"
-        className="inline-flex transition-transform duration-[600ms] ease-artisan group-hover:scale-110 group-hover:-translate-x-0.5"
-      >
+      <span className="inline-flex transition-transform duration-[600ms] ease-artisan group-hover:scale-110 group-hover:text-carbon">
         {icon}
       </span>
-      <span className="transition-transform duration-[600ms] ease-artisan group-hover:translate-x-0.5">
+      <span className="transition-colors duration-[600ms] group-hover:text-carbon">
         {label}
       </span>
     </a>
@@ -90,58 +88,62 @@ function ContactButton({
 }
 
 export function Contato() {
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref, { amount: 0.5 });
+  const { setAtmosphere } = useAtmosphere();
+
+  useEffect(() => {
+    if (inView) setAtmosphere(ATMOSPHERES.contato);
+  }, [inView, setAtmosphere]);
+
   return (
     <section
+      ref={ref}
       id="contato"
       data-snap-section="contato"
-      className="snap-section relative flex w-full flex-col justify-center overflow-hidden bg-carbon pt-24 pb-16"
-      style={{ minHeight: '100dvh' }}
+      className="snap-section relative flex h-screen w-full flex-col items-center justify-center overflow-hidden px-6 text-center"
+      style={{ height: '100dvh' }}
     >
-      <GrainOverlay intensity={0.08} />
-
-      {/* Badge decorativo */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 select-none">
-        <img
-          src="/trium-badge-teal.png"
-          alt=""
-          aria-hidden="true"
-          className="w-72 opacity-[0.06] md:w-[28rem]"
-        />
-      </div>
-
-      <div className="relative z-10 mx-auto mt-16 flex w-full max-w-3xl flex-col items-center px-6 text-center md:px-12">
-        <div className="mb-3 font-mono text-tiny uppercase tracking-[0.3em] text-stone terminal-cursor">
-          ✦ Conversemos
-        </div>
+      <div className="relative z-10 mx-auto w-full max-w-3xl">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-10% 0px' }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="mb-5 font-mono text-tiny uppercase tracking-[0.3em] text-white/50 terminal-cursor"
+        >
+          ✦ Vamos conversar
+        </motion.div>
 
         <motion.h2
           data-cursor="hover"
-          initial={{ y: 28, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10% 0px' }}
-          transition={{ duration: 0.8, ease: [0.65, 0, 0.35, 1] }}
-          className="font-trickster text-display leading-[0.92] text-cream"
+          transition={{ duration: 0.9, delay: 0.05, ease: [0.16, 1, 0.3, 1] }}
+          className="font-display font-bold leading-[0.9] tracking-[-0.02em] text-white"
+          style={{ fontSize: 'clamp(48px, 9vw, 132px)' }}
         >
-          vamos <span className="text-teal">conversar</span>
+          conta sua <span className="font-lora font-normal italic text-teal">ideia</span>
         </motion.h2>
 
         <motion.p
-          initial={{ y: 20, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10% 0px' }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.65, 0, 0.35, 1] }}
-          className="mt-6 max-w-xl font-lora text-body-lg text-stone"
+          transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+          className="mx-auto mt-7 max-w-lg font-lora text-body-lg text-white/70"
         >
           Conta o que você quer construir. Respondemos em até 24 horas — direto
           com quem projeta e desenvolve.
         </motion.p>
 
         <motion.div
-          initial={{ y: 24, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10% 0px' }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.65, 0, 0.35, 1] }}
-          className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:gap-8"
+          transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-11 flex flex-col items-center justify-center gap-5 sm:flex-row sm:gap-7"
         >
           <ContactButton
             href={WHATSAPP_URL}
@@ -156,6 +158,10 @@ export function Contato() {
             aria="Ver Instagram (abre em nova aba)"
           />
         </motion.div>
+      </div>
+
+      <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2 font-mono text-[10px] uppercase tracking-[0.25em] text-white/35">
+        TRIUM — Volta Redonda, RJ
       </div>
     </section>
   );
