@@ -2,7 +2,7 @@ export interface Projeto {
   slug: string;
   titulo: string;
   ano: number;
-  categoria: 'Landing Page' | 'E-commerce' | 'App' | 'Dashboard' | 'Outro';
+  categoria: 'Landing Page' | 'E-commerce' | 'App' | 'Dashboard' | 'Portfólio' | 'Outro';
   cliente: string;
   tecnologias: string[];
   imagemPrincipal: string;
@@ -18,10 +18,41 @@ export interface Projeto {
   grafismo: '✦' | '〜' | '朩';
   logoLetra: string;          // letra/símbolo placeholder no card lateral
   corCapa: string;            // gradiente CSS para fallback da capa
+  accent: string;             // cor sólida da marca, legível sobre fundo escuro
   imagemCard?: string;        // imagem exibida no carrossel da home
 }
 
 export const projetos: Projeto[] = [
+  {
+    slug: 'flavio-lavigne',
+    titulo: 'Flavio Lavigne',
+    ano: 2026,
+    categoria: 'Portfólio',
+    cliente: 'Flavio Lavigne Makeup Artist',
+    tecnologias: ['Next.js', 'React', 'Supabase'],
+    imagemPrincipal: '/images/bunners/flaviolavigne.png',
+    galeria: ['/images/bunners/flaviolavigne.png'],
+    descricaoCurta:
+      'Site-portfólio do maquiador Flavio Lavigne, de Volta Redonda — apresenta seus trabalhos, serviços e cursos com a mesma elegância das suas maquiagens, além de um blog com conteúdo sobre beleza.',
+    descricaoCompleta:
+      'O site do Flavio Lavigne é o cartão de visitas digital de um dos maquiadores mais requisitados de Volta Redonda. Desenvolvido com Next.js e Supabase, reúne o portfólio de trabalhos — noivas, editorial e social —, a apresentação de serviços e cursos e um blog gerenciável com conteúdo sobre beleza. O design escuro com tons dourados traduz a sofisticação da marca pessoal do artista.',
+    contexto:
+      'Flavio Lavigne precisava de uma presença digital à altura do seu trabalho como makeup artist — um espaço próprio para apresentar portfólio, divulgar serviços e cursos e publicar conteúdo, sem depender exclusivamente das redes sociais.',
+    desafios:
+      'Traduzir a estética sofisticada do trabalho do Flavio em uma experiência digital, equilibrando um portfólio altamente visual, a divulgação de serviços e cursos e um blog atualizável — tudo com leveza e performance no carregamento das imagens.',
+    solucao:
+      'Site com Next.js e Supabase, identidade escura com detalhes dourados, galeria de portfólio otimizada, seções dedicadas a serviços e cursos e um blog com painel próprio para o artista publicar conteúdo de forma autônoma.',
+    resultados:
+      'Presença digital profissional que centraliza portfólio, serviços e conteúdo em um só lugar, fortalecendo a marca pessoal do Flavio e servindo como vitrine para noivas, clientes e alunos.',
+    urlExterna: 'https://www.flaviolavigne.com/',
+    destaque: true,
+    grafismo: '✦',
+    logoLetra: 'F',
+    corCapa: 'linear-gradient(135deg, #C9A05C 0%, #6B4A26 50%, #14100a 100%)',
+    accent: '#C9A05C',
+    imagemCard: '/images/bunners/flaviolavigne.png',
+  },
+
   {
     slug: 'axis',
     titulo: 'AXIS',
@@ -54,6 +85,7 @@ export const projetos: Projeto[] = [
     grafismo: '✦',
     logoLetra: 'A',
     corCapa: 'linear-gradient(135deg, #EF4444 0%, #991B1B 50%, #1a0505 100%)',
+    accent: '#EF4444',
     imagemCard: '/images/bunners/axis.png',
   },
 
@@ -92,6 +124,7 @@ export const projetos: Projeto[] = [
     grafismo: '〜',
     logoLetra: 'V',
     corCapa: 'linear-gradient(135deg, #0d3b66 0%, #1a4a85 50%, #f3f3f3 100%)',
+    accent: '#3A7FC2',
     imagemCard: '/images/bunners/veiculos.png',
   },
 
@@ -130,6 +163,7 @@ export const projetos: Projeto[] = [
     grafismo: '朩',
     logoLetra: 'G',
     corCapa: 'linear-gradient(135deg, #1a2980 0%, #3B82F6 50%, #93c5fd 100%)',
+    accent: '#82B4F4',
     imagemCard: '/images/bunners/gabriel.png',
   },
 ];

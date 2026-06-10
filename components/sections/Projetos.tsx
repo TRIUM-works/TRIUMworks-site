@@ -6,15 +6,38 @@ import {
   AnimatePresence,
   motion,
   useInView,
+  useMotionTemplate,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
   type PanInfo,
 } from 'framer-motion';
 import { projetos } from '@/lib/data/projetos';
 import { useSnap } from '@/components/layout/SnapController';
-import { useAtmosphere, ATMOSPHERES } from '@/components/layout/Atmosphere';
+import { useAtmosphere } from '@/components/layout/Atmosphere';
 import { cn } from '@/lib/utils';
 
 const total = projetos.length;
 const INK = '#E8E3D7';
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+/** Anexa alpha (0–1) a um hex sólido: #EF4444 + 0.4 → #EF444466 */
+function withAlpha(hex: string, a: number) {
+  return hex + Math.round(a * 255).toString(16).padStart(2, '0');
+}
+
+function useMedia(query: string) {
+  const [matches, setMatches] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia(query);
+    const update = () => setMatches(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, [query]);
+  return matches;
+}
 
 export function Projetos() {
   const [index, setIndex] = useState(0);
@@ -22,18 +45,39 @@ export function Projetos() {
   const inView = useInView(ref, { amount: 0.5 });
   const snap = useSnap();
   const { setAtmosphere } = useAtmosphere();
+  const reduced = useReducedMotion();
+  const isMobile = useMedia('(max-width: 767px)');
+  const finePointer = useMedia('(pointer: fine)');
 
-  const goTo = useCallback(
-    (i: number) => setIndex(Math.max(0, Math.min(total - 1, i))),
-    []
-  );
+  // Só dispara a varredura de luz após a primeira navegação (não no load).
+  const hasNavigated = useRef(false);
+
+  const goTo = useCallback((i: number) => {
+    hasNavigated.current = true;
+    setIndex(Math.max(0, Math.min(total - 1, i)));
+  }, []);
   // Loop infinito: passar do último volta pro primeiro e vice-versa.
-  const next = useCallback(() => setIndex((i) => (i + 1) % total), []);
-  const prev = useCallback(() => setIndex((i) => (i - 1 + total) % total), []);
+  const next = useCallback(() => {
+    hasNavigated.current = true;
+    setIndex((i) => (i + 1) % total);
+  }, []);
+  const prev = useCallback(() => {
+    hasNavigated.current = true;
+    setIndex((i) => (i - 1 + total) % total);
+  }, []);
 
+  const projeto = projetos[index];
+
+  // A atmosfera do fundo assume a cor da marca do projeto em foco.
   useEffect(() => {
-    if (inView) setAtmosphere(ATMOSPHERES.projetos);
-  }, [inView, setAtmosphere]);
+    if (inView) {
+      setAtmosphere({
+        id: `projetos-${projeto.slug}`,
+        colorA: projeto.accent,
+        colorB: INK,
+      });
+    }
+  }, [inView, projeto, setAtmosphere]);
 
   useEffect(() => {
     if (!inView) return;
@@ -55,7 +99,36 @@ export function Projetos() {
     else if (info.offset.x > 60) prev();
   };
 
-  const projeto = projetos[index];
+  // ── Tilt 3D do deck (desktop, pointer fino) ──
+  const tiltX = useMotionValue(0);
+  const tiltY = useMotionValue(0);
+  const rX = useSpring(tiltX, { stiffness: 130, damping: 18, mass: 0.6 });
+  const rY = useSpring(tiltY, { stiffness: 130, damping: 18, mass: 0.6 });
+  // Brilho especular que acompanha a inclinação.
+  const glossX = useTransform(rY, [-9, 9], ['18%', '82%']);
+  const glossY = useTransform(rX, [7, -7], ['15%', '85%']);
+  const gloss = useMotionTemplate`radial-gradient(480px circle at ${glossX} ${glossY}, rgba(232,227,215,0.13), transparent 60%)`;
+
+  const tiltEnabled = finePointer && !reduced;
+
+  const onTiltMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!tiltEnabled) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width - 0.5;
+    const py = (e.clientY - r.top) / r.height - 0.5;
+    tiltY.set(px * 9);
+    tiltX.set(py * -7);
+  };
+  const onTiltLeave = () => {
+    tiltX.set(0);
+    tiltY.set(0);
+  };
+
+  // Geometria do leque: mais aberto no desktop, discreto no mobile.
+  const xStep = isMobile ? 22 : 64;
+  const yStep = isMobile ? 8 : 12;
+  const scaleStep = isMobile ? 0.045 : 0.06;
+  const rotStep = isMobile ? 1.2 : 1.8;
 
   return (
     <section
@@ -63,109 +136,199 @@ export function Projetos() {
       id="projetos"
       data-snap-section="projetos"
       className="snap-section relative flex h-screen w-full items-center overflow-hidden"
-      style={{ height: '100dvh', color: INK }}
+      style={{
+        height: '100dvh',
+        color: INK,
+        ['--ac' as string]: projeto.accent,
+      }}
     >
-      <div className="relative z-10 grid w-full grid-cols-1 items-center gap-8 md:grid-cols-[38%_62%] md:gap-6">
+      {/* Número-fantasma editorial — desktop: canto inferior esquerdo, inteiro */}
+      <GhostNumber
+        index={index}
+        accent={projeto.accent}
+        className="absolute left-8 z-[1] hidden md:block"
+        style={{ fontSize: 'clamp(130px, 14vw, 210px)', bottom: 'clamp(20px, 5vh, 56px)' }}
+      />
+
+      <div className="relative z-10 grid w-full grid-cols-1 items-center gap-6 md:grid-cols-[38%_62%] md:gap-6">
         {/* ── Texto (esquerda) — colado no card, na altura dele ── */}
         <div className="order-2 px-6 md:order-1 md:pl-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={projeto.slug}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="flex flex-col gap-8 md:ml-auto md:mr-6 md:h-[50vh] md:max-w-sm md:justify-between md:gap-0"
+              className="flex flex-col gap-5 md:ml-auto md:mr-6 md:h-[50vh] md:max-w-sm md:justify-between md:gap-0"
             >
-              <div className="font-mono text-tiny uppercase tracking-[0.3em] text-[#E8E3D7]/60">
-                {projeto.categoria} · {projeto.ano}
-              </div>
+              <Reveal reduced={reduced}>
+                <div className="flex items-center gap-2.5 font-mono text-tiny uppercase tracking-[0.3em] text-[#E8E3D7]/60">
+                  <span
+                    className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
+                    style={{ backgroundColor: projeto.accent }}
+                  />
+                  {projeto.categoria} · {projeto.ano}
+                </div>
+              </Reveal>
 
               <div>
-                <h2
-                  data-cursor="hover"
-                  className="font-display font-bold leading-[0.92] tracking-[-0.02em] text-[#E8E3D7]"
-                  style={{ fontSize: 'clamp(38px, 4.6vw, 70px)' }}
+                <Reveal
+                  reduced={reduced}
+                  delay={0.06}
+                  className="-mb-[clamp(10px,1.3vw,19px)] pb-[clamp(10px,1.3vw,19px)]"
                 >
-                  {projeto.titulo}
-                </h2>
-                <p className="mt-5 font-lora text-body-lg text-[#E8E3D7]/70">
-                  {projeto.descricaoCurta}
-                </p>
+                  <h2
+                    data-cursor="hover"
+                    className="font-display font-bold leading-[0.92] tracking-[-0.02em] text-[#E8E3D7]"
+                    style={{ fontSize: 'clamp(36px, 4.6vw, 70px)' }}
+                  >
+                    {projeto.titulo}
+                  </h2>
+                </Reveal>
+                <Reveal reduced={reduced} delay={0.12}>
+                  <p className="mt-3 line-clamp-3 font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-5 md:line-clamp-none md:text-body-lg">
+                    {projeto.descricaoCurta}
+                  </p>
+                </Reveal>
               </div>
 
-              <a
-                href={projeto.urlExterna}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-cursor="hover"
-                className="group inline-flex w-fit items-center gap-2 border-b border-[#E8E3D7]/30 pb-1 font-mono text-tiny uppercase tracking-[0.2em] text-[#E8E3D7] transition-colors hover:border-[#E8E3D7]"
-              >
-                Ver projeto
-                <span className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5">
-                  ↗
-                </span>
-              </a>
+              <Reveal reduced={reduced} delay={0.18}>
+                <a
+                  href={projeto.urlExterna}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-cursor="hover"
+                  className="group inline-flex w-fit items-center gap-2 border-b border-[#E8E3D7]/30 pb-1 font-mono text-tiny uppercase tracking-[0.2em] text-[#E8E3D7] transition-colors hover:border-[var(--ac)]"
+                >
+                  Ver projeto
+                  <span
+                    className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-1"
+                    style={{ color: projeto.accent }}
+                  >
+                    ↗
+                  </span>
+                </a>
+              </Reveal>
             </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* ── Deck de cards (direita) — menor e descolado da parede ── */}
-        <div className="order-1 md:order-2">
+        {/* ── Deck de cards (direita) ── */}
+        <div className="relative order-1 md:order-2">
+          {/* Número-fantasma — mobile: espiando atrás do canto do card */}
+          <GhostNumber
+            index={index}
+            accent={projeto.accent}
+            className="absolute -top-9 right-4 z-0 md:hidden"
+            style={{ fontSize: '88px' }}
+          />
+
           <motion.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.16}
             onDragEnd={handleDragEnd}
             style={{ touchAction: 'pan-y' }}
-            className="relative ml-6 cursor-grab active:cursor-grabbing md:ml-0 md:max-w-[900px]"
+            className="relative z-10 ml-5 mr-9 cursor-grab active:cursor-grabbing md:ml-0 md:mr-24 md:max-w-[820px]"
           >
-            {/* Palco — paisagem 16:9, à esquerda da coluna (perto do texto);
-                as cartas de trás abrem para a direita, no espaço livre. */}
-            <div className="relative aspect-video w-full">
-              {projetos.map((p, i) => {
-                const depth = (i - index + total) % total; // 0 = frente
-                const isActive = depth === 0;
-                return (
+            {/* Palco em perspectiva — o deck inteiro inclina seguindo o cursor;
+                as cartas de trás abrem em leque para a direita. */}
+            <div
+              style={{ perspective: 1400 }}
+              onPointerMove={onTiltMove}
+              onPointerLeave={onTiltLeave}
+            >
+              <motion.div
+                className="relative aspect-video w-full"
+                style={
+                  tiltEnabled
+                    ? { rotateX: rX, rotateY: rY, transformStyle: 'preserve-3d' }
+                    : undefined
+                }
+              >
+                {projetos.map((p, i) => {
+                  const depth = (i - index + total) % total; // 0 = frente
+                  const isActive = depth === 0;
+                  return (
+                    <motion.div
+                      key={p.slug}
+                      onClick={() => !isActive && goTo(i)}
+                      data-cursor="hover"
+                      className={cn(
+                        'absolute inset-0 overflow-hidden rounded-2xl border border-[#E8E3D7]/10 md:rounded-[2rem]',
+                        !isActive && 'cursor-pointer'
+                      )}
+                      style={{ background: '#0b0e13' }}
+                      initial={false}
+                      animate={{
+                        x: depth * xStep,
+                        y: depth * yStep,
+                        scale: 1 - depth * scaleStep,
+                        rotate: depth * rotStep,
+                        zIndex: total - depth,
+                        opacity: isActive ? 1 : 0.95 - depth * 0.12,
+                        // Cartas de trás escurecem (em vez de só blur) — legíveis como baralho.
+                        filter: isMobile
+                          ? `brightness(${1 - depth * 0.22})`
+                          : `blur(${depth * 1.5}px) brightness(${1 - depth * 0.22})`,
+                        boxShadow: isActive
+                          ? `0 30px 80px rgba(0,0,0,0.55), 0 0 110px ${withAlpha(projeto.accent, 0.16)}`
+                          : '0 20px 50px rgba(0,0,0,0.4)',
+                      }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 140,
+                        damping: 22,
+                        mass: 0.9,
+                      }}
+                    >
+                      {/* Imagem do projeto */}
+                      <Image
+                        src={p.imagemCard ?? p.imagemPrincipal}
+                        alt={p.titulo}
+                        fill
+                        priority={i === 0}
+                        sizes="(min-width: 768px) 56vw, 100vw"
+                        className="object-cover"
+                        draggable={false}
+                      />
+                      {/* Scrim sutil para ancorar o card no fundo escuro */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                      {/* Brilho especular que segue o tilt (só no card da frente) */}
+                      {isActive && tiltEnabled && (
+                        <motion.div
+                          className="pointer-events-none absolute inset-0"
+                          style={{ background: gloss }}
+                        />
+                      )}
+                    </motion.div>
+                  );
+                })}
+
+                {/* Varredura de luz (clip-path) a cada troca de projeto */}
+                {hasNavigated.current && !reduced && (
                   <motion.div
-                    key={p.slug}
-                    onClick={() => !isActive && goTo(i)}
-                    data-cursor="hover"
-                    className={cn(
-                      'absolute inset-0 overflow-hidden rounded-[2rem] shadow-[0_40px_90px_rgba(0,0,0,0.5)]',
-                      !isActive && 'cursor-pointer'
-                    )}
-                    style={{ background: '#0b0e13' }}
-                    initial={false}
+                    key={`sweep-${index}`}
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 rounded-2xl md:rounded-[2rem]"
+                    style={{
+                      zIndex: total + 1,
+                      background: `linear-gradient(105deg, transparent 30%, ${withAlpha(projeto.accent, 0.22)} 45%, rgba(232,227,215,0.16) 50%, ${withAlpha(projeto.accent, 0.1)} 55%, transparent 70%)`,
+                    }}
+                    initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }}
                     animate={{
-                      x: depth * 46, // cartas de trás abrem para a DIREITA
-                      y: depth * 10,
-                      scale: 1 - depth * 0.06,
-                      rotate: depth * 1.5,
-                      zIndex: total - depth,
-                      opacity: depth === 0 ? 1 : 0.85,
-                      filter: `blur(${depth * 4}px)`, // ... com blur
+                      clipPath: [
+                        'inset(0 100% 0 0)',
+                        'inset(0 0% 0 0)',
+                        'inset(0 0 0 100%)',
+                      ],
+                      opacity: [1, 1, 0],
                     }}
                     transition={{
-                      type: 'spring',
-                      stiffness: 140,
-                      damping: 22,
-                      mass: 0.9,
+                      duration: 0.85,
+                      times: [0, 0.45, 1],
+                      ease: 'easeInOut',
                     }}
-                  >
-                    {/* Imagem do projeto */}
-                    <Image
-                      src={p.imagemCard ?? p.imagemPrincipal}
-                      alt={p.titulo}
-                      fill
-                      priority={i === 0}
-                      sizes="(min-width: 768px) 56vw, 100vw"
-                      className="object-cover"
-                      draggable={false}
-                    />
-                  </motion.div>
-                );
-              })}
+                  />
+                )}
+              </motion.div>
             </div>
 
             {/* Paginação — compacta */}
@@ -181,12 +344,18 @@ export function Projetos() {
                     aria-label={`Ir para ${p.titulo}`}
                     className="group relative h-3 flex-1"
                   >
-                    <span className="absolute inset-x-0 top-1/2 h-[2px] -translate-y-1/2 rounded-full bg-[#E8E3D7]/20" />
+                    <span className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] rounded-full bg-[#E8E3D7]/20" />
                     <motion.span
-                      className="absolute inset-x-0 top-1/2 h-[2px] origin-left -translate-y-1/2 rounded-full bg-[#E8E3D7]"
+                      className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] origin-left rounded-full"
                       initial={false}
-                      animate={{ scaleX: i <= index ? 1 : 0 }}
-                      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                      animate={{
+                        scaleX: i <= index ? 1 : 0,
+                        backgroundColor: projeto.accent,
+                      }}
+                      transition={{
+                        scaleX: { duration: 0.5, ease: EASE },
+                        backgroundColor: { duration: 0.5 },
+                      }}
                     />
                   </button>
                 ))}
@@ -195,7 +364,10 @@ export function Projetos() {
               <PagButton dir="next" onClick={next} />
 
               <span className="ml-1 font-mono text-[10px] tracking-[0.2em] text-[#E8E3D7]/55">
-                {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+                <span style={{ color: projeto.accent }}>
+                  {String(index + 1).padStart(2, '0')}
+                </span>{' '}
+                / {String(total).padStart(2, '0')}
               </span>
             </div>
           </motion.div>
@@ -224,6 +396,82 @@ export function Projetos() {
   );
 }
 
+/** Reveal editorial: o conteúdo sobe por trás de uma máscara (overflow hidden). */
+function Reveal({
+  children,
+  delay = 0,
+  className,
+  reduced,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  reduced?: boolean | null;
+}) {
+  if (reduced) {
+    return (
+      <motion.div
+        className={className}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, transition: { duration: 0.4, delay } }}
+        exit={{ opacity: 0, transition: { duration: 0.2 } }}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+  return (
+    <div className={cn('overflow-hidden', className)}>
+      <motion.div
+        initial={{ y: '110%' }}
+        animate={{ y: '0%', transition: { duration: 0.6, ease: EASE, delay } }}
+        exit={{ y: '-110%', transition: { duration: 0.3, ease: EASE } }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+/** Índice gigante em contorno, na cor da marca do projeto em foco. */
+function GhostNumber({
+  index,
+  accent,
+  className,
+  style,
+}: {
+  index: number;
+  accent: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <div
+      aria-hidden
+      className={cn('pointer-events-none select-none', className)}
+      style={style}
+    >
+      <AnimatePresence mode="wait">
+        <motion.span
+          key={index}
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -28, transition: { duration: 0.25, ease: EASE } }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="block font-display font-bold tracking-[-0.04em]"
+          style={{
+            lineHeight: 0.78,
+            color: 'transparent',
+            WebkitTextStroke: `1.5px ${withAlpha(accent, 0.4)}`,
+          }}
+        >
+          {String(index + 1).padStart(2, '0')}
+        </motion.span>
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function PagButton({
   dir,
   onClick,
@@ -236,7 +484,7 @@ function PagButton({
       onClick={onClick}
       data-cursor="hover"
       aria-label={dir === 'prev' ? 'Projeto anterior' : 'Próximo projeto'}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E8E3D7]/30 text-xs text-[#E8E3D7] transition-all duration-300 hover:border-[#E8E3D7] hover:bg-[#E8E3D7] hover:text-carbon"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E8E3D7]/30 text-xs text-[#E8E3D7] transition-all duration-300 hover:border-[var(--ac)] hover:bg-[var(--ac)] hover:text-carbon"
     >
       <span style={{ transform: dir === 'prev' ? 'scaleX(-1)' : 'none' }}>→</span>
     </button>
