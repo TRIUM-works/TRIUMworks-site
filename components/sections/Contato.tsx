@@ -102,7 +102,7 @@ export function Contato() {
       id="contato"
       data-snap-section="contato"
       className="snap-section relative flex h-screen w-full flex-col items-center justify-center overflow-hidden px-6 text-center"
-      style={{ height: '100dvh' }}
+      style={{ height: '100svh' }}
     >
       <div className="relative z-10 mx-auto w-full max-w-3xl">
         <motion.div

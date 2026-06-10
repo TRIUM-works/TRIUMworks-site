@@ -39,17 +39,20 @@ html.snap-active body {
   scroll-snap-stop: always;
   min-height: 100vh;
 }
-@supports (height: 100dvh) {
+@supports (height: 100svh) {
   .snap-section {
-    min-height: 100dvh;
+    min-height: 100svh;
   }
   /* h-screen do Tailwind usa 100vh — em monitores onde o chrome do browser
      consome bastante altura (ex: HP 1080p com tabs+url+bookmarks visíveis)
-     isso fazia o conteúdo overflowar ou colidir. dvh sempre reflete a área
-     real visível, garantindo que flex layouts internos distribuam o espaço
-     correto e nada se sobreponha. */
+     isso fazia o conteúdo overflowar ou colidir. svh reflete a área visível
+     com a UI do navegador presente — e, ao contrário de dvh, NÃO muda quando
+     a barra de endereço do mobile recolhe/aparece. dvh redimensionava cada
+     seção durante a rolagem, fazendo a página "pular" pra cima/baixo. Como
+     no desktop não há UI retrátil, svh == dvh == vh: o fix de overflow se
+     mantém igual. */
   .h-screen {
-    height: 100dvh;
+    height: 100svh;
   }
 }
 

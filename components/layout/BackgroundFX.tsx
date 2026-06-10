@@ -8,6 +8,7 @@ import {
   useReducedMotion,
 } from 'framer-motion';
 import { useAtmosphere } from './Atmosphere';
+import { useMobile } from '@/lib/hooks/useMobile';
 import { grainSvg } from '@/components/ui/GrainOverlay';
 
 const COLOR_TWEEN = { duration: 2.2, ease: [0.65, 0, 0.35, 1] as const };
@@ -20,6 +21,12 @@ const COLOR_TWEEN = { duration: 2.2, ease: [0.65, 0, 0.35, 1] as const };
 export function BackgroundFX() {
   const { atmosphere } = useAtmosphere();
   const reduced = useReducedMotion();
+  const isMobile = useMobile();
+
+  // No mobile o blur(130px) animando em loop força o GPU a re-rasterizar uma
+  // camada gigante todo frame — derruba o FPS. Mantemos os glows estáticos
+  // (com a transição de cor) e desligamos o movimento/escala infinitos.
+  const heavy = !reduced && !isMobile;
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -27,14 +34,14 @@ export function BackgroundFX() {
   const sy = useSpring(my, { stiffness: 45, damping: 24, mass: 0.7 });
 
   useEffect(() => {
-    if (reduced) return;
+    if (!heavy) return;
     const onMove = (e: PointerEvent) => {
       mx.set(((e.clientX / window.innerWidth) - 0.5) * 110);
       my.set(((e.clientY / window.innerHeight) - 0.5) * 110);
     };
     window.addEventListener('pointermove', onMove, { passive: true });
     return () => window.removeEventListener('pointermove', onMove);
-  }, [mx, my, reduced]);
+  }, [mx, my, heavy]);
 
   return (
     <div
@@ -51,29 +58,29 @@ export function BackgroundFX() {
             height: '68vw',
             left: '52%',
             top: '-18%',
-            filter: 'blur(130px)',
+            filter: isMobile ? 'blur(90px)' : 'blur(130px)',
             opacity: 0.26,
-            willChange: 'transform',
+            willChange: heavy ? 'transform' : 'auto',
           }}
           animate={
-            reduced
-              ? { backgroundColor: atmosphere.colorA }
-              : {
+            heavy
+              ? {
                   backgroundColor: atmosphere.colorA,
                   x: ['0vw', '-17vw', '0vw'],
                   y: ['0vh', '14vh', '0vh'],
                   scale: [1, 1.24, 1],
                 }
+              : { backgroundColor: atmosphere.colorA }
           }
           transition={
-            reduced
-              ? { backgroundColor: COLOR_TWEEN }
-              : {
+            heavy
+              ? {
                   backgroundColor: COLOR_TWEEN,
                   x: { duration: 20, repeat: Infinity, ease: 'easeInOut' },
                   y: { duration: 26, repeat: Infinity, ease: 'easeInOut' },
                   scale: { duration: 24, repeat: Infinity, ease: 'easeInOut' },
                 }
+              : { backgroundColor: COLOR_TWEEN }
           }
         />
         {/* Glow B — canto inferior esquerdo */}
@@ -84,29 +91,29 @@ export function BackgroundFX() {
             height: '58vw',
             left: '-18%',
             top: '48%',
-            filter: 'blur(130px)',
+            filter: isMobile ? 'blur(90px)' : 'blur(130px)',
             opacity: 0.2,
-            willChange: 'transform',
+            willChange: heavy ? 'transform' : 'auto',
           }}
           animate={
-            reduced
-              ? { backgroundColor: atmosphere.colorB }
-              : {
+            heavy
+              ? {
                   backgroundColor: atmosphere.colorB,
                   x: ['0vw', '18vw', '0vw'],
                   y: ['0vh', '-15vh', '0vh'],
                   scale: [1, 1.22, 1],
                 }
+              : { backgroundColor: atmosphere.colorB }
           }
           transition={
-            reduced
-              ? { backgroundColor: COLOR_TWEEN }
-              : {
+            heavy
+              ? {
                   backgroundColor: COLOR_TWEEN,
                   x: { duration: 24, repeat: Infinity, ease: 'easeInOut' },
                   y: { duration: 19, repeat: Infinity, ease: 'easeInOut' },
                   scale: { duration: 22, repeat: Infinity, ease: 'easeInOut' },
                 }
+              : { backgroundColor: COLOR_TWEEN }
           }
         />
       </motion.div>

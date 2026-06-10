@@ -22,7 +22,7 @@ export function Hero() {
       id="inicio"
       data-snap-section="inicio"
       className="snap-section relative flex h-screen w-full flex-col items-center justify-center overflow-hidden"
-      style={{ height: '100dvh' }}
+      style={{ height: '100svh' }}
     >
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
         {/* Logo TRIUM (modelo antigo) em destaque no centro */}

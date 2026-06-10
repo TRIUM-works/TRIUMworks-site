@@ -49,22 +49,12 @@ export function Projetos() {
   const isMobile = useMedia('(max-width: 767px)');
   const finePointer = useMedia('(pointer: fine)');
 
-  // Só dispara a varredura de luz após a primeira navegação (não no load).
-  const hasNavigated = useRef(false);
-
   const goTo = useCallback((i: number) => {
-    hasNavigated.current = true;
     setIndex(Math.max(0, Math.min(total - 1, i)));
   }, []);
   // Loop infinito: passar do último volta pro primeiro e vice-versa.
-  const next = useCallback(() => {
-    hasNavigated.current = true;
-    setIndex((i) => (i + 1) % total);
-  }, []);
-  const prev = useCallback(() => {
-    hasNavigated.current = true;
-    setIndex((i) => (i - 1 + total) % total);
-  }, []);
+  const next = useCallback(() => setIndex((i) => (i + 1) % total), []);
+  const prev = useCallback(() => setIndex((i) => (i - 1 + total) % total), []);
 
   const projeto = projetos[index];
 
@@ -137,7 +127,7 @@ export function Projetos() {
       data-snap-section="projetos"
       className="snap-section relative flex h-screen w-full items-center overflow-hidden"
       style={{
-        height: '100dvh',
+        height: '100svh',
         color: INK,
         ['--ac' as string]: projeto.accent,
       }}
@@ -255,7 +245,14 @@ export function Projetos() {
                         'absolute inset-0 overflow-hidden rounded-2xl border border-[#E8E3D7]/10 md:rounded-[2rem]',
                         !isActive && 'cursor-pointer'
                       )}
-                      style={{ background: '#0b0e13' }}
+                      style={{
+                        background: '#0b0e13',
+                        // Sombra estática (fora do spring): animá-la forçava
+                        // repaint por frame e travava a troca no mobile.
+                        boxShadow: isActive
+                          ? `0 30px 80px rgba(0,0,0,0.55), 0 0 110px ${withAlpha(projeto.accent, 0.16)}`
+                          : '0 20px 50px rgba(0,0,0,0.4)',
+                      }}
                       initial={false}
                       animate={{
                         x: depth * xStep,
@@ -264,13 +261,9 @@ export function Projetos() {
                         rotate: depth * rotStep,
                         zIndex: total - depth,
                         opacity: isActive ? 1 : 0.95 - depth * 0.12,
-                        // Cartas de trás escurecem (em vez de só blur) — legíveis como baralho.
-                        filter: isMobile
-                          ? `brightness(${1 - depth * 0.22})`
-                          : `blur(${depth * 1.5}px) brightness(${1 - depth * 0.22})`,
-                        boxShadow: isActive
-                          ? `0 30px 80px rgba(0,0,0,0.55), 0 0 110px ${withAlpha(projeto.accent, 0.16)}`
-                          : '0 20px 50px rgba(0,0,0,0.4)',
+                        // Blur só no desktop; no mobile o escurecimento vem do
+                        // overlay de opacity abaixo (composto, não repinta).
+                        ...(isMobile ? {} : { filter: `blur(${depth * 1.5}px)` }),
                       }}
                       transition={{
                         type: 'spring',
@@ -291,6 +284,18 @@ export function Projetos() {
                       />
                       {/* Scrim sutil para ancorar o card no fundo escuro */}
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                      {/* Escurecimento das cartas de trás via opacity (composto) */}
+                      <motion.div
+                        className="pointer-events-none absolute inset-0 bg-black"
+                        initial={false}
+                        animate={{ opacity: depth * 0.22 }}
+                        transition={{
+                          type: 'spring',
+                          stiffness: 140,
+                          damping: 22,
+                          mass: 0.9,
+                        }}
+                      />
                       {/* Brilho especular que segue o tilt (só no card da frente) */}
                       {isActive && tiltEnabled && (
                         <motion.div
@@ -302,32 +307,6 @@ export function Projetos() {
                   );
                 })}
 
-                {/* Varredura de luz (clip-path) a cada troca de projeto */}
-                {hasNavigated.current && !reduced && (
-                  <motion.div
-                    key={`sweep-${index}`}
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 rounded-2xl md:rounded-[2rem]"
-                    style={{
-                      zIndex: total + 1,
-                      background: `linear-gradient(105deg, transparent 30%, ${withAlpha(projeto.accent, 0.22)} 45%, rgba(232,227,215,0.16) 50%, ${withAlpha(projeto.accent, 0.1)} 55%, transparent 70%)`,
-                    }}
-                    initial={{ clipPath: 'inset(0 100% 0 0)', opacity: 1 }}
-                    animate={{
-                      clipPath: [
-                        'inset(0 100% 0 0)',
-                        'inset(0 0% 0 0)',
-                        'inset(0 0 0 100%)',
-                      ],
-                      opacity: [1, 1, 0],
-                    }}
-                    transition={{
-                      duration: 0.85,
-                      times: [0, 0.45, 1],
-                      ease: 'easeInOut',
-                    }}
-                  />
-                )}
               </motion.div>
             </div>
 
