@@ -119,6 +119,10 @@ export function Projetos() {
   const yStep = isMobile ? 8 : 12;
   const scaleStep = isMobile ? 0.045 : 0.06;
   const rotStep = isMobile ? 1.2 : 1.8;
+  // No mobile só os 3 cards da frente ficam montados: os de trás ficam ocultos
+  // atrás mesmo, então não vale a pena compô-los/decodificá-los (8 imagens
+  // full-bleed empilhadas é o que trava o aparelho).
+  const visibleDepth = isMobile ? 3 : total;
 
   return (
     <section
@@ -236,6 +240,9 @@ export function Projetos() {
                 {projetos.map((p, i) => {
                   const depth = (i - index + total) % total; // 0 = frente
                   const isActive = depth === 0;
+                  // Mobile: descarta os cards do fundo (ocultos) — menos camadas
+                  // na GPU e menos imagens decodificadas.
+                  if (depth > visibleDepth) return null;
                   return (
                     <motion.div
                       key={p.slug}
@@ -261,9 +268,10 @@ export function Projetos() {
                         rotate: depth * rotStep,
                         zIndex: total - depth,
                         opacity: isActive ? 1 : 0.95 - depth * 0.12,
-                        // Blur só no desktop; no mobile o escurecimento vem do
-                        // overlay de opacity abaixo (composto, não repinta).
-                        ...(isMobile ? {} : { filter: `blur(${depth * 1.5}px)` }),
+                        // Blur só no desktop. Animar `filter` re-rasteriza o card
+                        // a cada frame — é o que mais trava o mobile. Lá a
+                        // profundidade vem só de scale/escurecimento (compostos).
+                        filter: isMobile ? 'none' : `blur(${depth * 1.5}px)`,
                       }}
                       transition={{
                         type: 'spring',
