@@ -146,9 +146,12 @@ export function Projetos() {
 
       <div className="relative z-10 grid w-full grid-cols-1 items-center gap-6 md:grid-cols-[38%_62%] md:gap-6">
         {/* ── Texto (esquerda) — colado no card, na altura dele ── */}
-        <div className="order-2 px-6 md:order-1 md:pl-16">
+        <div className="order-2 grid px-6 md:order-1 md:pl-16">
           {/* mobile: crossfade simultâneo (mode="sync") sem esperar o exit.
-              desktop: mode="wait" mantém o slide sequencial editorial. */}
+              desktop: mode="wait" mantém o slide sequencial editorial.
+              gridArea 1/1 faz texto antigo e novo ocuparem a MESMA célula
+              (sobrepostos) durante o crossfade — sem empurrar o conteúdo
+              de baixo, que era o que fazia o texto "descer e voltar". */}
           <AnimatePresence mode={isMobile ? 'sync' : 'wait'}>
             <motion.div
               key={projeto.slug}
@@ -156,6 +159,7 @@ export function Projetos() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: isMobile ? 0.2 : 0.3 }}
+              style={{ gridArea: '1 / 1' }}
               className="flex flex-col gap-5 md:ml-auto md:mr-6 md:h-[50vh] md:max-w-sm md:justify-between md:gap-0"
             >
               <Reveal reduced={reduced} mobile={isMobile}>
