@@ -147,12 +147,18 @@ export function Projetos() {
       <div className="relative z-10 grid w-full grid-cols-1 items-center gap-6 md:grid-cols-[38%_62%] md:gap-6">
         {/* ── Texto (esquerda) — colado no card, na altura dele ── */}
         <div className="order-2 px-6 md:order-1 md:pl-16">
-          <AnimatePresence mode="wait">
+          {/* mobile: crossfade simultâneo (mode="sync") sem esperar o exit.
+              desktop: mode="wait" mantém o slide sequencial editorial. */}
+          <AnimatePresence mode={isMobile ? 'sync' : 'wait'}>
             <motion.div
               key={projeto.slug}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: isMobile ? 0.2 : 0.3 }}
               className="flex flex-col gap-5 md:ml-auto md:mr-6 md:h-[50vh] md:max-w-sm md:justify-between md:gap-0"
             >
-              <Reveal reduced={reduced}>
+              <Reveal reduced={reduced} mobile={isMobile}>
                 <div className="flex items-center gap-2.5 font-mono text-tiny uppercase tracking-[0.3em] text-[#E8E3D7]/60">
                   <span
                     className="inline-block h-1.5 w-1.5 shrink-0 rounded-full"
@@ -165,7 +171,8 @@ export function Projetos() {
               <div>
                 <Reveal
                   reduced={reduced}
-                  delay={0.06}
+                  mobile={isMobile}
+                  delay={isMobile ? 0 : 0.06}
                   className="-mb-[clamp(10px,1.3vw,19px)] pb-[clamp(10px,1.3vw,19px)]"
                 >
                   <h2
@@ -176,14 +183,14 @@ export function Projetos() {
                     {projeto.titulo}
                   </h2>
                 </Reveal>
-                <Reveal reduced={reduced} delay={0.12}>
+                <Reveal reduced={reduced} mobile={isMobile} delay={isMobile ? 0 : 0.12}>
                   <p className="mt-3 line-clamp-3 font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-5 md:line-clamp-none md:text-body-lg">
                     {projeto.descricaoCurta}
                   </p>
                 </Reveal>
               </div>
 
-              <Reveal reduced={reduced} delay={0.18}>
+              <Reveal reduced={reduced} mobile={isMobile} delay={isMobile ? 0 : 0.18}>
                 <a
                   href={projeto.urlExterna}
                   target="_blank"
@@ -275,9 +282,9 @@ export function Projetos() {
                       }}
                       transition={{
                         type: 'spring',
-                        stiffness: 140,
-                        damping: 22,
-                        mass: 0.9,
+                        stiffness: isMobile ? 280 : 140,
+                        damping: isMobile ? 32 : 22,
+                        mass: isMobile ? 0.5 : 0.9,
                       }}
                     >
                       {/* Imagem do projeto */}
@@ -299,9 +306,9 @@ export function Projetos() {
                         animate={{ opacity: depth * 0.22 }}
                         transition={{
                           type: 'spring',
-                          stiffness: 140,
-                          damping: 22,
-                          mass: 0.9,
+                          stiffness: isMobile ? 280 : 140,
+                          damping: isMobile ? 32 : 22,
+                          mass: isMobile ? 0.5 : 0.9,
                         }}
                       />
                       {/* Brilho especular que segue o tilt (só no card da frente) */}
@@ -383,28 +390,26 @@ export function Projetos() {
   );
 }
 
-/** Reveal editorial: o conteúdo sobe por trás de uma máscara (overflow hidden). */
+/** Reveal editorial: o conteúdo sobe por trás de uma máscara (overflow hidden).
+ *  No mobile (ou reduced motion) usa só opacity — sem clip, sem stagger. */
 function Reveal({
   children,
   delay = 0,
   className,
   reduced,
+  mobile,
 }: {
   children: React.ReactNode;
   delay?: number;
   className?: string;
   reduced?: boolean | null;
+  mobile?: boolean;
 }) {
-  if (reduced) {
+  if (reduced || mobile) {
     return (
-      <motion.div
-        className={className}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, transition: { duration: 0.4, delay } }}
-        exit={{ opacity: 0, transition: { duration: 0.2 } }}
-      >
+      <div className={className}>
         {children}
-      </motion.div>
+      </div>
     );
   }
   return (
