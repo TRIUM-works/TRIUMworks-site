@@ -188,7 +188,10 @@ export function Projetos() {
                   </h2>
                 </Reveal>
                 <Reveal reduced={reduced} mobile={isMobile} delay={isMobile ? 0 : 0.12}>
-                  <p className="mt-3 line-clamp-3 font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-5 md:line-clamp-none md:text-body-lg">
+                  {/* min-h reserva sempre 3 linhas no mobile: descrições mais
+                      curtas mantêm a mesma altura, então o bloco de texto não
+                      muda de tamanho entre projetos (o que fazia o deck pular). */}
+                  <p className="mt-3 line-clamp-3 min-h-[4.6rem] font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-5 md:line-clamp-none md:min-h-0 md:text-body-lg">
                     {projeto.descricaoCurta}
                   </p>
                 </Reveal>
