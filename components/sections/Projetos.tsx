@@ -254,8 +254,14 @@ export function Projetos() {
                   // Mobile: descarta os cards do fundo (ocultos) — menos camadas
                   // na GPU e menos imagens decodificadas.
                   if (depth > visibleDepth) return null;
+                  // Transform/opacity dirigidos por CSS (thread de composição/GPU),
+                  // não pelo spring do framer (thread principal, recalcula por
+                  // frame). É o que destrava a troca no celular.
+                  const transform = `translate3d(${depth * xStep}px, ${depth * yStep}px, 0) scale(${1 - depth * scaleStep}) rotate(${depth * rotStep}deg)`;
+                  const ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+                  const dur = isMobile ? '0.5s' : '0.6s';
                   return (
-                    <motion.div
+                    <div
                       key={p.slug}
                       onClick={() => !isActive && goTo(i)}
                       data-cursor="hover"
@@ -265,30 +271,22 @@ export function Projetos() {
                       )}
                       style={{
                         background: '#0b0e13',
-                        // Sombra estática (fora do spring): animá-la forçava
-                        // repaint por frame e travava a troca no mobile.
+                        zIndex: total - depth,
+                        transform,
+                        opacity: isActive ? 1 : 0.95 - depth * 0.12,
+                        // Blur só no desktop (animar filter re-rasteriza — caro).
+                        filter: isMobile ? undefined : `blur(${depth * 1.5}px)`,
+                        // CSS anima transform/opacity na GPU. No desktop o blur
+                        // também transiciona; no mobile fica de fora (custo).
+                        transition: reduced
+                          ? 'none'
+                          : `transform ${dur} ${ease}, opacity ${dur} ${ease}${isMobile ? '' : `, filter ${dur} ${ease}`}`,
+                        willChange: 'transform',
+                        backfaceVisibility: 'hidden',
+                        // Sombra estática (fora da transição) p/ não repintar.
                         boxShadow: isActive
                           ? `0 30px 80px rgba(0,0,0,0.55), 0 0 110px ${withAlpha(projeto.accent, 0.16)}`
                           : '0 20px 50px rgba(0,0,0,0.4)',
-                      }}
-                      initial={false}
-                      animate={{
-                        x: depth * xStep,
-                        y: depth * yStep,
-                        scale: 1 - depth * scaleStep,
-                        rotate: depth * rotStep,
-                        zIndex: total - depth,
-                        opacity: isActive ? 1 : 0.95 - depth * 0.12,
-                        // Blur só no desktop. Animar `filter` re-rasteriza o card
-                        // a cada frame — é o que mais trava o mobile. Lá a
-                        // profundidade vem só de scale/escurecimento (compostos).
-                        filter: isMobile ? 'none' : `blur(${depth * 1.5}px)`,
-                      }}
-                      transition={{
-                        type: 'spring',
-                        stiffness: isMobile ? 280 : 140,
-                        damping: isMobile ? 32 : 22,
-                        mass: isMobile ? 0.5 : 0.9,
                       }}
                     >
                       {/* Imagem do projeto */}
@@ -303,16 +301,12 @@ export function Projetos() {
                       />
                       {/* Scrim sutil para ancorar o card no fundo escuro */}
                       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
-                      {/* Escurecimento das cartas de trás via opacity (composto) */}
-                      <motion.div
+                      {/* Escurecimento das cartas de trás — opacity via CSS */}
+                      <div
                         className="pointer-events-none absolute inset-0 bg-black"
-                        initial={false}
-                        animate={{ opacity: depth * 0.22 }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: isMobile ? 280 : 140,
-                          damping: isMobile ? 32 : 22,
-                          mass: isMobile ? 0.5 : 0.9,
+                        style={{
+                          opacity: depth * 0.22,
+                          transition: reduced ? 'none' : `opacity ${dur} ${ease}`,
                         }}
                       />
                       {/* Brilho especular que segue o tilt (só no card da frente) */}
@@ -322,7 +316,7 @@ export function Projetos() {
                           style={{ background: gloss }}
                         />
                       )}
-                    </motion.div>
+                    </div>
                   );
                 })}
 
