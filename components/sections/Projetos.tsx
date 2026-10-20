@@ -128,8 +128,13 @@ export function Projetos() {
     const t = setTimeout(() => setPronto(true), 1600);
     return () => clearTimeout(t);
   }, [visto]);
-  const aberto = visto || !!reduced;
-  const entrando = aberto && !pronto && !reduced;
+  // No celular não há entrada: a máscara em clip-path não roda na GPU e
+  // repintava a imagem inteira a cada quadro, junto com o zoom e o leque,
+  // bem na hora em que o snap ainda está rolando a página. As cartas já
+  // chegam prontas com a própria rolagem, como o texto ao lado.
+  const semEntrada = !!reduced || isMobile;
+  const aberto = visto || semEntrada;
+  const entrando = aberto && !pronto && !semEntrada;
 
   // Encaixe do botão de seta no canto: lado do botão + folga até o card.
   const seta = isMobile ? 40 : 56;
@@ -396,7 +401,7 @@ export function Projetos() {
                         className="absolute inset-0 overflow-hidden border border-[#E8E3D7]/10 bg-[#0b0e13]"
                         style={{
                           clipPath: aberto ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
-                          transition: reduced ? 'none' : `clip-path 1.1s ${EASE_CSS.mask}`,
+                          transition: semEntrada ? 'none' : `clip-path 1.1s ${EASE_CSS.mask}`,
                         }}
                       >
                         {/* Camada do parallax, um pouco mais larga que o card para a
@@ -414,7 +419,7 @@ export function Projetos() {
                             )}
                             style={{
                               transform: `scale(${aberto ? 1 : 1.15})`,
-                              transition: reduced
+                              transition: semEntrada
                                 ? 'none'
                                 : `transform 1.6s ${ease}, scale 1.2s ${ease}`,
                             }}
