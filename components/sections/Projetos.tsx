@@ -6,7 +6,6 @@ import {
   AnimatePresence,
   m,
   useInView,
-  useMotionTemplate,
   useMotionValue,
   useReducedMotion,
   useSpring,
@@ -105,9 +104,11 @@ export function Projetos() {
   const rX = useSpring(tiltX, { stiffness: 130, damping: 18, mass: 0.6 });
   const rY = useSpring(tiltY, { stiffness: 130, damping: 18, mass: 0.6 });
   // Brilho especular que acompanha a inclinação.
-  const glossX = useTransform(rY, [-9, 9], ['18%', '82%']);
-  const glossY = useTransform(rX, [7, -7], ['15%', '85%']);
-  const gloss = useMotionTemplate`radial-gradient(480px circle at ${glossX} ${glossY}, rgba(232,227,215,0.13), transparent 60%)`;
+  // Brilho especular: uma mancha de luz fixa que só se desloca (transform).
+  // Antes era um radial-gradient refeito a cada quadro, o que repintava o
+  // card inteiro durante a inclinação.
+  const glossX = useTransform(rY, [-9, 9], ['-30%', '30%']);
+  const glossY = useTransform(rX, [7, -7], ['-30%', '30%']);
   // Parallax interno: a imagem corre de lado, no sentido contrário à
   // inclinação, e o card passa a se comportar como uma janela. Só na
   // horizontal: as imagens são prints de site, e folga vertical cortaria o
@@ -134,15 +135,22 @@ export function Projetos() {
   const seta = isMobile ? 40 : 56;
   const recuo = seta + (isMobile ? 6 : 10);
 
+  // Posição do palco lida uma vez ao entrar, não a cada movimento: ler o
+  // layout dentro do pointermove força o navegador a recalculá-lo por quadro.
+  const palco = useRef<DOMRect | null>(null);
+  const onTiltEnter = (e: React.PointerEvent<HTMLDivElement>) => {
+    palco.current = e.currentTarget.getBoundingClientRect();
+  };
   const onTiltMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!tiltEnabled) return;
-    const r = e.currentTarget.getBoundingClientRect();
+    const r = palco.current ?? (palco.current = e.currentTarget.getBoundingClientRect());
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
     tiltY.set(px * 9);
     tiltX.set(py * -7);
   };
   const onTiltLeave = () => {
+    palco.current = null;
     tiltX.set(0);
     tiltY.set(0);
   };
@@ -316,6 +324,7 @@ export function Projetos() {
             <div
               style={{ perspective: 1400 }}
               data-cursor="drag"
+              onPointerEnter={onTiltEnter}
               onPointerMove={onTiltMove}
               onPointerLeave={onTiltLeave}
               onPointerDown={(e) => {
@@ -332,7 +341,7 @@ export function Projetos() {
                 className="relative aspect-video w-full"
                 style={
                   tiltEnabled
-                    ? { rotateX: rX, rotateY: rY, transformStyle: 'preserve-3d' }
+                    ? { rotateX: rX, rotateY: rY }
                     : undefined
                 }
               >
@@ -366,13 +375,12 @@ export function Projetos() {
                         zIndex: total - depth,
                         transform,
                         opacity: isActive ? 1 : 0.95 - depth * 0.12,
-                        // Blur só no desktop (animar filter re-rasteriza — caro).
-                        filter: isMobile ? undefined : `blur(${depth * 1.5}px)`,
-                        // CSS anima transform/opacity na GPU. No desktop o blur
-                        // também transiciona; no mobile fica de fora (custo).
+                        // CSS anima transform/opacity na GPU. Sem filter: blur nas
+                        // cartas de trás, que dentro do card inclinado obrigava o
+                        // navegador a refazer o desfoque a cada quadro do hover.
                         transition: reduced
                           ? 'none'
-                          : `transform ${leque}, opacity ${dur} ${ease}${isMobile ? '' : `, filter ${dur} ${ease}`}`,
+                          : `transform ${leque}, opacity ${dur} ${ease}`,
                         willChange: 'transform',
                         backfaceVisibility: 'hidden',
                         // Sombra estática (fora da transição) p/ não repintar.
@@ -432,11 +440,17 @@ export function Projetos() {
                             transition: reduced ? 'none' : `opacity ${dur} ${ease}`,
                           }}
                         />
-                        {/* Brilho especular que segue o tilt (só no card da frente) */}
+                        {/* Brilho especular que segue o tilt (só no card da frente).
+                            O gradiente é desenhado uma vez; o movimento é só transform. */}
                         {isActive && tiltEnabled && (
                           <m.div
-                            className="pointer-events-none absolute inset-0"
-                            style={{ background: gloss }}
+                            className="pointer-events-none absolute -inset-1/2"
+                            style={{
+                              x: glossX,
+                              y: glossY,
+                              background:
+                                "radial-gradient(closest-side, rgba(232,227,215,0.13), transparent)",
+                            }}
                           />
                         )}
                       </div>
