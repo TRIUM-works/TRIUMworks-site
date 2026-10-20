@@ -28,6 +28,24 @@ function withAlpha(hex: string, a: number) {
   return hex + Math.round(a * 255).toString(16).padStart(2, '0');
 }
 
+/** Seta diagonal do botão do encaixe; gira 45° no hover e aponta para a frente. */
+function SetaDiagonal() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="square"
+      aria-hidden="true"
+    >
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
+}
+
 export function Projetos() {
   const [index, setIndex] = useState(0);
   const ref = useRef<HTMLElement>(null);
@@ -90,8 +108,31 @@ export function Projetos() {
   const glossX = useTransform(rY, [-9, 9], ['18%', '82%']);
   const glossY = useTransform(rX, [7, -7], ['15%', '85%']);
   const gloss = useMotionTemplate`radial-gradient(480px circle at ${glossX} ${glossY}, rgba(232,227,215,0.13), transparent 60%)`;
+  // Parallax interno: a imagem corre de lado, no sentido contrário à
+  // inclinação, e o card passa a se comportar como uma janela. Só na
+  // horizontal: as imagens são prints de site, e folga vertical cortaria o
+  // cabeçalho, que é a parte que identifica o projeto.
+  const imgX = useTransform(rY, [-9, 9], ['2.4%', '-2.4%']);
 
   const tiltEnabled = finePointer && !reduced;
+
+  // Entrada: na primeira vez que a seção aparece, a carta da frente abre de
+  // dentro de uma máscara e as de trás se abrem em leque logo depois.
+  // `pronto` desliga os atrasos escalonados assim que a entrada termina,
+  // senão eles continuariam valendo em toda troca de projeto.
+  const visto = useInView(ref, { once: true, amount: 0.35 });
+  const [pronto, setPronto] = useState(false);
+  useEffect(() => {
+    if (!visto) return;
+    const t = setTimeout(() => setPronto(true), 1600);
+    return () => clearTimeout(t);
+  }, [visto]);
+  const aberto = visto || !!reduced;
+  const entrando = aberto && !pronto && !reduced;
+
+  // Encaixe do botão de seta no canto: lado do botão + folga até o card.
+  const seta = isMobile ? 40 : 56;
+  const recuo = seta + (isMobile ? 6 : 10);
 
   const onTiltMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!tiltEnabled) return;
@@ -117,7 +158,11 @@ export function Projetos() {
   // camada, então da quinta em diante a carta já está sob preto opaco e
   // decodificar a imagem seria trabalho jogado fora. No mobile o corte é
   // mais agressivo — empilhar imagens full-bleed é o que trava o aparelho.
+  // A última vaga (total - 1) fica sempre montada: é para lá que a carta da
+  // frente vai ao avançar, e de lá que vem a que volta. Sem ela, a carta
+  // sumia e surgia de uma vez em vez de deslizar.
   const visibleDepth = isMobile ? 3 : 4;
+  const montada = (depth: number) => depth <= visibleDepth || depth === total - 1;
 
   return (
     <section
@@ -296,22 +341,28 @@ export function Projetos() {
                   const isActive = depth === 0;
                   // Mobile: descarta os cards do fundo (ocultos) — menos camadas
                   // na GPU e menos imagens decodificadas.
-                  if (depth > visibleDepth) return null;
+                  if (!montada(depth)) return null;
+                  // Antes da entrada todas as cartas ficam empilhadas na posição
+                  // da frente; ao abrir, cada uma segue para o seu lugar no leque.
+                  const pos = aberto ? depth : 0;
                   // Transform/opacity dirigidos por CSS (thread de composição/GPU),
                   // não pelo spring do framer (thread principal, recalcula por
                   // frame). É o que destrava a troca no celular.
-                  const transform = `translate3d(${depth * xStep}px, ${depth * yStep}px, 0) scale(${1 - depth * scaleStep}) rotate(${depth * rotStep}deg)`;
+                  const transform = `translate3d(${pos * xStep}px, ${pos * yStep}px, 0) scale(${1 - pos * scaleStep}) rotate(${pos * rotStep}deg)`;
                   const ease = EASE_CSS.out;
                   const dur = isMobile ? '0.5s' : '0.6s';
+                  // Na entrada o leque abre mais devagar e uma carta por vez,
+                  // depois que a da frente já começou a aparecer.
+                  const leque = entrando ? `0.9s ${ease} ${0.45 + depth * 0.08}s` : `${dur} ${ease}`;
+                  const comEncaixe = isActive && !!p.urlExterna;
                   return (
                     <div
                       key={p.slug}
                       // Sem data-cursor aqui: o closest() do cursor pegaria o
                       // card antes do deck e trocaria a seta pelo círculo.
                       // A navegação agora é do deck inteiro, por metade.
-                      className="absolute inset-0 overflow-hidden border border-[#E8E3D7]/10"
+                      className={cn('absolute inset-0', isActive && 'group/card')}
                       style={{
-                        background: '#0b0e13',
                         zIndex: total - depth,
                         transform,
                         opacity: isActive ? 1 : 0.95 - depth * 0.12,
@@ -321,7 +372,7 @@ export function Projetos() {
                         // também transiciona; no mobile fica de fora (custo).
                         transition: reduced
                           ? 'none'
-                          : `transform ${dur} ${ease}, opacity ${dur} ${ease}${isMobile ? '' : `, filter ${dur} ${ease}`}`,
+                          : `transform ${leque}, opacity ${dur} ${ease}${isMobile ? '' : `, filter ${dur} ${ease}`}`,
                         willChange: 'transform',
                         backfaceVisibility: 'hidden',
                         // Sombra estática (fora da transição) p/ não repintar.
@@ -330,32 +381,105 @@ export function Projetos() {
                           : '0 20px 50px rgba(0,0,0,0.4)',
                       }}
                     >
-                      {/* Imagem do projeto */}
-                      <Image
-                        src={p.imagemCard ?? p.imagemPrincipal}
-                        alt={p.titulo}
-                        fill
-                        priority={i === 0}
-                        sizes="(min-width: 768px) 56vw, 100vw"
-                        className="object-cover"
-                        draggable={false}
-                      />
-                      {/* Scrim sutil para ancorar o card no fundo escuro */}
-                      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
-                      {/* Escurecimento das cartas de trás — opacity via CSS */}
+                      {/* Face do card. A máscara da entrada fica nela e não no
+                          card inteiro porque clip-path no card cortaria também
+                          a sombra. Abre de baixo para cima. */}
                       <div
-                        className="pointer-events-none absolute inset-0 bg-black"
+                        className="absolute inset-0 overflow-hidden border border-[#E8E3D7]/10 bg-[#0b0e13]"
                         style={{
-                          opacity: depth * 0.22,
-                          transition: reduced ? 'none' : `opacity ${dur} ${ease}`,
+                          clipPath: aberto ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
+                          transition: reduced ? 'none' : `clip-path 1.1s ${EASE_CSS.mask}`,
                         }}
-                      />
-                      {/* Brilho especular que segue o tilt (só no card da frente) */}
-                      {isActive && tiltEnabled && (
+                      >
+                        {/* Camada do parallax, um pouco mais larga que o card para a
+                            imagem ter por onde correr sem mostrar a borda. */}
                         <m.div
-                          className="pointer-events-none absolute inset-0"
-                          style={{ background: gloss }}
+                          className="absolute inset-y-0 -inset-x-[3%]"
+                          style={isActive && tiltEnabled ? { x: imgX } : { x: 0 }}
+                        >
+                          {/* Zoom: desfaz na entrada (transform) e volta de leve no
+                              hover (propriedade scale, que soma com o transform). */}
+                          <div
+                            className={cn(
+                              'absolute inset-0 origin-top',
+                              isActive && 'group-hover/card:scale-[1.04]'
+                            )}
+                            style={{
+                              transform: `scale(${aberto ? 1 : 1.15})`,
+                              transition: reduced
+                                ? 'none'
+                                : `transform 1.6s ${ease}, scale 1.2s ${ease}`,
+                            }}
+                          >
+                            <Image
+                              src={p.imagemCard ?? p.imagemPrincipal}
+                              alt={p.titulo}
+                              fill
+                              priority={i === 0}
+                              sizes="(min-width: 768px) 70vw, 90vw"
+                              className="object-cover object-top"
+                              draggable={false}
+                            />
+                          </div>
+                        </m.div>
+                        {/* Scrim sutil para ancorar o card no fundo escuro */}
+                        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
+                        {/* Escurecimento das cartas de trás — opacity via CSS */}
+                        <div
+                          className="pointer-events-none absolute inset-0 bg-black"
+                          style={{
+                            opacity: depth * 0.22,
+                            transition: reduced ? 'none' : `opacity ${dur} ${ease}`,
+                          }}
                         />
+                        {/* Brilho especular que segue o tilt (só no card da frente) */}
+                        {isActive && tiltEnabled && (
+                          <m.div
+                            className="pointer-events-none absolute inset-0"
+                            style={{ background: gloss }}
+                          />
+                        )}
+                      </div>
+
+                      {/* Encaixe do canto: um quadrado escuro na cor de base
+                          do card abre a partir da quina e o botão assenta
+                          dentro, com uma folga em cima e à esquerda. É um
+                          quadrado por cima, e não um recorte na face, porque
+                          pelo recorte apareceria a carta de trás do leque. */}
+                      {comEncaixe && aberto && (
+                        <>
+                          <m.span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute bottom-0 right-0 origin-bottom-right bg-[#0b0e13]"
+                            style={{ width: recuo, height: recuo }}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.5, ease: EASE.mask, delay: entrando ? 0.95 : 0.15 }}
+                          />
+                          {/* Abre o site do cliente. Para a propagação para o
+                              clique não virar também navegação do deck, nem o
+                              toque começar um arrasto. O cursor só ancora no
+                              centro: o disco do hover é maior que o botão e o
+                              encobriria. */}
+                          <m.a
+                            href={p.urlExterna}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Abrir o site de ${p.titulo} (nova aba)`}
+                            data-cursor-magnetic=""
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.6 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.45, ease: EASE.out, delay: entrando ? 1.15 : 0.3 }}
+                            className="group/seta absolute bottom-0 right-0 grid place-items-center text-carbon transition-colors duration-300 hover:bg-[#E8E3D7]!"
+                            style={{ width: seta, height: seta, backgroundColor: p.accent }}
+                          >
+                            <span className="transition-transform duration-500 ease-soft group-hover/seta:rotate-45">
+                              <SetaDiagonal />
+                            </span>
+                          </m.a>
+                        </>
                       )}
                     </div>
                   );
