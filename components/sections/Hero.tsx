@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { m, useInView } from 'motion/react';
 import { useSnap } from '@/components/layout/SnapController';
 import { useAtmosphere, ATMOSPHERES } from '@/components/layout/Atmosphere';
 import { StrokeText } from '@/components/animations/StrokeText';
+import { EASE } from '@/lib/easing';
 
 export function Hero() {
   const snap = useSnap();
@@ -38,19 +39,19 @@ export function Hero() {
         </h1>
 
         {/* Subtítulo */}
-        <motion.p
+        <m.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.9, delay: 1.0, ease: EASE.out }}
           className="mt-6 font-mono text-sm uppercase tracking-[0.45em] text-white/75 md:text-base"
           style={{ textShadow: '0 2px 18px rgba(0,0,0,0.4)' }}
         >
           Soluções digitais
-        </motion.p>
+        </m.p>
       </div>
 
       {/* Indicador de continuidade */}
-      <motion.button
+      <m.button
         type="button"
         onClick={() => snap.goToId('projetos')}
         data-cursor="hover"
@@ -63,7 +64,7 @@ export function Hero() {
         <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-white/50 transition-colors group-hover:text-white">
           Rolar
         </span>
-        <motion.span
+        <m.span
           aria-hidden="true"
           className="text-white/60 transition-colors group-hover:text-white"
           animate={{ y: [0, 6, 0] }}
@@ -81,8 +82,8 @@ export function Hero() {
           >
             <path d="M1 1 L9 8 L17 1" />
           </svg>
-        </motion.span>
-      </motion.button>
+        </m.span>
+      </m.button>
     </section>
   );
 }

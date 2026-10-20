@@ -3,16 +3,17 @@
 import { useEffect } from 'react';
 import {
   animate,
-  motion,
+  m,
   useMotionValue,
   useSpring,
   useReducedMotion,
-} from 'framer-motion';
+} from 'motion/react';
 import { useAtmosphere } from './Atmosphere';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { grainSvg } from '@/components/ui/GrainOverlay';
+import { EASE } from '@/lib/easing';
 
-const COLOR_TWEEN = { duration: 2.2, ease: [0.65, 0, 0.35, 1] as const };
+const COLOR_TWEEN = { duration: 2.2, ease: EASE.artisan };
 
 /**
  * Fundo discreto: base quase preta + dois glows suaves (cor da atmosfera de
@@ -73,7 +74,7 @@ export function BackgroundFX() {
       // não força repaint dele (fica composto na GPU).
       style={{ backgroundColor: '#050609', transform: 'translateZ(0)' }}
     >
-      <motion.div
+      <m.div
         className="absolute inset-0"
         style={heavy ? { x: sx, y: sy } : undefined}
       >
@@ -81,7 +82,7 @@ export function BackgroundFX() {
           <>
             {/* Glow A — canto superior direito. Mesmo blur do desktop, porém
                 estático (sem o loop de movimento que travava o mobile). */}
-            <motion.div
+            <m.div
               className="absolute rounded-full"
               style={{
                 width: '95vw',
@@ -94,7 +95,7 @@ export function BackgroundFX() {
               }}
             />
             {/* Glow B — canto inferior esquerdo, também estático. */}
-            <motion.div
+            <m.div
               className="absolute rounded-full"
               style={{
                 width: '90vw',
@@ -110,7 +111,7 @@ export function BackgroundFX() {
         ) : (
           <>
             {/* Glow A — canto superior direito */}
-            <motion.div
+            <m.div
               className="absolute rounded-full"
               style={{
                 width: '68vw',
@@ -135,7 +136,7 @@ export function BackgroundFX() {
               }}
             />
             {/* Glow B — canto inferior esquerdo */}
-            <motion.div
+            <m.div
               className="absolute rounded-full"
               style={{
                 width: '58vw',
@@ -161,7 +162,7 @@ export function BackgroundFX() {
             />
           </>
         )}
-      </motion.div>
+      </m.div>
 
       {/* Mantém o conjunto sóbrio (preto com detalhes). No mobile o overlay é
           bem mais leve — senão "engole" a cor dos glows e o fundo fica preto. */}

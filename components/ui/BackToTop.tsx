@@ -1,8 +1,9 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { useSnap } from '@/components/layout/SnapController';
 import { useMobile } from '@/lib/hooks/useMobile';
+import { EASE } from '@/lib/easing';
 
 // Seta "desenhada" — linha vertical com leve curva (Q) e chevron irregular.
 function SketchArrowUp({ size = 22 }: { size?: number }) {
@@ -37,7 +38,7 @@ export function BackToTop() {
   return (
     <AnimatePresence>
       {visible && (
-        <motion.button
+        <m.button
           key="back-to-top"
           onClick={goTop}
           aria-label="Voltar ao topo"
@@ -45,17 +46,17 @@ export function BackToTop() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.4, ease: [0.65, 0, 0.35, 1] }}
+          transition={{ duration: 0.4, ease: EASE.artisan }}
           className={
             isMobile
               ? // Mobile: só seta, canto inferior direito, respirando
-                'group fixed bottom-6 right-6 z-[45] flex h-11 w-11 items-center justify-center text-teal'
+                'group fixed bottom-6 right-6 z-45 flex h-11 w-11 items-center justify-center text-teal'
               : // Desktop: seta + texto
-                'group fixed bottom-8 right-[110px] z-[45] flex flex-col items-center gap-1.5 text-teal transition-all duration-300 hover:-translate-y-0.5'
+                'group fixed bottom-8 right-[110px] z-45 flex flex-col items-center gap-1.5 text-teal transition-all duration-300 hover:-translate-y-0.5'
           }
         >
           {isMobile ? (
-            <motion.span
+            <m.span
               animate={{ y: [0, -4, 0] }}
               transition={{
                 duration: 2.2,
@@ -65,7 +66,7 @@ export function BackToTop() {
               className="block"
             >
               <SketchArrowUp size={26} />
-            </motion.span>
+            </m.span>
           ) : (
             <>
               <span className="transition-transform duration-300 group-hover:-translate-y-0.5">
@@ -76,7 +77,7 @@ export function BackToTop() {
               </span>
             </>
           )}
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   );

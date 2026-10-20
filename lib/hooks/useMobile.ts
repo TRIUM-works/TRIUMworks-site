@@ -1,16 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMediaQuery } from './useMediaQuery';
 
 export function useMobile(breakpoint = 1024): boolean {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < breakpoint);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, [breakpoint]);
-
-  return isMobile;
+  return useMediaQuery(`(max-width: ${breakpoint - 1}px)`);
 }

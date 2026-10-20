@@ -23,7 +23,7 @@ export function Header() {
       {/* Scrim sutil para contraste do menu sobre o fundo */}
       <div
         aria-hidden="true"
-        className="pointer-events-none fixed inset-x-0 top-0 z-40 h-24 bg-gradient-to-b from-black/35 to-transparent"
+        className="pointer-events-none fixed inset-x-0 top-0 z-40 h-24 bg-linear-to-b from-black/35 to-transparent"
       />
 
       <header className="fixed inset-x-0 top-0 z-50">

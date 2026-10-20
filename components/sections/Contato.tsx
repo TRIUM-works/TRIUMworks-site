@@ -1,11 +1,15 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { m, useInView } from 'motion/react';
 import {
   useAtmosphere,
   ATMOSPHERES,
 } from '@/components/layout/Atmosphere';
+import { Magnetic } from '@/components/motion/Magnetic';
+import { Reveal } from '@/components/motion/Reveal';
+import { SplitTitle } from '@/components/motion/SplitTitle';
+import { EASE } from '@/lib/easing';
 
 const WHATSAPP_URL =
   'https://wa.me/5585981254006?text=' +
@@ -14,8 +18,6 @@ const WHATSAPP_URL =
   );
 const INSTAGRAM_URL = 'https://www.instagram.com/triumworks/';
 const EMAIL_URL = 'mailto:contato@triumtech.com.br';
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /**
  * Botão de ação — label em mono, caixa reta. O preenchimento teal cresce
@@ -71,7 +73,7 @@ function Monumento() {
       // transbordar e ser ceifada ali — no desktop é isso que dá o corte de
       // raspão. No mobile, positiva, a palavra assenta inteira acima da
       // linha. Em em para o corte manter a proporção quando o corpo cresce.
-      className="-ml-[0.035em] mb-[0.15em] block select-none text-left font-display text-[min(28vw,58vh)] text-[#E8E3D7] md:-mb-[0.09em] md:ml-0 md:text-[min(33vw,58vh)]"
+      className="ml-[-0.035em] mb-[0.15em] block select-none text-left font-display text-[min(28vw,58vh)] text-[#E8E3D7] md:mb-[-0.09em] md:ml-0 md:text-[min(33vw,58vh)]"
       style={{
         fontWeight: 800,
         lineHeight: 0.74,
@@ -106,47 +108,39 @@ export function Contato() {
           monumento. Centralizado, a folga se reparte acima e abaixo. */}
       <div className="relative z-10 flex flex-1 flex-col justify-center gap-10 px-6 pt-16 md:flex-row md:items-start md:justify-between md:gap-16 md:px-12 md:pt-28">
         <div>
-          <motion.h2
-            data-cursor="hover"
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.9, ease: EASE }}
-            className="font-display font-bold leading-[0.94] tracking-[-0.025em] text-[#E8E3D7]"
-            style={{ fontSize: 'clamp(32px, 4.6vw, 60px)' }}
-          >
-            conta sua ideia
-            <br />
-            a gente constrói
-          </motion.h2>
+          {/* O título entra palavra por palavra; os botões e a nota chegam
+              depois, quando a frase já está quase montada. */}
+          <div data-cursor="hover">
+            <SplitTitle
+              text="conta sua ideia|a gente constrói"
+              className="font-display font-bold leading-[0.94] tracking-tight text-[#E8E3D7]"
+              style={{ fontSize: 'clamp(32px, 4.6vw, 60px)' }}
+            />
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
+          <Reveal
+            delay={0.35}
+            y={18}
             className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:gap-4"
           >
-            <ActionPill
-              href={WHATSAPP_URL}
-              label="Chamar no WhatsApp"
-              aria="Falar via WhatsApp (abre em nova aba)"
-            />
-            <ActionPill
-              href={EMAIL_URL}
-              label="Mandar um e-mail"
-              aria="Enviar e-mail para a TRIUM"
-            />
-          </motion.div>
+            <Magnetic>
+              <ActionPill
+                href={WHATSAPP_URL}
+                label="Chamar no WhatsApp"
+                aria="Falar via WhatsApp (abre em nova aba)"
+              />
+            </Magnetic>
+            <Magnetic>
+              <ActionPill
+                href={EMAIL_URL}
+                label="Mandar um e-mail"
+                aria="Enviar e-mail para a TRIUM"
+              />
+            </Magnetic>
+          </Reveal>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-10% 0px' }}
-          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
-          className="max-w-xs shrink-0 md:text-right"
-        >
+        <Reveal delay={0.45} y={18} className="max-w-xs shrink-0 md:text-right">
           <p className="font-lora text-[15px] leading-relaxed text-[#E8E3D7]/60">
             Resposta em até 24 horas — direto com quem projeta e desenvolve,
             sem intermediário.
@@ -179,19 +173,19 @@ export function Contato() {
               @triumworks
             </span>
           </a>
-        </motion.div>
+        </Reveal>
       </div>
 
       {/* ── Monumento: sangra de borda a borda, cortado pelo rodapé ── */}
       <div className="relative z-10 mt-auto overflow-hidden">
-        <motion.div
+        <m.div
           initial={{ y: '18%' }}
           whileInView={{ y: '0%' }}
           viewport={{ once: true, margin: '-15% 0px' }}
-          transition={{ duration: 1.1, ease: EASE }}
+          transition={{ duration: 1.1, ease: EASE.out }}
         >
           <Monumento />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* ── Rodapé ── */}

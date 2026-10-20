@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useAtmosphere } from '@/components/layout/Atmosphere';
+import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 
 type Mode = 'idle' | 'hover' | 'click' | 'label' | 'direcional';
 
@@ -26,7 +27,9 @@ const INICIAL: Estado = { mode: 'idle', label: null, dir: null };
  * marca do projeto em foco.
  */
 export function CustomCursor() {
-  const [enabled, setEnabled] = useState(false);
+  // Só ativa em dispositivos com mouse de verdade (desktop). Touch e
+  // dispositivos híbridos usam o cursor nativo do sistema.
+  const enabled = useMediaQuery('(hover: hover) and (pointer: fine)');
   const [estado, setEstado] = useState<Estado>(INICIAL);
   const { atmosphere } = useAtmosphere();
   const accent = atmosphere.colorA;
@@ -37,16 +40,6 @@ export function CustomCursor() {
   // Espelha o estado para o handler de pointermove comparar sem virar
   // dependência do efeito (que remontaria os listeners a cada mudança).
   const estadoRef = useRef<Estado>(INICIAL);
-
-  useEffect(() => {
-    // Só ativa em dispositivos com mouse de verdade (desktop). Touch e
-    // dispositivos híbridos usam o cursor nativo do sistema.
-    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
-    setEnabled(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setEnabled(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   useEffect(() => {
     if (!enabled) return;
@@ -172,7 +165,7 @@ export function CustomCursor() {
     <div
       ref={cursorRef}
       aria-hidden="true"
-      className="pointer-events-none fixed left-0 top-0 z-[202] flex items-center justify-center rounded-full"
+      className="pointer-events-none fixed left-0 top-0 z-202 flex items-center justify-center rounded-full"
       style={{
         width: size,
         height: size,

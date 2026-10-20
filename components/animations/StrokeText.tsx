@@ -1,6 +1,7 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'motion/react';
+import { EASE } from '@/lib/easing';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -22,7 +23,7 @@ export function StrokeText({
   return (
     <span className={cn('inline-block', className)} aria-label={text}>
       {letters.map((ch, i) => (
-        <motion.span
+        <m.span
           key={`${ch}-${i}`}
           aria-hidden="true"
           className="inline-block"
@@ -30,13 +31,13 @@ export function StrokeText({
           animate={{ y: '0%', opacity: 1 }}
           transition={{
             duration: letterDuration,
-            ease: [0.85, 0, 0.15, 1],
+            ease: EASE.ink,
             delay: delay + i * letterStagger,
           }}
           style={{ display: 'inline-block', whiteSpace: 'pre' }}
         >
           {ch === ' ' ? ' ' : ch}
-        </motion.span>
+        </m.span>
       ))}
     </span>
   );

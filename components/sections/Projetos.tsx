@@ -4,39 +4,45 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
   AnimatePresence,
-  motion,
+  m,
   useInView,
-  useMotionTemplate,
   useMotionValue,
   useReducedMotion,
   useSpring,
   useTransform,
   type PanInfo,
-} from 'framer-motion';
+} from 'motion/react';
 import { projetos } from '@/lib/data/projetos';
 import { useSnap } from '@/components/layout/SnapController';
 import { useAtmosphere } from '@/components/layout/Atmosphere';
+import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
+import { EASE, EASE_CSS } from '@/lib/easing';
 import { cn } from '@/lib/utils';
 
 const total = projetos.length;
 const INK = '#E8E3D7';
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /** Anexa alpha (0–1) a um hex sólido: #EF4444 + 0.4 → #EF444466 */
 function withAlpha(hex: string, a: number) {
   return hex + Math.round(a * 255).toString(16).padStart(2, '0');
 }
 
-function useMedia(query: string) {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const update = () => setMatches(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, [query]);
-  return matches;
+/** Seta diagonal do botão do encaixe; gira 45° no hover e aponta para a frente. */
+function SetaDiagonal() {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="square"
+      aria-hidden="true"
+    >
+      <path d="M7 17 17 7M9 7h8v8" />
+    </svg>
+  );
 }
 
 export function Projetos() {
@@ -46,8 +52,8 @@ export function Projetos() {
   const snap = useSnap();
   const { setAtmosphere } = useAtmosphere();
   const reduced = useReducedMotion();
-  const isMobile = useMedia('(max-width: 767px)');
-  const finePointer = useMedia('(pointer: fine)');
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const finePointer = useMediaQuery('(pointer: fine)');
 
   const goTo = useCallback((i: number) => {
     setIndex(Math.max(0, Math.min(total - 1, i)));
@@ -98,21 +104,53 @@ export function Projetos() {
   const rX = useSpring(tiltX, { stiffness: 130, damping: 18, mass: 0.6 });
   const rY = useSpring(tiltY, { stiffness: 130, damping: 18, mass: 0.6 });
   // Brilho especular que acompanha a inclinação.
-  const glossX = useTransform(rY, [-9, 9], ['18%', '82%']);
-  const glossY = useTransform(rX, [7, -7], ['15%', '85%']);
-  const gloss = useMotionTemplate`radial-gradient(480px circle at ${glossX} ${glossY}, rgba(232,227,215,0.13), transparent 60%)`;
+  // Brilho especular: uma mancha de luz fixa que só se desloca (transform).
+  // Antes era um radial-gradient refeito a cada quadro, o que repintava o
+  // card inteiro durante a inclinação.
+  const glossX = useTransform(rY, [-9, 9], ['-30%', '30%']);
+  const glossY = useTransform(rX, [7, -7], ['-30%', '30%']);
+  // Parallax interno: a imagem corre de lado, no sentido contrário à
+  // inclinação, e o card passa a se comportar como uma janela. Só na
+  // horizontal: as imagens são prints de site, e folga vertical cortaria o
+  // cabeçalho, que é a parte que identifica o projeto.
+  const imgX = useTransform(rY, [-9, 9], ['2.4%', '-2.4%']);
 
   const tiltEnabled = finePointer && !reduced;
 
+  // Entrada: na primeira vez que a seção aparece, a carta da frente abre de
+  // dentro de uma máscara e as de trás se abrem em leque logo depois.
+  // `pronto` desliga os atrasos escalonados assim que a entrada termina,
+  // senão eles continuariam valendo em toda troca de projeto.
+  const visto = useInView(ref, { once: true, amount: 0.35 });
+  const [pronto, setPronto] = useState(false);
+  useEffect(() => {
+    if (!visto) return;
+    const t = setTimeout(() => setPronto(true), 1600);
+    return () => clearTimeout(t);
+  }, [visto]);
+  const aberto = visto || !!reduced;
+  const entrando = aberto && !pronto && !reduced;
+
+  // Encaixe do botão de seta no canto: lado do botão + folga até o card.
+  const seta = isMobile ? 40 : 56;
+  const recuo = seta + (isMobile ? 6 : 10);
+
+  // Posição do palco lida uma vez ao entrar, não a cada movimento: ler o
+  // layout dentro do pointermove força o navegador a recalculá-lo por quadro.
+  const palco = useRef<DOMRect | null>(null);
+  const onTiltEnter = (e: React.PointerEvent<HTMLDivElement>) => {
+    palco.current = e.currentTarget.getBoundingClientRect();
+  };
   const onTiltMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!tiltEnabled) return;
-    const r = e.currentTarget.getBoundingClientRect();
+    const r = palco.current ?? (palco.current = e.currentTarget.getBoundingClientRect());
     const px = (e.clientX - r.left) / r.width - 0.5;
     const py = (e.clientY - r.top) / r.height - 0.5;
     tiltY.set(px * 9);
     tiltX.set(py * -7);
   };
   const onTiltLeave = () => {
+    palco.current = null;
     tiltX.set(0);
     tiltY.set(0);
   };
@@ -128,7 +166,11 @@ export function Projetos() {
   // camada, então da quinta em diante a carta já está sob preto opaco e
   // decodificar a imagem seria trabalho jogado fora. No mobile o corte é
   // mais agressivo — empilhar imagens full-bleed é o que trava o aparelho.
+  // A última vaga (total - 1) fica sempre montada: é para lá que a carta da
+  // frente vai ao avançar, e de lá que vem a que volta. Sem ela, a carta
+  // sumia e surgia de uma vez em vez de deslizar.
   const visibleDepth = isMobile ? 3 : 4;
+  const montada = (depth: number) => depth <= visibleDepth || depth === total - 1;
 
   return (
     <section
@@ -155,7 +197,7 @@ export function Projetos() {
               (sobrepostos) durante o crossfade — sem empurrar o conteúdo
               de baixo, que era o que fazia o texto "descer e voltar". */}
           <AnimatePresence mode={isMobile ? 'sync' : 'wait'}>
-            <motion.div
+            <m.div
               key={projeto.slug}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -208,8 +250,10 @@ export function Projetos() {
                       altura da maior delas, para que trocar de projeto não
                       mude o tamanho do bloco (o que fazia o deck pular).
                       As descrições em projetos.ts são mantidas curtas o
-                      bastante para caber — ver comentário lá. */}
-                  <p className="mt-3 min-h-[4.6rem] font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-4 md:min-h-[8.5rem] md:text-body-lg">
+                      bastante para caber — ver comentário lá.
+                      md:leading-[1.7] repete a entrelinha de text-body-lg:
+                      no Tailwind 4 o leading-relaxed do mobile venceria. */}
+                  <p className="mt-3 min-h-[4.6rem] font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-4 md:min-h-34 md:text-body-lg md:leading-[1.7]">
                     {projeto.descricaoCurta}
                   </p>
                 </Reveal>
@@ -236,7 +280,7 @@ export function Projetos() {
                     rel="noopener noreferrer"
                     data-cursor="hover"
                     data-cursor-label="Abrir site"
-                    className="group inline-flex w-fit items-center gap-2 border-b border-[#E8E3D7]/30 pb-1 font-mono text-tiny uppercase tracking-[0.2em] text-[#E8E3D7] transition-colors hover:border-[var(--ac)]"
+                    className="group inline-flex w-fit items-center gap-2 border-b border-[#E8E3D7]/30 pb-1 font-mono text-tiny uppercase tracking-[0.2em] text-[#E8E3D7] transition-colors hover:border-(--ac)"
                   >
                     Ver projeto
                     <span
@@ -248,7 +292,7 @@ export function Projetos() {
                   </a>
                 </Reveal>
               )}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
 
@@ -256,7 +300,7 @@ export function Projetos() {
         {/* padding assimétrico: a folga maior à direita é o espaço em que as
             cartas de trás abrem em leque. */}
         <div className="relative order-1 md:order-2 md:pl-2 md:pr-8">
-          <motion.div
+          <m.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.16}
@@ -280,6 +324,7 @@ export function Projetos() {
             <div
               style={{ perspective: 1400 }}
               data-cursor="drag"
+              onPointerEnter={onTiltEnter}
               onPointerMove={onTiltMove}
               onPointerLeave={onTiltLeave}
               onPointerDown={(e) => {
@@ -292,11 +337,11 @@ export function Projetos() {
                 else next();
               }}
             >
-              <motion.div
+              <m.div
                 className="relative aspect-video w-full"
                 style={
                   tiltEnabled
-                    ? { rotateX: rX, rotateY: rY, transformStyle: 'preserve-3d' }
+                    ? { rotateX: rX, rotateY: rY }
                     : undefined
                 }
               >
@@ -305,32 +350,37 @@ export function Projetos() {
                   const isActive = depth === 0;
                   // Mobile: descarta os cards do fundo (ocultos) — menos camadas
                   // na GPU e menos imagens decodificadas.
-                  if (depth > visibleDepth) return null;
+                  if (!montada(depth)) return null;
+                  // Antes da entrada todas as cartas ficam empilhadas na posição
+                  // da frente; ao abrir, cada uma segue para o seu lugar no leque.
+                  const pos = aberto ? depth : 0;
                   // Transform/opacity dirigidos por CSS (thread de composição/GPU),
                   // não pelo spring do framer (thread principal, recalcula por
                   // frame). É o que destrava a troca no celular.
-                  const transform = `translate3d(${depth * xStep}px, ${depth * yStep}px, 0) scale(${1 - depth * scaleStep}) rotate(${depth * rotStep}deg)`;
-                  const ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+                  const transform = `translate3d(${pos * xStep}px, ${pos * yStep}px, 0) scale(${1 - pos * scaleStep}) rotate(${pos * rotStep}deg)`;
+                  const ease = EASE_CSS.out;
                   const dur = isMobile ? '0.5s' : '0.6s';
+                  // Na entrada o leque abre mais devagar e uma carta por vez,
+                  // depois que a da frente já começou a aparecer.
+                  const leque = entrando ? `0.9s ${ease} ${0.45 + depth * 0.08}s` : `${dur} ${ease}`;
+                  const comEncaixe = isActive && !!p.urlExterna;
                   return (
                     <div
                       key={p.slug}
                       // Sem data-cursor aqui: o closest() do cursor pegaria o
                       // card antes do deck e trocaria a seta pelo círculo.
                       // A navegação agora é do deck inteiro, por metade.
-                      className="absolute inset-0 overflow-hidden border border-[#E8E3D7]/10"
+                      className={cn('absolute inset-0', isActive && 'group/card')}
                       style={{
-                        background: '#0b0e13',
                         zIndex: total - depth,
                         transform,
                         opacity: isActive ? 1 : 0.95 - depth * 0.12,
-                        // Blur só no desktop (animar filter re-rasteriza — caro).
-                        filter: isMobile ? undefined : `blur(${depth * 1.5}px)`,
-                        // CSS anima transform/opacity na GPU. No desktop o blur
-                        // também transiciona; no mobile fica de fora (custo).
+                        // CSS anima transform/opacity na GPU. Sem filter: blur nas
+                        // cartas de trás, que dentro do card inclinado obrigava o
+                        // navegador a refazer o desfoque a cada quadro do hover.
                         transition: reduced
                           ? 'none'
-                          : `transform ${dur} ${ease}, opacity ${dur} ${ease}${isMobile ? '' : `, filter ${dur} ${ease}`}`,
+                          : `transform ${leque}, opacity ${dur} ${ease}`,
                         willChange: 'transform',
                         backfaceVisibility: 'hidden',
                         // Sombra estática (fora da transição) p/ não repintar.
@@ -339,38 +389,117 @@ export function Projetos() {
                           : '0 20px 50px rgba(0,0,0,0.4)',
                       }}
                     >
-                      {/* Imagem do projeto */}
-                      <Image
-                        src={p.imagemCard ?? p.imagemPrincipal}
-                        alt={p.titulo}
-                        fill
-                        priority={i === 0}
-                        sizes="(min-width: 768px) 56vw, 100vw"
-                        className="object-cover"
-                        draggable={false}
-                      />
-                      {/* Scrim sutil para ancorar o card no fundo escuro */}
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
-                      {/* Escurecimento das cartas de trás — opacity via CSS */}
+                      {/* Face do card. A máscara da entrada fica nela e não no
+                          card inteiro porque clip-path no card cortaria também
+                          a sombra. Abre de baixo para cima. */}
                       <div
-                        className="pointer-events-none absolute inset-0 bg-black"
+                        className="absolute inset-0 overflow-hidden border border-[#E8E3D7]/10 bg-[#0b0e13]"
                         style={{
-                          opacity: depth * 0.22,
-                          transition: reduced ? 'none' : `opacity ${dur} ${ease}`,
+                          clipPath: aberto ? 'inset(0% 0% 0% 0%)' : 'inset(100% 0% 0% 0%)',
+                          transition: reduced ? 'none' : `clip-path 1.1s ${EASE_CSS.mask}`,
                         }}
-                      />
-                      {/* Brilho especular que segue o tilt (só no card da frente) */}
-                      {isActive && tiltEnabled && (
-                        <motion.div
-                          className="pointer-events-none absolute inset-0"
-                          style={{ background: gloss }}
+                      >
+                        {/* Camada do parallax, um pouco mais larga que o card para a
+                            imagem ter por onde correr sem mostrar a borda. */}
+                        <m.div
+                          className="absolute inset-y-0 -inset-x-[3%]"
+                          style={isActive && tiltEnabled ? { x: imgX } : { x: 0 }}
+                        >
+                          {/* Zoom: desfaz na entrada (transform) e volta de leve no
+                              hover (propriedade scale, que soma com o transform). */}
+                          <div
+                            className={cn(
+                              'absolute inset-0 origin-top',
+                              isActive && 'group-hover/card:scale-[1.04]'
+                            )}
+                            style={{
+                              transform: `scale(${aberto ? 1 : 1.15})`,
+                              transition: reduced
+                                ? 'none'
+                                : `transform 1.6s ${ease}, scale 1.2s ${ease}`,
+                            }}
+                          >
+                            <Image
+                              src={p.imagemCard ?? p.imagemPrincipal}
+                              alt={p.titulo}
+                              fill
+                              priority={i === 0}
+                              sizes="(min-width: 768px) 70vw, 90vw"
+                              className="object-cover object-top"
+                              draggable={false}
+                            />
+                          </div>
+                        </m.div>
+                        {/* Scrim sutil para ancorar o card no fundo escuro */}
+                        <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
+                        {/* Escurecimento das cartas de trás — opacity via CSS */}
+                        <div
+                          className="pointer-events-none absolute inset-0 bg-black"
+                          style={{
+                            opacity: depth * 0.22,
+                            transition: reduced ? 'none' : `opacity ${dur} ${ease}`,
+                          }}
                         />
+                        {/* Brilho especular que segue o tilt (só no card da frente).
+                            O gradiente é desenhado uma vez; o movimento é só transform. */}
+                        {isActive && tiltEnabled && (
+                          <m.div
+                            className="pointer-events-none absolute -inset-1/2"
+                            style={{
+                              x: glossX,
+                              y: glossY,
+                              background:
+                                "radial-gradient(closest-side, rgba(232,227,215,0.13), transparent)",
+                            }}
+                          />
+                        )}
+                      </div>
+
+                      {/* Encaixe do canto: um quadrado escuro na cor de base
+                          do card abre a partir da quina e o botão assenta
+                          dentro, com uma folga em cima e à esquerda. É um
+                          quadrado por cima, e não um recorte na face, porque
+                          pelo recorte apareceria a carta de trás do leque. */}
+                      {comEncaixe && aberto && (
+                        <>
+                          <m.span
+                            aria-hidden="true"
+                            className="pointer-events-none absolute bottom-0 right-0 origin-bottom-right bg-[#0b0e13]"
+                            style={{ width: recuo, height: recuo }}
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.5, ease: EASE.mask, delay: entrando ? 0.95 : 0.15 }}
+                          />
+                          {/* Abre o site do cliente. Para a propagação para o
+                              clique não virar também navegação do deck, nem o
+                              toque começar um arrasto. O cursor só ancora no
+                              centro: o disco do hover é maior que o botão e o
+                              encobriria. */}
+                          <m.a
+                            href={p.urlExterna}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`Abrir o site de ${p.titulo} (nova aba)`}
+                            data-cursor-magnetic=""
+                            onClick={(e) => e.stopPropagation()}
+                            onPointerDown={(e) => e.stopPropagation()}
+                            initial={{ opacity: 0, scale: 0.6 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.45, ease: EASE.out, delay: entrando ? 1.15 : 0.3 }}
+                            className="group/seta absolute bottom-0 right-0 grid place-items-center text-carbon transition-colors duration-300 hover:bg-[#E8E3D7]!"
+                            style={{ width: seta, height: seta, backgroundColor: p.accent }}
+                          >
+                            <span className="transition-transform duration-500 ease-soft group-hover/seta:rotate-45">
+                              <SetaDiagonal />
+                            </span>
+                          </m.a>
+                        </>
                       )}
                     </div>
                   );
                 })}
 
-              </motion.div>
+              </m.div>
             </div>
 
             {/* Paginação — compacta */}
@@ -391,7 +520,7 @@ export function Projetos() {
                     className="group relative h-3 flex-1"
                   >
                     <span className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] rounded-full bg-[#E8E3D7]/20" />
-                    <motion.span
+                    <m.span
                       className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] origin-left rounded-full"
                       initial={false}
                       animate={{
@@ -399,7 +528,7 @@ export function Projetos() {
                         backgroundColor: projeto.accent,
                       }}
                       transition={{
-                        scaleX: { duration: 0.5, ease: EASE },
+                        scaleX: { duration: 0.5, ease: EASE.out },
                         backgroundColor: { duration: 0.5 },
                       }}
                     />
@@ -433,7 +562,7 @@ export function Projetos() {
                           transform: ativo ? 'scaleX(1)' : 'scaleX(0)',
                           transition: reduced
                             ? 'none'
-                            : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                            : `transform 0.5s ${EASE_CSS.out}`,
                         }}
                       />
                     </button>
@@ -441,12 +570,12 @@ export function Projetos() {
                 })}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
       {/* Continuidade vertical → Contato */}
-      <motion.button
+      <m.button
         type="button"
         onClick={() => snap.goToId('contato')}
         data-cursor="hover"
@@ -462,7 +591,7 @@ export function Projetos() {
         <span className="text-[#E8E3D7]/55 transition-transform duration-500 group-hover:translate-y-1 group-hover:text-[#E8E3D7]">
           ↓
         </span>
-      </motion.button>
+      </m.button>
     </section>
   );
 }
@@ -491,13 +620,13 @@ function Reveal({
   }
   return (
     <div className={cn('overflow-hidden', className)}>
-      <motion.div
+      <m.div
         initial={{ y: '110%' }}
-        animate={{ y: '0%', transition: { duration: 0.6, ease: EASE, delay } }}
-        exit={{ y: '-110%', transition: { duration: 0.3, ease: EASE } }}
+        animate={{ y: '0%', transition: { duration: 0.6, ease: EASE.out, delay } }}
+        exit={{ y: '-110%', transition: { duration: 0.3, ease: EASE.out } }}
       >
         {children}
-      </motion.div>
+      </m.div>
     </div>
   );
 }
@@ -515,7 +644,7 @@ function PagButton({
       data-cursor="hover"
       data-cursor-magnetic=""
       aria-label={dir === 'prev' ? 'Projeto anterior' : 'Próximo projeto'}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E8E3D7]/30 text-xs text-[#E8E3D7] transition-all duration-300 hover:border-[var(--ac)] hover:bg-[var(--ac)] hover:text-carbon"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs text-[#E8E3D7] transition-all duration-300 hover:bg-(--ac) hover:text-carbon"
     >
       <span style={{ transform: dir === 'prev' ? 'scaleX(-1)' : 'none' }}>→</span>
     </button>
