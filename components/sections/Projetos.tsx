@@ -17,11 +17,11 @@ import { projetos } from '@/lib/data/projetos';
 import { useSnap } from '@/components/layout/SnapController';
 import { useAtmosphere } from '@/components/layout/Atmosphere';
 import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
+import { EASE, EASE_CSS } from '@/lib/easing';
 import { cn } from '@/lib/utils';
 
 const total = projetos.length;
 const INK = '#E8E3D7';
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /** Anexa alpha (0–1) a um hex sólido: #EF4444 + 0.4 → #EF444466 */
 function withAlpha(hex: string, a: number) {
@@ -301,7 +301,7 @@ export function Projetos() {
                   // não pelo spring do framer (thread principal, recalcula por
                   // frame). É o que destrava a troca no celular.
                   const transform = `translate3d(${depth * xStep}px, ${depth * yStep}px, 0) scale(${1 - depth * scaleStep}) rotate(${depth * rotStep}deg)`;
-                  const ease = 'cubic-bezier(0.16, 1, 0.3, 1)';
+                  const ease = EASE_CSS.out;
                   const dur = isMobile ? '0.5s' : '0.6s';
                   return (
                     <div
@@ -390,7 +390,7 @@ export function Projetos() {
                         backgroundColor: projeto.accent,
                       }}
                       transition={{
-                        scaleX: { duration: 0.5, ease: EASE },
+                        scaleX: { duration: 0.5, ease: EASE.out },
                         backgroundColor: { duration: 0.5 },
                       }}
                     />
@@ -424,7 +424,7 @@ export function Projetos() {
                           transform: ativo ? 'scaleX(1)' : 'scaleX(0)',
                           transition: reduced
                             ? 'none'
-                            : 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+                            : `transform 0.5s ${EASE_CSS.out}`,
                         }}
                       />
                     </button>
@@ -484,8 +484,8 @@ function Reveal({
     <div className={cn('overflow-hidden', className)}>
       <m.div
         initial={{ y: '110%' }}
-        animate={{ y: '0%', transition: { duration: 0.6, ease: EASE, delay } }}
-        exit={{ y: '-110%', transition: { duration: 0.3, ease: EASE } }}
+        animate={{ y: '0%', transition: { duration: 0.6, ease: EASE.out, delay } }}
+        exit={{ y: '-110%', transition: { duration: 0.3, ease: EASE.out } }}
       >
         {children}
       </m.div>

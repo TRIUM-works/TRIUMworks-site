@@ -5,6 +5,7 @@ import { m, useInView } from 'motion/react';
 import { useSnap } from '@/components/layout/SnapController';
 import { useAtmosphere, ATMOSPHERES } from '@/components/layout/Atmosphere';
 import { StrokeText } from '@/components/animations/StrokeText';
+import { EASE } from '@/lib/easing';
 
 export function Hero() {
   const snap = useSnap();
@@ -41,7 +42,7 @@ export function Hero() {
         <m.p
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.9, delay: 1.0, ease: EASE.out }}
           className="mt-6 font-mono text-sm uppercase tracking-[0.45em] text-white/75 md:text-base"
           style={{ textShadow: '0 2px 18px rgba(0,0,0,0.4)' }}
         >

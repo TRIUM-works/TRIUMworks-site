@@ -6,6 +6,7 @@ import {
   useAtmosphere,
   ATMOSPHERES,
 } from '@/components/layout/Atmosphere';
+import { EASE } from '@/lib/easing';
 
 const WHATSAPP_URL =
   'https://wa.me/5585981254006?text=' +
@@ -15,7 +16,6 @@ const WHATSAPP_URL =
 const INSTAGRAM_URL = 'https://www.instagram.com/triumworks/';
 const EMAIL_URL = 'mailto:contato@triumtech.com.br';
 
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 /**
  * Botão de ação — label em mono, caixa reta. O preenchimento teal cresce
@@ -111,7 +111,7 @@ export function Contato() {
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.9, ease: EASE }}
+            transition={{ duration: 0.9, ease: EASE.out }}
             className="font-display font-bold leading-[0.94] tracking-tight text-[#E8E3D7]"
             style={{ fontSize: 'clamp(32px, 4.6vw, 60px)' }}
           >
@@ -124,7 +124,7 @@ export function Contato() {
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
-            transition={{ duration: 0.8, delay: 0.12, ease: EASE }}
+            transition={{ duration: 0.8, delay: 0.12, ease: EASE.out }}
             className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:gap-4"
           >
             <ActionPill
@@ -144,7 +144,7 @@ export function Contato() {
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10% 0px' }}
-          transition={{ duration: 0.8, delay: 0.2, ease: EASE }}
+          transition={{ duration: 0.8, delay: 0.2, ease: EASE.out }}
           className="max-w-xs shrink-0 md:text-right"
         >
           <p className="font-lora text-[15px] leading-relaxed text-[#E8E3D7]/60">
@@ -188,7 +188,7 @@ export function Contato() {
           initial={{ y: '18%' }}
           whileInView={{ y: '0%' }}
           viewport={{ once: true, margin: '-15% 0px' }}
-          transition={{ duration: 1.1, ease: EASE }}
+          transition={{ duration: 1.1, ease: EASE.out }}
         >
           <Monumento />
         </m.div>

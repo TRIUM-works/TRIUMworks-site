@@ -11,8 +11,9 @@ import {
 import { useAtmosphere } from './Atmosphere';
 import { useMobile } from '@/lib/hooks/useMobile';
 import { grainSvg } from '@/components/ui/GrainOverlay';
+import { EASE } from '@/lib/easing';
 
-const COLOR_TWEEN = { duration: 2.2, ease: [0.65, 0, 0.35, 1] as const };
+const COLOR_TWEEN = { duration: 2.2, ease: EASE.artisan };
 
 /**
  * Fundo discreto: base quase preta + dois glows suaves (cor da atmosfera de

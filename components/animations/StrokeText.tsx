@@ -1,6 +1,7 @@
 'use client';
 
 import { m } from 'motion/react';
+import { EASE } from '@/lib/easing';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -30,7 +31,7 @@ export function StrokeText({
           animate={{ y: '0%', opacity: 1 }}
           transition={{
             duration: letterDuration,
-            ease: [0.85, 0, 0.15, 1],
+            ease: EASE.ink,
             delay: delay + i * letterStagger,
           }}
           style={{ display: 'inline-block', whiteSpace: 'pre' }}

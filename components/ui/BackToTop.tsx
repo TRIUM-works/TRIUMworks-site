@@ -3,6 +3,7 @@
 import { AnimatePresence, m } from 'motion/react';
 import { useSnap } from '@/components/layout/SnapController';
 import { useMobile } from '@/lib/hooks/useMobile';
+import { EASE } from '@/lib/easing';
 
 // Seta "desenhada" — linha vertical com leve curva (Q) e chevron irregular.
 function SketchArrowUp({ size = 22 }: { size?: number }) {
@@ -45,7 +46,7 @@ export function BackToTop() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 20 }}
-          transition={{ duration: 0.4, ease: [0.65, 0, 0.35, 1] }}
+          transition={{ duration: 0.4, ease: EASE.artisan }}
           className={
             isMobile
               ? // Mobile: só seta, canto inferior direito, respirando
