@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { Lora, IBM_Plex_Mono, Inter } from 'next/font/google';
 import '@/styles/globals.css';
+import { MotionProvider } from '@/components/layout/MotionProvider';
 import { SmoothScrollProvider } from '@/components/layout/SmoothScrollProvider';
 import { SnapController } from '@/components/layout/SnapController';
-import { RouteTransition } from '@/components/layout/RouteTransition';
 import { Header } from '@/components/layout/Header';
 import { CustomCursor } from '@/components/layout/CustomCursor';
 import { BackToTop } from '@/components/ui/BackToTop';
@@ -312,26 +312,28 @@ export default function SiteLayout({
         >
           Pular para o conteúdo
         </a>
-        <AtmosphereProvider>
-          {/* Fundo dinâmico global — gradiente animado que troca de
-              atmosfera conforme a seção/projeto ativo. */}
-          <BackgroundFX />
-          <SmoothScrollProvider>
-            <SnapController>
-              <CustomCursor />
-              <Header />
-              <RouteTransition>{children}</RouteTransition>
-              <BackToTop />
-              {/* Grain global — camada fixa por cima de tudo (exceto cursor).
-                  Escondida em telas pequenas porque mix-blend-overlay em
-                  fullscreen mata a performance GPU no celular. */}
-              <GrainOverlay
-                intensity={0.06}
-                className="hidden md:block fixed z-[100]"
-              />
-            </SnapController>
-          </SmoothScrollProvider>
-        </AtmosphereProvider>
+        <MotionProvider>
+          <AtmosphereProvider>
+            {/* Fundo dinâmico global — gradiente animado que troca de
+                atmosfera conforme a seção/projeto ativo. */}
+            <BackgroundFX />
+            <SmoothScrollProvider>
+              <SnapController>
+                <CustomCursor />
+                <Header />
+                <main id="main-content">{children}</main>
+                <BackToTop />
+                {/* Grain global — camada fixa por cima de tudo (exceto cursor).
+                    Escondida em telas pequenas porque mix-blend-overlay em
+                    fullscreen mata a performance GPU no celular. */}
+                <GrainOverlay
+                  intensity={0.06}
+                  className="hidden md:block fixed z-[100]"
+                />
+              </SnapController>
+            </SmoothScrollProvider>
+          </AtmosphereProvider>
+        </MotionProvider>
       </body>
     </html>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { m } from 'motion/react';
 import { cn } from '@/lib/utils';
 
 interface Props {
@@ -22,7 +22,7 @@ export function StrokeText({
   return (
     <span className={cn('inline-block', className)} aria-label={text}>
       {letters.map((ch, i) => (
-        <motion.span
+        <m.span
           key={`${ch}-${i}`}
           aria-hidden="true"
           className="inline-block"
@@ -36,7 +36,7 @@ export function StrokeText({
           style={{ display: 'inline-block', whiteSpace: 'pre' }}
         >
           {ch === ' ' ? ' ' : ch}
-        </motion.span>
+        </m.span>
       ))}
     </span>
   );

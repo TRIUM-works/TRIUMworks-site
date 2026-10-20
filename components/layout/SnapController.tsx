@@ -8,12 +8,11 @@ import {
   useRef,
   useState,
 } from 'react';
-import { LenisContext } from './SmoothScrollProvider';
-import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { useReducedMotion } from 'motion/react';
+import { getLenis } from './SmoothScrollProvider';
 
 interface SnapAPI {
   current: number;
-  count: number;
   goToIndex: (i: number) => void;
   goToId: (id: string) => void;
   next: () => void;
@@ -22,7 +21,6 @@ interface SnapAPI {
 
 const SnapContext = createContext<SnapAPI>({
   current: 0,
-  count: 0,
   goToIndex: () => {},
   goToId: () => {},
   next: () => {},
@@ -36,21 +34,17 @@ export function useSnap() {
 const SCROLL_DURATION = 1.2;
 
 export function SnapController({ children }: { children: React.ReactNode }) {
-  const lenis = useContext(LenisContext);
   const reduced = useReducedMotion();
 
   const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
 
   const animatingRef = useRef(false);
   const sectionsRef = useRef<HTMLElement[]>([]);
 
   const refreshSections = useCallback(() => {
-    const list = Array.from(
+    sectionsRef.current = Array.from(
       document.querySelectorAll<HTMLElement>('[data-snap-section]')
     );
-    sectionsRef.current = list;
-    setCount(list.length);
   }, []);
 
   useEffect(() => {
@@ -82,6 +76,7 @@ export function SnapController({ children }: { children: React.ReactNode }) {
         animatingRef.current = false;
       };
 
+      const lenis = getLenis();
       if (lenis && !reduced) {
         lenis.scrollTo(el, {
           duration: SCROLL_DURATION,
@@ -100,7 +95,7 @@ export function SnapController({ children }: { children: React.ReactNode }) {
         setTimeout(onDone, reduced ? 50 : 800);
       }
     },
-    [lenis, reduced]
+    [reduced]
   );
 
   const goToId = useCallback(
@@ -139,7 +134,7 @@ export function SnapController({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <SnapContext.Provider value={{ current, count, goToIndex, goToId, next, prev }}>
+    <SnapContext.Provider value={{ current, goToIndex, goToId, next, prev }}>
       {children}
     </SnapContext.Provider>
   );

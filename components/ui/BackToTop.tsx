@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'motion/react';
 import { useSnap } from '@/components/layout/SnapController';
 import { useMobile } from '@/lib/hooks/useMobile';
 
@@ -37,7 +37,7 @@ export function BackToTop() {
   return (
     <AnimatePresence>
       {visible && (
-        <motion.button
+        <m.button
           key="back-to-top"
           onClick={goTop}
           aria-label="Voltar ao topo"
@@ -55,7 +55,7 @@ export function BackToTop() {
           }
         >
           {isMobile ? (
-            <motion.span
+            <m.span
               animate={{ y: [0, -4, 0] }}
               transition={{
                 duration: 2.2,
@@ -65,7 +65,7 @@ export function BackToTop() {
               className="block"
             >
               <SketchArrowUp size={26} />
-            </motion.span>
+            </m.span>
           ) : (
             <>
               <span className="transition-transform duration-300 group-hover:-translate-y-0.5">
@@ -76,7 +76,7 @@ export function BackToTop() {
               </span>
             </>
           )}
-        </motion.button>
+        </m.button>
       )}
     </AnimatePresence>
   );

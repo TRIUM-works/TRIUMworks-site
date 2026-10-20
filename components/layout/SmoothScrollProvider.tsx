@@ -1,30 +1,33 @@
 'use client';
 
-import { createContext, useEffect, useState } from 'react';
-import Lenis from '@studio-freight/lenis';
-import { useReducedMotion } from '@/lib/hooks/useReducedMotion';
+import { useEffect } from 'react';
+import Lenis from 'lenis';
 
-export const LenisContext = createContext<Lenis | null>(null);
+let instance: Lenis | null = null;
+
+/**
+ * A instância ativa do Lenis, ou null quando o scroll é nativo (touch ou
+ * movimento reduzido). Lida na hora do uso, não guardada em state: quem
+ * rola a página (SnapController) só precisa dela no momento do scrollTo, e
+ * espelhá-la num state custava um render a mais na montagem.
+ */
+export function getLenis() {
+  return instance;
+}
 
 export function SmoothScrollProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [lenis, setLenis] = useState<Lenis | null>(null);
-  const reduced = useReducedMotion();
-
   useEffect(() => {
-    if (reduced) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Em touch o scroll inercial nativo é mais suave e bem mais barato na GPU.
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    if (reduce || coarse) return;
 
-    // Skip Lenis on touch devices — native inertial scroll is smoother
-    // and much cheaper on mobile GPUs.
-    const isCoarse =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(pointer: coarse)').matches;
-    if (isCoarse) return;
-
-    const instance = new Lenis({
+    instance = new Lenis({
+      autoRaf: true,
       duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
@@ -32,23 +35,11 @@ export function SmoothScrollProvider({
       touchMultiplier: 1.5,
     });
 
-    setLenis(instance);
-
-    let rafId = 0;
-    const tick = (time: number) => {
-      instance.raf(time);
-      rafId = requestAnimationFrame(tick);
-    };
-    rafId = requestAnimationFrame(tick);
-
     return () => {
-      cancelAnimationFrame(rafId);
-      instance.destroy();
-      setLenis(null);
+      instance?.destroy();
+      instance = null;
     };
-  }, [reduced]);
+  }, []);
 
-  return (
-    <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>
-  );
+  return <>{children}</>;
 }

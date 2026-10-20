@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { motion, useInView } from 'framer-motion';
+import { m, useInView } from 'motion/react';
 import {
   useAtmosphere,
   ATMOSPHERES,
@@ -106,7 +106,7 @@ export function Contato() {
           monumento. Centralizado, a folga se reparte acima e abaixo. */}
       <div className="relative z-10 flex flex-1 flex-col justify-center gap-10 px-6 pt-16 md:flex-row md:items-start md:justify-between md:gap-16 md:px-12 md:pt-28">
         <div>
-          <motion.h2
+          <m.h2
             data-cursor="hover"
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -118,9 +118,9 @@ export function Contato() {
             conta sua ideia
             <br />
             a gente constrói
-          </motion.h2>
+          </m.h2>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
@@ -137,10 +137,10 @@ export function Contato() {
               label="Mandar um e-mail"
               aria="Enviar e-mail para a TRIUM"
             />
-          </motion.div>
+          </m.div>
         </div>
 
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 18 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-10% 0px' }}
@@ -179,19 +179,19 @@ export function Contato() {
               @triumworks
             </span>
           </a>
-        </motion.div>
+        </m.div>
       </div>
 
       {/* ── Monumento: sangra de borda a borda, cortado pelo rodapé ── */}
       <div className="relative z-10 mt-auto overflow-hidden">
-        <motion.div
+        <m.div
           initial={{ y: '18%' }}
           whileInView={{ y: '0%' }}
           viewport={{ once: true, margin: '-15% 0px' }}
           transition={{ duration: 1.1, ease: EASE }}
         >
           <Monumento />
-        </motion.div>
+        </m.div>
       </div>
 
       {/* ── Rodapé ── */}

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import {
   AnimatePresence,
-  motion,
+  m,
   useInView,
   useMotionTemplate,
   useMotionValue,
@@ -12,10 +12,11 @@ import {
   useSpring,
   useTransform,
   type PanInfo,
-} from 'framer-motion';
+} from 'motion/react';
 import { projetos } from '@/lib/data/projetos';
 import { useSnap } from '@/components/layout/SnapController';
 import { useAtmosphere } from '@/components/layout/Atmosphere';
+import { useMediaQuery } from '@/lib/hooks/useMediaQuery';
 import { cn } from '@/lib/utils';
 
 const total = projetos.length;
@@ -27,18 +28,6 @@ function withAlpha(hex: string, a: number) {
   return hex + Math.round(a * 255).toString(16).padStart(2, '0');
 }
 
-function useMedia(query: string) {
-  const [matches, setMatches] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(query);
-    const update = () => setMatches(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, [query]);
-  return matches;
-}
-
 export function Projetos() {
   const [index, setIndex] = useState(0);
   const ref = useRef<HTMLElement>(null);
@@ -46,8 +35,8 @@ export function Projetos() {
   const snap = useSnap();
   const { setAtmosphere } = useAtmosphere();
   const reduced = useReducedMotion();
-  const isMobile = useMedia('(max-width: 767px)');
-  const finePointer = useMedia('(pointer: fine)');
+  const isMobile = useMediaQuery('(max-width: 767px)');
+  const finePointer = useMediaQuery('(pointer: fine)');
 
   const goTo = useCallback((i: number) => {
     setIndex(Math.max(0, Math.min(total - 1, i)));
@@ -155,7 +144,7 @@ export function Projetos() {
               (sobrepostos) durante o crossfade — sem empurrar o conteúdo
               de baixo, que era o que fazia o texto "descer e voltar". */}
           <AnimatePresence mode={isMobile ? 'sync' : 'wait'}>
-            <motion.div
+            <m.div
               key={projeto.slug}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -248,7 +237,7 @@ export function Projetos() {
                   </a>
                 </Reveal>
               )}
-            </motion.div>
+            </m.div>
           </AnimatePresence>
         </div>
 
@@ -256,7 +245,7 @@ export function Projetos() {
         {/* padding assimétrico: a folga maior à direita é o espaço em que as
             cartas de trás abrem em leque. */}
         <div className="relative order-1 md:order-2 md:pl-2 md:pr-8">
-          <motion.div
+          <m.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.16}
@@ -292,7 +281,7 @@ export function Projetos() {
                 else next();
               }}
             >
-              <motion.div
+              <m.div
                 className="relative aspect-video w-full"
                 style={
                   tiltEnabled
@@ -361,7 +350,7 @@ export function Projetos() {
                       />
                       {/* Brilho especular que segue o tilt (só no card da frente) */}
                       {isActive && tiltEnabled && (
-                        <motion.div
+                        <m.div
                           className="pointer-events-none absolute inset-0"
                           style={{ background: gloss }}
                         />
@@ -370,7 +359,7 @@ export function Projetos() {
                   );
                 })}
 
-              </motion.div>
+              </m.div>
             </div>
 
             {/* Paginação — compacta */}
@@ -391,7 +380,7 @@ export function Projetos() {
                     className="group relative h-3 flex-1"
                   >
                     <span className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] rounded-full bg-[#E8E3D7]/20" />
-                    <motion.span
+                    <m.span
                       className="absolute inset-x-0 top-[calc(50%-1px)] h-[2px] origin-left rounded-full"
                       initial={false}
                       animate={{
@@ -441,12 +430,12 @@ export function Projetos() {
                 })}
               </div>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
       {/* Continuidade vertical → Contato */}
-      <motion.button
+      <m.button
         type="button"
         onClick={() => snap.goToId('contato')}
         data-cursor="hover"
@@ -462,7 +451,7 @@ export function Projetos() {
         <span className="text-[#E8E3D7]/55 transition-transform duration-500 group-hover:translate-y-1 group-hover:text-[#E8E3D7]">
           ↓
         </span>
-      </motion.button>
+      </m.button>
     </section>
   );
 }
@@ -491,13 +480,13 @@ function Reveal({
   }
   return (
     <div className={cn('overflow-hidden', className)}>
-      <motion.div
+      <m.div
         initial={{ y: '110%' }}
         animate={{ y: '0%', transition: { duration: 0.6, ease: EASE, delay } }}
         exit={{ y: '-110%', transition: { duration: 0.3, ease: EASE } }}
       >
         {children}
-      </motion.div>
+      </m.div>
     </div>
   );
 }
