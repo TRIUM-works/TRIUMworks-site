@@ -71,7 +71,7 @@ function Monumento() {
       // transbordar e ser ceifada ali — no desktop é isso que dá o corte de
       // raspão. No mobile, positiva, a palavra assenta inteira acima da
       // linha. Em em para o corte manter a proporção quando o corpo cresce.
-      className="-ml-[0.035em] mb-[0.15em] block select-none text-left font-display text-[min(28vw,58vh)] text-[#E8E3D7] md:-mb-[0.09em] md:ml-0 md:text-[min(33vw,58vh)]"
+      className="ml-[-0.035em] mb-[0.15em] block select-none text-left font-display text-[min(28vw,58vh)] text-[#E8E3D7] md:mb-[-0.09em] md:ml-0 md:text-[min(33vw,58vh)]"
       style={{
         fontWeight: 800,
         lineHeight: 0.74,
@@ -112,7 +112,7 @@ export function Contato() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-10% 0px' }}
             transition={{ duration: 0.9, ease: EASE }}
-            className="font-display font-bold leading-[0.94] tracking-[-0.025em] text-[#E8E3D7]"
+            className="font-display font-bold leading-[0.94] tracking-tight text-[#E8E3D7]"
             style={{ fontSize: 'clamp(32px, 4.6vw, 60px)' }}
           >
             conta sua ideia

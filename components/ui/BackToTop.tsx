@@ -49,9 +49,9 @@ export function BackToTop() {
           className={
             isMobile
               ? // Mobile: só seta, canto inferior direito, respirando
-                'group fixed bottom-6 right-6 z-[45] flex h-11 w-11 items-center justify-center text-teal'
+                'group fixed bottom-6 right-6 z-45 flex h-11 w-11 items-center justify-center text-teal'
               : // Desktop: seta + texto
-                'group fixed bottom-8 right-[110px] z-[45] flex flex-col items-center gap-1.5 text-teal transition-all duration-300 hover:-translate-y-0.5'
+                'group fixed bottom-8 right-[110px] z-45 flex flex-col items-center gap-1.5 text-teal transition-all duration-300 hover:-translate-y-0.5'
           }
         >
           {isMobile ? (

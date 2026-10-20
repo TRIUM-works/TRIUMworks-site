@@ -1,7 +1,74 @@
-@import './variables.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './variables.css' layer(base);
+@import 'tailwindcss';
+
+@theme {
+  --color-teal: #09c2a7;
+  --color-teal-light: #0ee0bf;
+  --color-teal-dark: #067a6b;
+
+  --color-blue-deep: #0d3b66;
+  --color-cream: #e7e2d6;
+  --color-stone: #7a857f;
+  --color-carbon: #111418;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  --font-trickster: Trickster, serif;
+  --font-lora: var(--font-lora-face), serif;
+  --font-mono: var(--font-plex-mono), monospace;
+
+  --text-display: clamp(56px, 10vw, 120px);
+  --text-display--line-height: 0.95;
+  --text-h1: clamp(40px, 6vw, 64px);
+  --text-h1--line-height: 1.05;
+  --text-h2: clamp(28px, 4vw, 40px);
+  --text-h2--line-height: 1.1;
+  --text-h3: clamp(20px, 2.5vw, 24px);
+  --text-h3--line-height: 1.2;
+  --text-body-lg: clamp(16px, 1.6vw, 20px);
+  --text-body-lg--line-height: 1.7;
+  --text-body: clamp(14px, 1.2vw, 16px);
+  --text-body--line-height: 1.6;
+  --text-small: 14px;
+  --text-small--line-height: 1.4;
+  --text-tiny: 12px;
+  --text-tiny--line-height: 1.3;
+
+
+  --ease-artisan: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-ink: cubic-bezier(0.85, 0, 0.15, 1);
+
+  --animate-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-breathe: breathe 3s ease-in-out infinite;
+
+  @keyframes breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
 
 @font-face {
   font-family: 'Trickster';
@@ -11,20 +78,81 @@
   font-display: swap;
 }
 
-* {
-  box-sizing: border-box;
-}
+/*
+  Estilos de elemento ficam em @layer base. No Tailwind 4 os utilitários
+  vivem numa cascade layer nativa, e CSS fora de camada vence qualquer
+  camada sem olhar especificidade: um `button { border: none }` solto aqui
+  apagaria o `border` de todo botão do site. Dentro de base, as classes
+  voltam a ganhar, como na v3.
+*/
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  background-color: var(--carbon);
-  color: var(--cream);
-  font-family: var(--font-lora), serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  scroll-behavior: auto; /* Lenis lida com smooth scroll */
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--carbon);
+    color: var(--cream);
+    font-family: var(--font-lora), serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: auto; /* Lenis lida com smooth scroll */
+  }
+
+  body {
+    overflow-x: hidden;
+    /* Transparente para o BackgroundFX (fixed, -z-10) aparecer. O html
+       mantém o carbon como fallback. */
+    background-color: transparent;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    body {
+      cursor: none;
+    }
+    a,
+    button,
+    [data-cursor] {
+      cursor: none;
+    }
+  }
+
+  ::selection {
+    background-color: var(--teal);
+    color: var(--carbon);
+  }
+
+  *:focus {
+    outline: none;
+  }
+
+  *:focus-visible {
+    outline: 1.5px solid var(--teal);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
 }
 
 /* Full-page snap — sem Lenis ativado, browser snap nativo */
@@ -54,74 +182,6 @@ html.snap-active body {
   .h-screen {
     height: 100svh;
   }
-}
-
-body {
-  overflow-x: hidden;
-  /* Transparente para o BackgroundFX (fixed, -z-10) aparecer. O html
-     mantém o carbon como fallback. */
-  background-color: transparent;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  body {
-    cursor: none;
-  }
-  a,
-  button,
-  [data-cursor] {
-    cursor: none;
-  }
-}
-
-::selection {
-  background-color: var(--teal);
-  color: var(--carbon);
-}
-
-*:focus {
-  outline: none;
-}
-
-*:focus-visible {
-  outline: 1.5px solid var(--teal);
-  outline-offset: 4px;
-  border-radius: 2px;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button {
-  background: none;
-  border: none;
-  color: inherit;
-  font: inherit;
-  padding: 0;
-}
-
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.font-trickster {
-  font-family: 'Trickster', serif;
 }
 
 /* ── Scrollbar customizada (29) ─────────────────────────────── */

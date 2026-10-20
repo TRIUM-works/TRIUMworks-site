@@ -29,7 +29,7 @@ export function GrainOverlay({
       className={cn(
         // Escondido em telas pequenas — mix-blend-overlay é caríssimo em GPU
         // mobile e quase invisível em telas pequenas de qualquer jeito.
-        'pointer-events-none absolute inset-0 z-[2] mix-blend-overlay hidden md:block',
+        'pointer-events-none absolute inset-0 z-2 mix-blend-overlay hidden md:block',
         animated && 'animate-[grain_8s_steps(6)_infinite]',
         className
       )}

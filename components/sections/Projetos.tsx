@@ -197,8 +197,10 @@ export function Projetos() {
                       altura da maior delas, para que trocar de projeto não
                       mude o tamanho do bloco (o que fazia o deck pular).
                       As descrições em projetos.ts são mantidas curtas o
-                      bastante para caber — ver comentário lá. */}
-                  <p className="mt-3 min-h-[4.6rem] font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-4 md:min-h-[8.5rem] md:text-body-lg">
+                      bastante para caber — ver comentário lá.
+                      md:leading-[1.7] repete a entrelinha de text-body-lg:
+                      no Tailwind 4 o leading-relaxed do mobile venceria. */}
+                  <p className="mt-3 min-h-[4.6rem] font-lora text-[15px] leading-relaxed text-[#E8E3D7]/70 md:mt-4 md:min-h-34 md:text-body-lg md:leading-[1.7]">
                     {projeto.descricaoCurta}
                   </p>
                 </Reveal>
@@ -225,7 +227,7 @@ export function Projetos() {
                     rel="noopener noreferrer"
                     data-cursor="hover"
                     data-cursor-label="Abrir site"
-                    className="group inline-flex w-fit items-center gap-2 border-b border-[#E8E3D7]/30 pb-1 font-mono text-tiny uppercase tracking-[0.2em] text-[#E8E3D7] transition-colors hover:border-[var(--ac)]"
+                    className="group inline-flex w-fit items-center gap-2 border-b border-[#E8E3D7]/30 pb-1 font-mono text-tiny uppercase tracking-[0.2em] text-[#E8E3D7] transition-colors hover:border-(--ac)"
                   >
                     Ver projeto
                     <span
@@ -339,7 +341,7 @@ export function Projetos() {
                         draggable={false}
                       />
                       {/* Scrim sutil para ancorar o card no fundo escuro */}
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent" />
+                      <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/25 via-transparent to-transparent" />
                       {/* Escurecimento das cartas de trás — opacity via CSS */}
                       <div
                         className="pointer-events-none absolute inset-0 bg-black"
@@ -504,7 +506,7 @@ function PagButton({
       data-cursor="hover"
       data-cursor-magnetic=""
       aria-label={dir === 'prev' ? 'Projeto anterior' : 'Próximo projeto'}
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#E8E3D7]/30 text-xs text-[#E8E3D7] transition-all duration-300 hover:border-[var(--ac)] hover:bg-[var(--ac)] hover:text-carbon"
+      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs text-[#E8E3D7] transition-all duration-300 hover:bg-(--ac) hover:text-carbon"
     >
       <span style={{ transform: dir === 'prev' ? 'scaleX(-1)' : 'none' }}>→</span>
     </button>

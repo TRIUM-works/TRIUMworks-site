@@ -32,7 +32,7 @@ export default function NotFound() {
         <h1 className="mt-4 max-w-lg font-trickster text-h1 text-cream">
           Este traço ainda não foi desenhado.
         </h1>
-        <div className="mt-md">
+        <div className="mt-24">
           <Button as="a" href="/" variant="outline">
             Voltar ao início
           </Button>

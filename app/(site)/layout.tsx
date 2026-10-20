@@ -14,7 +14,7 @@ import { BackgroundFX } from '@/components/layout/BackgroundFX';
 const lora = Lora({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-lora',
+  variable: '--font-lora-face',
 });
 
 const plexMono = IBM_Plex_Mono({
@@ -328,7 +328,7 @@ export default function SiteLayout({
                     fullscreen mata a performance GPU no celular. */}
                 <GrainOverlay
                   intensity={0.06}
-                  className="hidden md:block fixed z-[100]"
+                  className="hidden md:block fixed z-100"
                 />
               </SnapController>
             </SmoothScrollProvider>
